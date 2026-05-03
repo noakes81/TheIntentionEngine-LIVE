@@ -81,36 +81,22 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
 
   return (
     <div className="space-y-2">
-      {/* Rate digit readout */}
-      <div className={`font-mono text-xs tracking-widest px-3 py-2 rounded-lg border ${accentBorder} ${accentBg} flex items-center justify-between gap-2 select-none`}>
-        <span className={`${accentText} font-bold text-sm tracking-[0.2em] tabular-nums`}>
-          <AnimatePresence mode="wait">
-            {scanning ? (
-              <motion.span
-                key="scanning"
-                initial={{ opacity: 0.6 }}
-                animate={{ opacity: [0.6, 1, 0.6] }}
-                transition={{ repeat: Infinity, duration: 0.11 }}
-              >
-                {scanDisplay}
-              </motion.span>
-            ) : (
-              <motion.span key="static" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
-                {rateDisplay}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </span>
-        {locked && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-            className={`flex items-center gap-1 text-[10px] ${accentText} font-mono uppercase tracking-widest`}>
-            <Lock className="w-3 h-3" /> Locked
-          </motion.div>
-        )}
-        {scanning && (
-          <span className="text-[10px] text-muted-foreground font-mono animate-pulse">HOLD TO SCAN...</span>
-        )}
-      </div>
+      {/* Rate digit readout — hidden while scanning */}
+      {!scanning && (
+        <div className={`font-mono text-xs tracking-widest px-3 py-2 rounded-lg border ${accentBorder} ${accentBg} flex items-center justify-between gap-2 select-none`}>
+          <span className={`${accentText} font-bold text-sm tracking-[0.2em] tabular-nums`}>
+            <motion.span key="static" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+              {rateDisplay}
+            </motion.span>
+          </span>
+          {locked && (
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+              className={`flex items-center gap-1 text-[10px] ${accentText} font-mono uppercase tracking-widest`}>
+              <Lock className="w-3 h-3" /> Locked
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Pad */}
       <motion.button
