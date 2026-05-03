@@ -38,6 +38,7 @@ export type Operation = {
   // Cards
   cards: string[];             // position-wide filter cards
   trendCardIds?: string[];     // symbolic cards for the TREND specifically
+  customTrendCardImage?: string; // user-uploaded sigil/image as trend card (base64)
   trendRateLocked?: boolean;
   targetRateLocked?: boolean;
   presetName?: string;

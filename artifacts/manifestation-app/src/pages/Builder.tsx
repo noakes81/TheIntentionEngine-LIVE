@@ -13,7 +13,8 @@ import { RadionicRateDials } from "@/components/RadionicRateDials";
 import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
 import { StickPad } from "@/components/StickPad";
 import { useLocation } from "wouter";
-import { Check, Save, Zap, Target, Sparkles } from "lucide-react";
+import { Check, Save, Zap, Target, Sparkles, ImagePlus, X } from "lucide-react";
+import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Builder() {
@@ -28,6 +29,8 @@ export default function Builder() {
   const [trendRate, setTrendRate] = useState<RadionicRate>([0, 0, 0]);
   const [trendRateLocked, setTrendRateLocked] = useState(false);
   const [trendCardIds, setTrendCardIds] = useState<string[]>([]);
+  const [customTrendCardImage, setCustomTrendCardImage] = useState<string | undefined>(undefined);
+  const customCardFileRef = useRef<HTMLInputElement>(null);
   // TARGET
   const [targetName, setTargetName] = useState("Self");
   const [targetDesc, setTargetDesc] = useState("");
@@ -58,6 +61,16 @@ export default function Builder() {
     setTrendRateLocked(false);
     setTargetRateLocked(false);
     setTrendCardIds([]);
+    setCustomTrendCardImage(undefined);
+  };
+
+  const handleCustomCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setCustomTrendCardImage(ev.target?.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const loadFreqPreset = (hz: string) => setFrequencyHz(parseFloat(hz));
@@ -75,6 +88,7 @@ export default function Builder() {
       trendRate,
       trendRateLocked,
       trendCardIds,
+      customTrendCardImage,
       target: { name: targetName, description: targetDesc, photo: targetPhoto, transferDiagram },
       targetRate,
       targetRateLocked,
@@ -169,15 +183,64 @@ export default function Builder() {
           {/* Trend Cards */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono uppercase tracking-widest text-primary/70">Trend Cards</span>
-              {trendCardIds.length > 0 && (
+              <span className="text-xs font-mono uppercase tracking-widest text-primary/70">Trend Cards / Sigil</span>
+              {(trendCardIds.length > 0 || customTrendCardImage) && (
                 <span className="text-[10px] font-mono bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                  {trendCardIds.length} selected
+                  {trendCardIds.length + (customTrendCardImage ? 1 : 0)} active
                 </span>
               )}
             </div>
 
-            {/* Selected trend cards — prominent display */}
+            {/* Custom sigil upload */}
+            <input
+              ref={customCardFileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCustomCardUpload}
+            />
+            {customTrendCardImage ? (
+              <div className="relative group">
+                <div className="rounded-xl border border-primary/40 bg-primary/5 shadow-[0_0_16px_rgba(139,92,246,0.15)] overflow-hidden flex flex-col items-center p-3 gap-2">
+                  <img
+                    src={customTrendCardImage}
+                    alt="Custom Trend Card"
+                    className="max-h-32 object-contain rounded-lg"
+                  />
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-primary/60">Custom Sigil / Card</span>
+                </div>
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    onClick={() => customCardFileRef.current?.click()}
+                    className="w-6 h-6 rounded bg-background/80 border border-primary/30 flex items-center justify-center text-primary/70 hover:text-primary"
+                  >
+                    <ImagePlus className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomTrendCardImage(undefined)}
+                    className="w-6 h-6 rounded bg-background/80 border border-destructive/30 flex items-center justify-center text-destructive/70 hover:text-destructive"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => customCardFileRef.current?.click()}
+                className="w-full rounded-xl border border-dashed border-primary/25 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 transition-all p-4 flex flex-col items-center gap-2 group"
+              >
+                <ImagePlus className="w-5 h-5 text-primary/40 group-hover:text-primary/70 transition-colors" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60 group-hover:text-muted-foreground/80">
+                  Upload Custom Sigil or Card Image
+                </span>
+                <span className="text-[9px] text-muted-foreground/40">JPG, PNG, WEBP</span>
+              </button>
+            )}
+
+            {/* Selected library trend cards — prominent display */}
             {selectedTrendCards.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedTrendCards.map(card => (
@@ -195,7 +258,7 @@ export default function Builder() {
             )}
 
             {/* Card picker grid */}
-            <div className="grid grid-cols-4 gap-1.5 max-h-[180px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-4 gap-1.5 max-h-[160px] overflow-y-auto pr-1">
               {cardsLib.slice(0, 20).map(card => {
                 const isTrendSelected = trendCardIds.includes(card.id);
                 return (
