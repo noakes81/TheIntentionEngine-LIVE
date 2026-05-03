@@ -80,57 +80,42 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
 
   return (
     <div className="space-y-2">
-      {/* Rate digit readout — invisible while scanning to prevent layout shift */}
+      {/* Rate digit readout — always visible, shows spinning digits while scanning */}
       <div
-        className={`font-mono text-xs tracking-widest px-3 py-2 rounded-lg border ${accentBorder} ${accentBg} flex items-center justify-between gap-2 select-none transition-opacity duration-150`}
-        style={{ visibility: scanning ? "hidden" : "visible" }}
+        className={`font-mono tracking-widest px-3 py-2 rounded-lg border ${accentBorder} ${accentBg} flex items-center justify-between gap-2 select-none min-h-[40px]`}
       >
-        <span className={`${accentText} font-bold text-sm tracking-[0.2em] tabular-nums`}>
-          {rateDisplay}
-        </span>
-        {locked && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-            className={`flex items-center gap-1 text-[10px] ${accentText} font-mono uppercase tracking-widest`}>
-            <Lock className="w-3 h-3" /> Locked
-          </motion.div>
+        {scanning ? (
+          <div className="flex items-center gap-[3px] flex-1">
+            {scanDisplay.split("").map((digit, i) => (
+              <motion.span
+                key={i}
+                className={`font-mono font-bold text-base tabular-nums ${accentText}`}
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ duration: 0.11, repeat: Infinity, delay: i * 0.012 }}
+              >
+                {digit}
+              </motion.span>
+            ))}
+            <motion.span
+              className="ml-2 text-[9px] font-mono text-muted-foreground/50 uppercase tracking-widest"
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ repeat: Infinity, duration: 0.6 }}
+            >scanning</motion.span>
+          </div>
+        ) : (
+          <>
+            <span className={`${accentText} font-bold text-sm tracking-[0.15em] tabular-nums`}>
+              {rateDisplay}
+            </span>
+            {locked && (
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+                className={`flex items-center gap-1 text-[10px] ${accentText} font-mono uppercase tracking-widest`}>
+                <Lock className="w-3 h-3" /> Locked
+              </motion.div>
+            )}
+          </>
         )}
       </div>
-
-      {/* Spinning number display — visible only while holding */}
-      <AnimatePresence>
-        {scanning && (
-          <motion.div
-            initial={{ opacity: 0, scaleY: 0.7 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0.7 }}
-            transition={{ duration: 0.15 }}
-            className={`rounded-lg border ${accentBorder} overflow-hidden select-none`}
-            style={{ background: `radial-gradient(ellipse at 50% 0%, ${accentFaint} 0%, rgba(10,10,20,0.98) 80%)` }}
-          >
-            <div className="flex items-center justify-between px-3 pt-2 pb-1">
-              <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/40">Scanning Rate...</span>
-              <motion.span
-                className="text-[9px] font-mono text-muted-foreground/40"
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ repeat: Infinity, duration: 0.6 }}
-              >●</motion.span>
-            </div>
-            <div className="flex justify-center gap-[3px] pb-3 px-3">
-              {scanDisplay.split("").map((digit, i) => (
-                <motion.div
-                  key={i}
-                  className={`w-7 h-10 rounded flex items-center justify-center font-mono font-bold text-lg border ${accentBorder}`}
-                  style={{ background: `rgba(10,10,20,0.8)`, color: accentColor }}
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 0.11, repeat: Infinity, delay: i * 0.012 }}
-                >
-                  {digit}
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Pad */}
       <motion.button
