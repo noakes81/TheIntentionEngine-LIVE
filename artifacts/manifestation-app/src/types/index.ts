@@ -17,6 +17,23 @@ export type TrendCard = {
 
 export type RadionicRate = [number, number, number]; // three dials 0-9
 
+export type SubPosition = {
+  id: string;
+  name: string;
+  positionType: "Main Trend" | "Main Target" | "Support" | "Alt" | "Grabov" | "Basic";
+  intention: string;           // trend statement or target note
+  rate: RadionicRate;
+  rateLocked: boolean;
+  customCardImages: string[];  // base64, up to 10
+  cardIds: string[];           // library card IDs
+  // Main Target specific
+  targetName?: string;
+  targetDescription?: string;
+  targetLinkType?: "name" | "photo" | "written" | "transfer";
+  targetPhoto?: string;
+  targetTransferDiagram?: string;
+};
+
 export type Operation = {
   id: string;
   name: string;
