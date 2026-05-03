@@ -4,22 +4,21 @@ import { Lock, Unlock } from "lucide-react";
 
 interface StickPadProps {
   locked: boolean;
-  onLock: (rate: [number, number, number]) => void;
+  onLock: (rate: string) => void;
   onClear: () => void;
   rateDisplay: string;
   color?: "primary" | "amber";
 }
 
-function randomDigitString(len: number) {
-  return Array.from({ length: len }, () => Math.floor(Math.random() * 10)).join("");
+function randomTenDigits(): string {
+  return Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 }
 
 export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primary" }: StickPadProps) {
   const [scanning, setScanning] = useState(false);
-  const [scanDisplay, setScanDisplay] = useState(rateDisplay);
+  const [scanDisplay, setScanDisplay] = useState("0000000000");
   const scanInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const isHolding = useRef(false);
-  const digitLen = rateDisplay.replace(/\s|—|-/g, "").length;
 
   const isPrimary = color === "primary";
   const accentColor  = isPrimary ? "rgba(157,78,221,1)"   : "rgba(251,191,36,1)";
@@ -32,29 +31,25 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
     if (scanInterval.current) { clearInterval(scanInterval.current); scanInterval.current = null; }
     isHolding.current = false;
     setScanning(false);
-    setScanDisplay(rateDisplay);
-  }, [rateDisplay]);
+    setScanDisplay("0000000000");
+  }, []);
 
   const startScan = useCallback(() => {
     if (locked || scanning) return;
     isHolding.current = true;
     setScanning(true);
     scanInterval.current = setInterval(() => {
-      setScanDisplay(randomDigitString(digitLen));
+      setScanDisplay(randomTenDigits());
     }, 55);
-  }, [locked, scanning, digitLen]);
+  }, [locked, scanning]);
 
   const commitLock = useCallback(() => {
     if (!isHolding.current) return;
     if (scanInterval.current) { clearInterval(scanInterval.current); scanInterval.current = null; }
     isHolding.current = false;
     setScanning(false);
-    const rate: [number, number, number] = [
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10),
-    ];
-    onLock(rate);
+    setScanDisplay("0000000000");
+    onLock(randomTenDigits());
   }, [onLock]);
 
   // Pointer events — hold = scan, release = lock

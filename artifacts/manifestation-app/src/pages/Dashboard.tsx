@@ -97,18 +97,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex gap-1">
                   {/* TREND rate mini display */}
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-1">
                     <Sparkles className="w-2.5 h-2.5 text-primary/50" />
-                    {preset.trendRate.map((d, i) => (
-                      <span key={i} className="text-[10px] font-mono text-primary/60">{d}</span>
-                    ))}
+                    <span className="text-[10px] font-mono text-primary/60 tracking-wider">{preset.trendRate}</span>
                   </div>
                   <span className="text-muted-foreground/30 text-xs mx-1">|</span>
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-1">
                     <Target className="w-2.5 h-2.5 text-amber-400/50" />
-                    {preset.targetRate.map((d, i) => (
-                      <span key={i} className="text-[10px] font-mono text-amber-400/60">{d}</span>
-                    ))}
+                    <span className="text-[10px] font-mono text-amber-400/60 tracking-wider">{preset.targetRate}</span>
                   </div>
                 </div>
                 <span className="text-[10px] text-muted-foreground/40 font-mono">{preset.sessionDurationMinutes}m</span>

@@ -42,16 +42,14 @@ function LiveWaveform({ active, frequency }: { active: boolean; frequency: numbe
   );
 }
 
-function RateDisplay({ rate, color }: { rate?: [number, number, number]; color: "primary" | "amber" }) {
+function RateDisplay({ rate, color }: { rate?: string; color: "primary" | "amber" }) {
   if (!rate) return null;
   const cls = color === "amber"
     ? "border-amber-500/25 bg-amber-500/8 text-amber-400/80"
     : "border-primary/25 bg-primary/8 text-primary/80";
   return (
-    <div className="flex gap-1">
-      {rate.map((d, i) => (
-        <span key={i} className={`w-6 h-6 flex items-center justify-center text-xs font-mono rounded border ${cls}`}>{d}</span>
-      ))}
+    <div className={`font-mono text-xs tracking-widest px-2 py-1 rounded border ${cls} inline-block`}>
+      {rate || "0000000000"}
     </div>
   );
 }

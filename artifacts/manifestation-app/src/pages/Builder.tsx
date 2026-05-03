@@ -31,7 +31,7 @@ function makeDefaultSubPosition(idx: number): SubPosition {
   return {
     id: `sp-${Date.now()}-${idx}`,
     intention: "",
-    rate: [0, 0, 0],
+    rate: "0000000000",
     rateLocked: false,
     customCardImages: [],
     cardIds: [],
@@ -180,7 +180,7 @@ export default function Builder() {
         photo: mainTarget?.targetPhoto,
         transferDiagram: mainTarget?.targetTransferDiagram,
       },
-      targetRate: mainTarget?.rate ?? [0, 0, 0],
+      targetRate: mainTarget?.rate ?? "0000000000",
       targetRateLocked: mainTarget?.rateLocked,
       structuralLinkType: mainTarget?.targetLinkType ?? "name",
       frequencyHz,
@@ -197,7 +197,7 @@ export default function Builder() {
     navigate("/operations");
   };
 
-  const rateToDisplay = (r: RadionicRate) => r.join("  —  ");
+  const rateToDisplay = (r: RadionicRate) => r || "0000000000";
   const isTarget = active.positionType === "Main Target";
   const isTrend = active.positionType === "Main Trend";
 
@@ -477,7 +477,7 @@ export default function Builder() {
                 >
                   <span className="font-mono text-muted-foreground/60 w-4">{idx + 1}</span>
                   <span className="font-medium truncate flex-1">{pos.name}</span>
-                  <span className="text-muted-foreground/40 font-mono">{pos.rate.join("-")}</span>
+                  <span className="text-muted-foreground/40 font-mono">{pos.rate}</span>
                   {pos.rateLocked && <span className="text-primary/60 font-mono text-[9px]">LOCKED</span>}
                 </button>
               ))}

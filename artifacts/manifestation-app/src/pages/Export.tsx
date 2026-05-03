@@ -123,8 +123,8 @@ ${selectedOp.notes || ''}
                   <p className="text-sm text-gray-600 mt-1">{selectedOp.target.description}</p>
                 )}
                 <div className="mt-2 space-y-1 font-mono text-xs text-gray-500">
-                  <div>TREND RATE: {(selectedOp.trendRate || [0,0,0]).join(" — ")}</div>
-                  <div>TARGET RATE: {(selectedOp.targetRate || [0,0,0]).join(" — ")}</div>
+                  <div>TREND RATE: {selectedOp.trendRate || "0000000000"}</div>
+                  <div>TARGET RATE: {selectedOp.targetRate || "0000000000"}</div>
                 </div>
               </section>
 

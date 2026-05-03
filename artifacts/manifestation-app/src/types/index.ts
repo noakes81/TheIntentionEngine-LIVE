@@ -15,7 +15,7 @@ export type TrendCard = {
   color: string;
 };
 
-export type RadionicRate = [number, number, number]; // three dials 0-9
+export type RadionicRate = string; // 10-digit radionic rate e.g. "9208162839"
 
 export type SubPosition = {
   id: string;

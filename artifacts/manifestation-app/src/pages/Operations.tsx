@@ -76,11 +76,8 @@ export default function Operations() {
                   "{op.intention}"
                 </p>
                 {op.trendRate && (
-                  <div className="flex gap-1 mt-1">
-                    {op.trendRate.map((d, i) => (
-                      <span key={i} className="w-6 h-6 flex items-center justify-center text-xs font-mono rounded border border-primary/25 bg-primary/8 text-primary/80">{d}</span>
-                    ))}
-                    <span className="text-[10px] text-muted-foreground/40 self-center ml-1 font-mono">rate</span>
+                  <div className="mt-1">
+                    <span className="text-xs font-mono tracking-widest px-2 py-0.5 rounded border border-primary/25 bg-primary/8 text-primary/80">{op.trendRate}</span>
                   </div>
                 )}
               </div>
@@ -97,11 +94,8 @@ export default function Operations() {
                   <span className="text-sm font-medium text-foreground">{op.target.name}</span>
                 </div>
                 {op.targetRate && (
-                  <div className="flex gap-1 mt-1">
-                    {op.targetRate.map((d, i) => (
-                      <span key={i} className="w-6 h-6 flex items-center justify-center text-xs font-mono rounded border border-amber-500/25 bg-amber-500/8 text-amber-400/80">{d}</span>
-                    ))}
-                    <span className="text-[10px] text-muted-foreground/40 self-center ml-1 font-mono">rate</span>
+                  <div className="mt-1">
+                    <span className="text-xs font-mono tracking-widest px-2 py-0.5 rounded border border-amber-500/25 bg-amber-500/8 text-amber-400/80">{op.targetRate}</span>
                   </div>
                 )}
               </div>
