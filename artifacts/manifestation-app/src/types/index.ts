@@ -36,8 +36,10 @@ export type Operation = {
   // Chi / frequency
   frequencyHz: number;
   // Cards
-  cards: string[];
-  trendCards: TrendCard[];
+  cards: string[];             // position-wide filter cards
+  trendCardIds?: string[];     // symbolic cards for the TREND specifically
+  trendRateLocked?: boolean;
+  targetRateLocked?: boolean;
   presetName?: string;
   // Session
   status: "idle" | "running" | "paused" | "completed";

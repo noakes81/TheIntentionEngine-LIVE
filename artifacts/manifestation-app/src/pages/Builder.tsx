@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FrequencySlider } from "@/components/FrequencySlider";
 import { RadionicRateDials } from "@/components/RadionicRateDials";
 import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
+import { StickPad } from "@/components/StickPad";
 import { useLocation } from "wouter";
 import { Check, Save, Zap, Target, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +26,8 @@ export default function Builder() {
   // TREND
   const [intention, setIntention] = useState("");
   const [trendRate, setTrendRate] = useState<RadionicRate>([0, 0, 0]);
+  const [trendRateLocked, setTrendRateLocked] = useState(false);
+  const [trendCardIds, setTrendCardIds] = useState<string[]>([]);
   // TARGET
   const [targetName, setTargetName] = useState("Self");
   const [targetDesc, setTargetDesc] = useState("");
@@ -32,10 +35,13 @@ export default function Builder() {
   const [transferDiagram, setTransferDiagram] = useState<string | undefined>(undefined);
   const [structuralLinkType, setStructuralLinkType] = useState<Operation["structuralLinkType"]>("name");
   const [targetRate, setTargetRate] = useState<RadionicRate>([0, 0, 0]);
+  const [targetRateLocked, setTargetRateLocked] = useState(false);
   // Chi / frequency
   const [frequencyHz, setFrequencyHz] = useState(7.83);
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [duration, setDuration] = useState("30");
+
+  const rateToDisplay = (r: RadionicRate) => r.join("  —  ");
 
   const loadPreset = (presetId: string) => {
     const preset = PRESET_OPERATIONS.find(p => p.id === presetId);
@@ -49,11 +55,12 @@ export default function Builder() {
     setFrequencyHz(preset.frequencyHz);
     setSelectedCards(preset.cards);
     setStructuralLinkType(preset.structuralLinkType);
+    setTrendRateLocked(false);
+    setTargetRateLocked(false);
+    setTrendCardIds([]);
   };
 
-  const loadFreqPreset = (hz: string) => {
-    setFrequencyHz(parseFloat(hz));
-  };
+  const loadFreqPreset = (hz: string) => setFrequencyHz(parseFloat(hz));
 
   const handleSave = () => {
     if (!name || !intention) {
@@ -66,12 +73,14 @@ export default function Builder() {
       name,
       intention,
       trendRate,
+      trendRateLocked,
+      trendCardIds,
       target: { name: targetName, description: targetDesc, photo: targetPhoto, transferDiagram },
       targetRate,
+      targetRateLocked,
       structuralLinkType,
       frequencyHz,
       cards: selectedCards,
-      trendCards: [],
       status: "idle",
       sessionDurationMinutes: parseInt(duration) || 30,
       elapsedSeconds: 0,
@@ -86,6 +95,13 @@ export default function Builder() {
   const toggleCard = (id: string) => {
     setSelectedCards(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   };
+
+  const toggleTrendCard = (id: string) => {
+    setSelectedCards(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    setTrendCardIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+  };
+
+  const selectedTrendCards = cardsLib.filter(c => trendCardIds.includes(c.id));
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto pb-20">
@@ -124,7 +140,7 @@ export default function Builder() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* TREND column */}
+        {/* ── TREND column ── */}
         <Card className="glass-card p-6 space-y-6 border-primary/20">
           <div className="flex items-center gap-3 border-b border-primary/20 pb-4">
             <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
@@ -136,6 +152,7 @@ export default function Builder() {
             </div>
           </div>
 
+          {/* Trend statement */}
           <div className="space-y-2">
             <Label htmlFor="intention">Trend Statement (present tense, feeling-based)</Label>
             <Textarea
@@ -149,15 +166,75 @@ export default function Builder() {
             <p className="text-[10px] text-muted-foreground/60">Write from the feeling of already having the result. (Magic of the Future — Welz)</p>
           </div>
 
+          {/* Trend Cards */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono uppercase tracking-widest text-primary/70">Trend Cards</span>
+              {trendCardIds.length > 0 && (
+                <span className="text-[10px] font-mono bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                  {trendCardIds.length} selected
+                </span>
+              )}
+            </div>
+
+            {/* Selected trend cards — prominent display */}
+            {selectedTrendCards.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedTrendCards.map(card => (
+                  <div
+                    key={card.id}
+                    onClick={() => toggleTrendCard(card.id)}
+                    className="cursor-pointer flex flex-col items-center gap-1 rounded-xl border border-primary/40 bg-primary/10 shadow-[0_0_12px_rgba(139,92,246,0.18)] p-3 w-20 transition-all hover:border-primary/60"
+                  >
+                    <span className="text-2xl">{card.symbol}</span>
+                    <span className="text-[9px] font-medium text-primary/80 text-center leading-tight line-clamp-2">{card.title}</span>
+                    <Check className="w-3 h-3 text-primary mt-0.5" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Card picker grid */}
+            <div className="grid grid-cols-4 gap-1.5 max-h-[180px] overflow-y-auto pr-1">
+              {cardsLib.slice(0, 20).map(card => {
+                const isTrendSelected = trendCardIds.includes(card.id);
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => toggleTrendCard(card.id)}
+                    className={`cursor-pointer rounded-lg p-1.5 text-center border transition-all ${
+                      isTrendSelected
+                        ? "border-primary bg-primary/15 shadow-[0_0_6px_rgba(139,92,246,0.2)]"
+                        : "border-border/30 bg-background/40 hover:border-primary/30"
+                    }`}
+                  >
+                    <div className="text-lg">{card.symbol}</div>
+                    <div className="text-[8px] font-medium leading-tight line-clamp-1 mt-0.5 text-muted-foreground">{card.title}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* TREND rate dials */}
           <RadionicRateDials
             label="TREND"
             value={trendRate}
-            onChange={setTrendRate}
+            onChange={(r) => { setTrendRate(r); setTrendRateLocked(false); }}
+            color="primary"
+          />
+
+          {/* Stick Pad — TREND */}
+          <StickPad
+            locked={trendRateLocked}
+            onLock={() => setTrendRateLocked(true)}
+            onClear={() => setTrendRateLocked(false)}
+            rateDisplay={rateToDisplay(trendRate)}
             color="primary"
           />
         </Card>
 
-        {/* TARGET column */}
+        {/* ── TARGET column ── */}
         <Card className="glass-card p-6 space-y-6 border-amber-500/20">
           <div className="flex items-center gap-3 border-b border-amber-500/20 pb-4">
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
@@ -220,18 +297,28 @@ export default function Builder() {
               <Label>Transfer Diagram</Label>
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
                 <p className="text-xs text-amber-400/70 leading-relaxed">
-                  Upload the Transfer Diagram image provided to you upon purchase of Orgone Studio. Place the physical printout on your chi generator to link it to this software position.
+                  Upload the Transfer Diagram image provided to you upon purchase. Place the physical printout on your chi generator.
                 </p>
                 <WitnessPhotoUpload value={transferDiagram} onChange={setTransferDiagram} />
               </div>
             </div>
           )}
 
+          {/* TARGET rate dials */}
           <RadionicRateDials
             label="TARGET"
             value={targetRate}
-            onChange={setTargetRate}
+            onChange={(r) => { setTargetRate(r); setTargetRateLocked(false); }}
             color="secondary"
+          />
+
+          {/* Stick Pad — TARGET */}
+          <StickPad
+            locked={targetRateLocked}
+            onLock={() => setTargetRateLocked(true)}
+            onClear={() => setTargetRateLocked(false)}
+            rateDisplay={rateToDisplay(targetRate)}
+            color="amber"
           />
         </Card>
       </div>
@@ -282,7 +369,7 @@ export default function Builder() {
           </div>
         </Card>
 
-        {/* Symbolic cards */}
+        {/* Position-wide symbolic cards */}
         <Card className="glass-card p-6 space-y-4">
           <div className="flex justify-between items-center border-b border-border/30 pb-3">
             <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Filter Cards</h2>
