@@ -15,15 +15,30 @@ export type TrendCard = {
   color: string;
 };
 
+export type RadionicRate = [number, number, number]; // three dials 0-9
+
 export type Operation = {
   id: string;
   name: string;
-  intention: string;
-  target: { name: string; description: string; photo?: string; photoNote?: string };
+  // TREND
+  intention: string;           // trend statement
+  trendRate: RadionicRate;     // 3-dial radionic rate for trend
+  // TARGET
+  target: {
+    name: string;
+    description: string;
+    photo?: string;
+    photoNote?: string;
+  };
+  targetRate: RadionicRate;    // 3-dial radionic rate for target
+  structuralLinkType?: "photo" | "name" | "written" | "transfer";
+  // Chi / frequency
   frequencyHz: number;
-  cards: string[]; // card IDs
+  // Cards
+  cards: string[];
   trendCards: TrendCard[];
   presetName?: string;
+  // Session
   status: "idle" | "running" | "paused" | "completed";
   sessionDurationMinutes: number;
   elapsedSeconds: number;
