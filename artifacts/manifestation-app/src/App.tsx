@@ -10,6 +10,7 @@ import Sequencer from "@/pages/Sequencer";
 import Cards from "@/pages/Cards";
 import Operations from "@/pages/Operations";
 import Export from "@/pages/Export";
+import TransferDiagram from "@/pages/TransferDiagram";
 import { useEffect } from "react";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
 
@@ -25,6 +26,7 @@ function Router() {
         <Route path="/cards" component={Cards} />
         <Route path="/operations" component={Operations} />
         <Route path="/export" component={Export} />
+        <Route path="/transfer-diagram" component={TransferDiagram} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

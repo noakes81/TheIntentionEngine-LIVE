@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/data/presets";
 
@@ -15,6 +15,7 @@ export function Sidebar() {
     { href: "/sequencer", label: "Sequencer", icon: Layers },
     { href: "/cards", label: "Library", icon: Database },
     { href: "/operations", label: "Operations", icon: PlayCircle },
+    { href: "/transfer-diagram", label: "Transfer Diagram", icon: Hexagon },
     { href: "/export", label: "Export", icon: FileText },
   ];
 
