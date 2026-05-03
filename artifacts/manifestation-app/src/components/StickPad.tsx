@@ -96,6 +96,42 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
         )}
       </div>
 
+      {/* Spinning number display — visible only while holding */}
+      <AnimatePresence>
+        {scanning && (
+          <motion.div
+            initial={{ opacity: 0, scaleY: 0.7 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0.7 }}
+            transition={{ duration: 0.15 }}
+            className={`rounded-lg border ${accentBorder} overflow-hidden select-none`}
+            style={{ background: `radial-gradient(ellipse at 50% 0%, ${accentFaint} 0%, rgba(10,10,20,0.98) 80%)` }}
+          >
+            <div className="flex items-center justify-between px-3 pt-2 pb-1">
+              <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/40">Scanning Rate...</span>
+              <motion.span
+                className="text-[9px] font-mono text-muted-foreground/40"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ repeat: Infinity, duration: 0.6 }}
+              >●</motion.span>
+            </div>
+            <div className="flex justify-center gap-[3px] pb-3 px-3">
+              {scanDisplay.split("").map((digit, i) => (
+                <motion.div
+                  key={i}
+                  className={`w-7 h-10 rounded flex items-center justify-center font-mono font-bold text-lg border ${accentBorder}`}
+                  style={{ background: `rgba(10,10,20,0.8)`, color: accentColor }}
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 0.11, repeat: Infinity, delay: i * 0.012 }}
+                >
+                  {digit}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Pad */}
       <motion.button
         type="button"
