@@ -29,6 +29,7 @@ export default function Builder() {
   const [targetName, setTargetName] = useState("Self");
   const [targetDesc, setTargetDesc] = useState("");
   const [targetPhoto, setTargetPhoto] = useState<string | undefined>(undefined);
+  const [transferDiagram, setTransferDiagram] = useState<string | undefined>(undefined);
   const [structuralLinkType, setStructuralLinkType] = useState<Operation["structuralLinkType"]>("name");
   const [targetRate, setTargetRate] = useState<RadionicRate>([0, 0, 0]);
   // Chi / frequency
@@ -65,7 +66,7 @@ export default function Builder() {
       name,
       intention,
       trendRate,
-      target: { name: targetName, description: targetDesc, photo: targetPhoto },
+      target: { name: targetName, description: targetDesc, photo: targetPhoto, transferDiagram },
       targetRate,
       structuralLinkType,
       frequencyHz,
@@ -207,10 +208,24 @@ export default function Builder() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Witness Photo (Structural Link)</Label>
-            <WitnessPhotoUpload value={targetPhoto} onChange={setTargetPhoto} />
-          </div>
+          {structuralLinkType === "photo" && (
+            <div className="space-y-2">
+              <Label>Witness Photo (Structural Link)</Label>
+              <WitnessPhotoUpload value={targetPhoto} onChange={setTargetPhoto} />
+            </div>
+          )}
+
+          {structuralLinkType === "transfer" && (
+            <div className="space-y-2">
+              <Label>Transfer Diagram</Label>
+              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                <p className="text-xs text-amber-400/70 leading-relaxed">
+                  Upload the Transfer Diagram image provided to you upon purchase of Orgone Studio. Place the physical printout on your chi generator to link it to this software position.
+                </p>
+                <WitnessPhotoUpload value={transferDiagram} onChange={setTransferDiagram} />
+              </div>
+            </div>
+          )}
 
           <RadionicRateDials
             label="TARGET"

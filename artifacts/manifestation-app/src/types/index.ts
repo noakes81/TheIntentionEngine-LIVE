@@ -29,6 +29,7 @@ export type Operation = {
     description: string;
     photo?: string;
     photoNote?: string;
+    transferDiagram?: string;
   };
   targetRate: RadionicRate;    // 3-dial radionic rate for target
   structuralLinkType?: "photo" | "name" | "written" | "transfer";

@@ -122,6 +122,10 @@ ${selectedOp.notes || ''}
                 {selectedOp.target.description && (
                   <p className="text-sm text-gray-600 mt-1">{selectedOp.target.description}</p>
                 )}
+                <div className="mt-2 space-y-1 font-mono text-xs text-gray-500">
+                  <div>TREND RATE: {(selectedOp.trendRate || [0,0,0]).join(" — ")}</div>
+                  <div>TARGET RATE: {(selectedOp.targetRate || [0,0,0]).join(" — ")}</div>
+                </div>
               </section>
 
               <section>
@@ -135,9 +139,34 @@ ${selectedOp.notes || ''}
                     <span className="text-gray-500">Duration:</span>
                     <span className="font-mono font-medium">{selectedOp.sessionDurationMinutes} min</span>
                   </div>
+                  {selectedOp.structuralLinkType && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Link Type:</span>
+                      <span className="font-mono font-medium capitalize">{selectedOp.structuralLinkType}</span>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
+
+            {/* Transfer Diagram — full-width, prominent on print */}
+            {selectedOp.target.transferDiagram && (
+              <section>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-100 pb-1">Transfer Diagram — Structural Link</h3>
+                <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-4 flex flex-col items-center gap-3">
+                  <img
+                    src={selectedOp.target.transferDiagram}
+                    alt="Transfer Diagram"
+                    className="max-h-56 object-contain"
+                    data-testid="img-export-transfer"
+                  />
+                  <p className="text-[10px] uppercase tracking-widest text-gray-400 text-center">
+                    Place this diagram on your chi generator to activate the structural link.
+                    This diagram is unique to your licensed copy of Orgone Manifestation Studio.
+                  </p>
+                </div>
+              </section>
+            )}
 
             {opCards.length > 0 && (
               <section>

@@ -145,6 +145,26 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
             <RateDisplay rate={operation.targetRate} color="amber" />
           </div>
 
+          {/* Transfer Diagram — shown prominently when present */}
+          {operation.target.transferDiagram && (
+            <div className="space-y-2">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-amber-400/60">Transfer Diagram — Structural Link Active</div>
+              <div className="relative rounded-xl overflow-hidden border border-amber-500/25 bg-amber-500/5">
+                <img
+                  src={operation.target.transferDiagram}
+                  alt="Transfer Diagram"
+                  className="w-full max-h-28 object-contain p-2"
+                  data-testid="img-transfer-diagram"
+                />
+                {operation.status === 'running' && (
+                  <div className="absolute inset-0 pointer-events-none rounded-xl"
+                    style={{ boxShadow: "inset 0 0 20px rgba(251,191,36,0.15)" }} />
+                )}
+              </div>
+              <p className="text-[10px] text-amber-400/50 font-mono">Place physical printout on chi generator to maintain link.</p>
+            </div>
+          )}
+
           {/* Waveform */}
           <LiveWaveform active={isRunning} frequency={operation.frequencyHz} />
 
