@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FrequencySlider } from "@/components/FrequencySlider";
-import { RadionicRateDials } from "@/components/RadionicRateDials";
 import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
 import { StickPad } from "@/components/StickPad";
 import { useLocation } from "wouter";
@@ -454,18 +453,10 @@ export default function Builder() {
             </div>
           )}
 
-          {/* Rate dials */}
-          <RadionicRateDials
-            label={active.positionType}
-            value={active.rate}
-            onChange={r => updateActive({ rate: r, rateLocked: false })}
-            color={isTarget ? "secondary" : "primary"}
-          />
-
-          {/* Stick pad */}
+          {/* Stick pad — hold to generate random rate, release to lock */}
           <StickPad
             locked={active.rateLocked}
-            onLock={() => updateActive({ rateLocked: true })}
+            onLock={rate => updateActive({ rate, rateLocked: true })}
             onClear={() => updateActive({ rateLocked: false })}
             rateDisplay={rateToDisplay(active.rate)}
             color={isTarget ? "amber" : "primary"}

@@ -4,7 +4,7 @@ import { Lock, Unlock } from "lucide-react";
 
 interface StickPadProps {
   locked: boolean;
-  onLock: () => void;
+  onLock: (rate: [number, number, number]) => void;
   onClear: () => void;
   rateDisplay: string;
   color?: "primary" | "amber";
@@ -49,9 +49,13 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
     if (scanInterval.current) { clearInterval(scanInterval.current); scanInterval.current = null; }
     isHolding.current = false;
     setScanning(false);
-    setScanDisplay(rateDisplay);
-    onLock();
-  }, [onLock, rateDisplay]);
+    const rate: [number, number, number] = [
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+    ];
+    onLock(rate);
+  }, [onLock]);
 
   // Pointer events — hold = scan, release = lock
   const handlePointerDown = (e: React.PointerEvent) => {
