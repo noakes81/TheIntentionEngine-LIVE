@@ -19,7 +19,7 @@ export type Operation = {
   id: string;
   name: string;
   intention: string;
-  target: { name: string; description: string; photoNote?: string };
+  target: { name: string; description: string; photo?: string; photoNote?: string };
   frequencyHz: number;
   cards: string[]; // card IDs
   trendCards: TrendCard[];

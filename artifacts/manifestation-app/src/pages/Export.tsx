@@ -108,6 +108,16 @@ ${selectedOp.notes || ''}
             <div className="grid grid-cols-2 gap-8">
               <section>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-100 pb-1">Target / Witness</h3>
+                {selectedOp.target.photo && (
+                  <div className="mb-3 rounded-lg overflow-hidden border border-gray-200 w-32 h-32">
+                    <img
+                      src={selectedOp.target.photo}
+                      alt="Witness"
+                      className="w-full h-full object-cover"
+                      data-testid="img-export-witness"
+                    />
+                  </div>
+                )}
                 <p className="text-lg font-medium text-gray-800">{selectedOp.target.name}</p>
                 {selectedOp.target.description && (
                   <p className="text-sm text-gray-600 mt-1">{selectedOp.target.description}</p>

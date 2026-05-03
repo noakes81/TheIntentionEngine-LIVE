@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FrequencySlider } from "@/components/FrequencySlider";
 import { SymbolicCard as SymbolicCardComponent } from "@/components/SymbolicCard";
+import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
 import { useLocation } from "wouter";
 import { Check, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +24,7 @@ export default function Builder() {
   const [intention, setIntention] = useState("");
   const [targetName, setTargetName] = useState("Self");
   const [targetDesc, setTargetDesc] = useState("");
+  const [targetPhoto, setTargetPhoto] = useState<string | undefined>(undefined);
   const [frequencyHz, setFrequencyHz] = useState(432);
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [duration, setDuration] = useState("30");
@@ -41,7 +43,7 @@ export default function Builder() {
       id: `op-${Date.now()}`,
       name,
       intention,
-      target: { name: targetName, description: targetDesc },
+      target: { name: targetName, description: targetDesc, photo: targetPhoto },
       frequencyHz,
       cards: selectedCards,
       trendCards: [],
@@ -129,6 +131,10 @@ export default function Builder() {
                     onChange={(e) => setTargetDesc(e.target.value)}
                     className="bg-background/50 border-primary/20"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Witness Photo (Optional)</Label>
+                  <WitnessPhotoUpload value={targetPhoto} onChange={setTargetPhoto} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="duration">Session Duration (Minutes)</Label>
