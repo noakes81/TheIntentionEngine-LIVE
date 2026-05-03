@@ -1,16 +1,16 @@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SessionTimer } from "@/components/SessionTimer";
+import { ActiveOperationPanel } from "@/components/ActiveOperationPanel";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PRESET_OPERATIONS } from "@/data/presets";
-import { Operation } from "@/types";
+import { Operation, SymbolicCard } from "@/types";
 import { Link } from "wouter";
 import { Play, Plus } from "lucide-react";
-import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 
 export default function Dashboard() {
   const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
-  
+  const [cards] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
+
   const activeOperation = operations.find(op => op.status === 'running' || op.status === 'paused');
   const recentOperations = operations.filter(op => op.status !== 'running' && op.status !== 'paused').slice(0, 3);
 
@@ -58,37 +58,10 @@ export default function Dashboard() {
       </header>
 
       {activeOperation ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="glass-card-active p-8 flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
-            <div className="z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-3 h-3 rounded-full bg-primary animate-ping" />
-                <h2 className="text-xl font-medium tracking-wide text-primary">Active Operation</h2>
-              </div>
-              <h3 className="text-3xl font-serif mb-2">{activeOperation.name}</h3>
-              <p className="text-lg text-muted-foreground italic border-l-2 border-primary/50 pl-4 py-1 my-4">
-                "{activeOperation.intention}"
-              </p>
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="bg-background/50 rounded-lg p-4 border border-border/50">
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Target</span>
-                  <p className="font-medium">{activeOperation.target.name}</p>
-                </div>
-                <div className="bg-background/50 rounded-lg p-4 border border-border/50">
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Frequency</span>
-                  <p className="font-mono text-primary text-xl">{activeOperation.frequencyHz} Hz</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-8 z-10">
-              <WaveformVisualizer active={activeOperation.status === 'running'} frequency={activeOperation.frequencyHz} />
-            </div>
-          </Card>
-          
-          <SessionTimer 
-            durationMinutes={activeOperation.sessionDurationMinutes}
-            status={activeOperation.status}
+        <section>
+          <ActiveOperationPanel
+            operation={activeOperation}
+            cards={cards}
             onStatusChange={(status) => handleStatusChange(activeOperation.id, status)}
             onTick={(elapsed) => handleTick(activeOperation.id, elapsed)}
           />

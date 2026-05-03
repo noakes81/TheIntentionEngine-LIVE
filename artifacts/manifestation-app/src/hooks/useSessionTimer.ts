@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 
 type TimerStatus = 'idle' | 'running' | 'paused';
 
-export function useSessionTimer(initialDurationMinutes: number = 0) {
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+export function useSessionTimer(initialDurationMinutes: number = 0, initialElapsed: number = 0) {
+  const [elapsedSeconds, setElapsedSeconds] = useState(initialElapsed);
   const [status, setStatus] = useState<TimerStatus>('idle');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
