@@ -20,7 +20,7 @@ export type RadionicRate = string; // 10-digit radionic rate e.g. "9208162839"
 export type SubPosition = {
   id: string;
   name: string;
-  positionType: "Main Trend" | "Main Target" | "Support" | "Alt" | "Grabov" | "Basic";
+  positionType: "Target" | "Trend 1" | "Trend 2" | "Trend 3" | "Trend 4" | "Trend 5" | "Trend 6" | "Trend 7" | "Trend 8" | "Trend 9";
   intention: string;           // trend statement or target note
   rate: RadionicRate;
   rateLocked: boolean;

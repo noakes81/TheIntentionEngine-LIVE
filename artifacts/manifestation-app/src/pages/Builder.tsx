@@ -18,16 +18,23 @@ import { useToast } from "@/hooks/use-toast";
 const MAX_POSITIONS = 10;
 const MAX_CARDS = 10;
 const POSITION_TYPES: SubPosition["positionType"][] = [
-  "Main Trend", "Main Target", "Support", "Alt", "Grabov", "Basic",
+  "Target", "Trend 1", "Trend 2", "Trend 3", "Trend 4", "Trend 5",
+  "Trend 6", "Trend 7", "Trend 8", "Trend 9",
 ];
 
 function makeDefaultSubPosition(idx: number): SubPosition {
+  const trendNum = idx; // position 0 → Target, 1 → Trend 1, etc.
   const defaults: Partial<SubPosition>[] = [
-    { name: "Main Trend",   positionType: "Main Trend",   targetLinkType: "name" },
-    { name: "Main Target",  positionType: "Main Target",  targetLinkType: "name", targetName: "Self" },
-    { name: "Support 1",    positionType: "Support",      targetLinkType: "name" },
+    { name: "Target",  positionType: "Target",  targetLinkType: "name", targetName: "Self" },
+    { name: "Trend 1", positionType: "Trend 1", targetLinkType: "name" },
+    { name: "Trend 2", positionType: "Trend 2", targetLinkType: "name" },
   ];
-  const d = defaults[idx] ?? { name: `Position ${idx + 1}`, positionType: "Support", targetLinkType: "name" };
+  const trendTypes: SubPosition["positionType"][] = [
+    "Target","Trend 1","Trend 2","Trend 3","Trend 4","Trend 5","Trend 6","Trend 7","Trend 8","Trend 9"
+  ];
+  const type = trendTypes[idx] ?? "Trend 1";
+  const d = defaults[idx] ?? { name: type, positionType: type, targetLinkType: "name" };
+  void trendNum;
   return {
     id: `sp-${Date.now()}-${idx}`,
     intention: "",
@@ -130,8 +137,8 @@ export default function Builder() {
     setSubPositions([
       {
         id: `sp-${Date.now()}-0`,
-        name: "Main Trend",
-        positionType: "Main Trend",
+        name: "Trend 1",
+        positionType: "Trend 1",
         intention: preset.intention,
         rate: preset.trendRate,
         rateLocked: false,
@@ -140,8 +147,8 @@ export default function Builder() {
       },
       {
         id: `sp-${Date.now()}-1`,
-        name: "Main Target",
-        positionType: "Main Target",
+        name: "Target",
+        positionType: "Target",
         intention: preset.target.description,
         rate: preset.targetRate,
         rateLocked: false,
@@ -161,8 +168,8 @@ export default function Builder() {
       toast({ title: "Name required", description: "Please enter a position name.", variant: "destructive" });
       return;
     }
-    const mainTrend = subPositions.find(p => p.positionType === "Main Trend") ?? subPositions[0];
-    const mainTarget = subPositions.find(p => p.positionType === "Main Target");
+    const mainTrend = subPositions.find(p => p.positionType.startsWith("Trend")) ?? subPositions[0];
+    const mainTarget = subPositions.find(p => p.positionType === "Target");
 
     const allCardIds = Array.from(new Set(subPositions.flatMap(p => p.cardIds)));
 
@@ -198,8 +205,8 @@ export default function Builder() {
   };
 
   const rateToDisplay = (r: RadionicRate) => r || "0000000000";
-  const isTarget = active.positionType === "Main Target";
-  const isTrend = active.positionType === "Main Trend";
+  const isTarget = active.positionType === "Target";
+  const isTrend = active.positionType.startsWith("Trend");
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto pb-20">
