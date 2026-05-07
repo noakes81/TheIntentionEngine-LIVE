@@ -53,7 +53,7 @@ export function Sidebar() {
           src="/intention-engine-logo.png"
           alt="The Intention Engine"
           className="w-full h-auto object-contain"
-          style={{ maxHeight: "110px" }}
+          style={{ maxHeight: "160px" }}
         />
       </div>
 
@@ -82,7 +82,7 @@ export function Sidebar() {
       )}
 
       {/* Nav */}
-      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 py-1 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location === item.href;
           const Icon = item.icon;
