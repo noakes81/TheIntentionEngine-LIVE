@@ -110,7 +110,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
       <Sidebar />
 
-      <main className="flex-1 ml-80 min-h-screen relative z-10">
+      <main className="flex-1 ml-64 min-h-screen relative z-10">
         {/* Subtle top accent line */}
         <div className="absolute top-0 left-0 right-0 h-px"
           style={{ background: "linear-gradient(90deg, transparent 0%, hsla(270,75%,58%,0.15) 30%, hsla(270,75%,58%,0.15) 70%, transparent 100%)" }} />
