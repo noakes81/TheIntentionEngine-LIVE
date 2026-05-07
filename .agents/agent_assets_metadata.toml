@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "E8ClCnF4p8YEBaEGiT9F1"
+uri = "file://scripts/manuals/orgone-manifestation-x-manual.pdf"
+type = "pdf"
+title = "Orgone Manifestation X — User Manual"

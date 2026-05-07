@@ -13,6 +13,7 @@ import Export from "@/pages/Export";
 import TransferDiagram from "@/pages/TransferDiagram";
 import { useEffect } from "react";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
+import { LicenseGate } from "@/components/LicenseGate";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +35,6 @@ function Router() {
 }
 
 function App() {
-  // Initialize seed data
   useEffect(() => {
     const initialized = localStorage.getItem("orgone_initialized");
     if (!initialized) {
@@ -48,9 +48,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
+        <LicenseGate>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+        </LicenseGate>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

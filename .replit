@@ -30,3 +30,8 @@ externalPort = 8081
 [[ports]]
 localPort = 22154
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+ADMIN_SECRET = "SMX-ADMIN-A3E0DC333195C73107E46F455C6E4A57"
