@@ -501,7 +501,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           {/* Session info */}
           <div className="space-y-2 text-xs">
             {[
-              { label: "Session", value: `${operation.sessionDurationMinutes} min` },
+              { label: "Session", value: operation.sessionDurationMinutes === 0 ? "Continuous" : `${operation.sessionDurationMinutes} min` },
               ...(operation.structuralLinkType ? [{ label: "Link Type", value: operation.structuralLinkType }] : []),
               { label: "Frequency", value: `${operation.frequencyHz} Hz` },
               { label: "Positions", value: `${trendSubPositions.length} trend${trendSubPositions.length !== 1 ? "s" : ""}` },

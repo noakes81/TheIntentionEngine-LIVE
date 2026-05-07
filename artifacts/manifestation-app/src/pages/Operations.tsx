@@ -207,7 +207,7 @@ export default function Operations() {
                 color: "hsla(228,10%,40%,1)"
               }}
             >
-              <Clock className="w-2.5 h-2.5" /> {op.sessionDurationMinutes}m
+              <Clock className="w-2.5 h-2.5" /> {op.sessionDurationMinutes === 0 ? "∞" : `${op.sessionDurationMinutes}m`}
             </span>
             {op.elapsedSeconds > 0 && (
               <span className="text-[11px] font-mono text-white/20">

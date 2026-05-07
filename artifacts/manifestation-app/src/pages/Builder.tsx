@@ -385,6 +385,7 @@ export default function Builder() {
   const [sessionName, setSessionName] = useState("");
   const [frequencyHz, setFrequencyHz] = useState(7.83);
   const [duration, setDuration] = useState("30");
+  const [unlimitedDuration, setUnlimitedDuration] = useState(false);
   const [subPositions, setSubPositions] = useState<SubPosition[]>([
     makeDefaultSubPosition(0),
     makeDefaultSubPosition(1),
@@ -400,7 +401,8 @@ export default function Builder() {
     setEditingId(editId);
     setSessionName(op.name);
     setFrequencyHz(op.frequencyHz);
-    setDuration(String(op.sessionDurationMinutes));
+    setUnlimitedDuration(op.sessionDurationMinutes === 0);
+    setDuration(op.sessionDurationMinutes === 0 ? "30" : String(op.sessionDurationMinutes));
     if (op.subPositions && op.subPositions.length > 0) {
       setSubPositions(op.subPositions as SubPosition[]);
     } else {
@@ -499,7 +501,8 @@ export default function Builder() {
     if (!preset) return;
     setSessionName(preset.name);
     setFrequencyHz(preset.frequencyHz);
-    setDuration(String(preset.sessionDurationMinutes));
+    setUnlimitedDuration(preset.sessionDurationMinutes === 0);
+    setDuration(preset.sessionDurationMinutes === 0 ? "30" : String(preset.sessionDurationMinutes));
     setSubPositions([
       {
         id: `sp-${Date.now()}-0`,
@@ -556,7 +559,7 @@ export default function Builder() {
       frequencyHz,
       cards: allCardIds,
       subPositions,
-      sessionDurationMinutes: parseInt(duration) || 30,
+      sessionDurationMinutes: unlimitedDuration ? 0 : (parseInt(duration) || 30),
     };
 
     if (editingId) {
@@ -787,19 +790,44 @@ export default function Builder() {
                   </Select>
                 </div>
                 <div>
-                  <div className="text-[11px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Duration (min)</div>
-                  <Input
-                    type="number"
-                    value={duration}
-                    onChange={e => setDuration(e.target.value)}
-                    min="1"
-                    max="1440"
-                    className="text-sm font-mono h-8"
+                  <div className="text-[11px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Duration</div>
+                  {/* Unlimited toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setUnlimitedDuration(u => !u)}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded mb-1.5 text-xs font-mono transition-all"
                     style={{
-                      background: "hsla(228,35%,6%,1)",
-                      border: "1px solid hsla(228,25%,16%,0.8)"
+                      background: unlimitedDuration ? "hsla(270,45%,14%,1)" : "hsla(228,35%,6%,1)",
+                      border: unlimitedDuration
+                        ? "1px solid hsla(270,75%,45%,0.5)"
+                        : "1px solid hsla(228,25%,16%,0.8)",
+                      color: unlimitedDuration ? "hsla(270,75%,72%,1)" : "hsla(228,10%,40%,1)"
                     }}
-                  />
+                  >
+                    <span>{unlimitedDuration ? "∞  Continuous" : "Timed session"}</span>
+                    <span
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      style={{
+                        background: unlimitedDuration ? "hsla(270,75%,55%,1)" : "hsla(228,25%,20%,1)",
+                        boxShadow: unlimitedDuration ? "0 0 6px hsla(270,75%,58%,0.5)" : "none"
+                      }}
+                    />
+                  </button>
+                  {!unlimitedDuration && (
+                    <Input
+                      type="number"
+                      value={duration}
+                      onChange={e => setDuration(e.target.value)}
+                      min="1"
+                      max="1440"
+                      placeholder="30"
+                      className="text-sm font-mono h-8"
+                      style={{
+                        background: "hsla(228,35%,6%,1)",
+                        border: "1px solid hsla(228,25%,16%,0.8)"
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             </div>
