@@ -46,14 +46,14 @@ export function Sidebar() {
       }}
     >
       {/* Logo / Brand */}
-      <div className="h-14 flex items-center px-3 shrink-0"
+      <div className="flex items-center justify-center px-2 py-2 shrink-0"
         style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}
       >
         <img
           src="/intention-engine-logo.png"
           alt="The Intention Engine"
-          className="h-10 w-auto object-contain"
-          style={{ maxWidth: "100%" }}
+          className="w-full h-auto object-contain"
+          style={{ maxHeight: "160px" }}
         />
       </div>
 
