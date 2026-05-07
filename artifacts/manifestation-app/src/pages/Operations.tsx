@@ -1,10 +1,8 @@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target, Pencil } from "lucide-react";
+import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target, Pencil, Plus } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { motion } from "framer-motion";
 
 export default function Operations() {
   const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
@@ -21,7 +19,7 @@ export default function Operations() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Delete this radionic position?")) {
+    if (confirm("Delete this radionic operation?")) {
       setOperations(ops => ops.filter(op => op.id !== id));
     }
   };
@@ -39,146 +37,305 @@ export default function Operations() {
     setOperations([duplicated, ...operations]);
   };
 
-  const statusColors: Record<string, string> = {
-    running: "bg-primary text-primary-foreground animate-pulse",
-    paused:  "bg-amber-500/20 text-amber-400 border-amber-500/40",
-    idle:    "bg-muted/20 text-muted-foreground",
-    completed: "bg-green-500/20 text-green-400 border-green-500/40",
-  };
-
   const running = operations.filter(op => op.status === 'running');
   const paused = operations.filter(op => op.status === 'paused');
   const idle = operations.filter(op => op.status !== 'running' && op.status !== 'paused');
 
-  const Section = ({ title, ops }: { title: string; ops: Operation[] }) => ops.length === 0 ? null : (
-    <div className="space-y-4">
-      <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground/60 border-b border-border/20 pb-2">{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {ops.map(op => (
-          <Card
-            key={op.id}
-            data-testid={`card-operation-${op.id}`}
-            className={`glass-card overflow-hidden transition-all ${op.status === 'running' ? 'border-primary/40 shadow-[0_0_20px_rgba(139,92,246,0.12)]' : 'border-border/30'}`}
-          >
-            <div className="p-5 space-y-4">
-              <div className="flex justify-between items-start gap-3">
-                <h3 className="text-base font-medium leading-tight">{op.name}</h3>
-                <Badge className={`text-[10px] font-mono shrink-0 ${statusColors[op.status] || statusColors.idle}`}>
-                  {op.status.toUpperCase()}
-                </Badge>
-              </div>
+  const OperationCard = ({ op, idx }: { op: Operation; idx: number }) => {
+    const isRunning = op.status === 'running';
+    const isPaused = op.status === 'paused';
 
-              {/* TREND */}
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary/60">
-                  <Sparkles className="w-3 h-3" /> TREND
-                </div>
-                <p className="text-sm italic text-muted-foreground line-clamp-2 border-l-2 border-primary/30 pl-3">
-                  "{op.intention}"
-                </p>
-                {op.trendRate && (
-                  <div className="mt-1">
-                    <span className="text-xs font-mono tracking-widest px-2 py-0.5 rounded border border-primary/25 bg-primary/8 text-primary/80">{op.trendRate}</span>
-                  </div>
-                )}
-              </div>
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: idx * 0.04 }}
+        className="rounded overflow-hidden"
+        style={{
+          background: "linear-gradient(160deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
+          border: isRunning
+            ? "1px solid hsla(270,75%,50%,0.45)"
+            : isPaused
+            ? "1px solid hsla(38,85%,52%,0.3)"
+            : "1px solid hsla(228,25%,13%,0.9)",
+          boxShadow: isRunning
+            ? "0 0 20px hsla(270,75%,58%,0.1), 0 4px 16px hsla(0,0%,0%,0.4)"
+            : "0 4px 16px hsla(0,0%,0%,0.4)"
+        }}
+        data-testid={`card-operation-${op.id}`}
+      >
+        {/* Card header */}
+        <div
+          className="flex items-center justify-between px-4 py-2.5"
+          style={{
+            background: isRunning
+              ? "linear-gradient(90deg, hsla(270,45%,11%,1), hsla(228,35%,6%,1))"
+              : isPaused
+              ? "linear-gradient(90deg, hsla(38,35%,9%,1), hsla(228,35%,6%,1))"
+              : "linear-gradient(90deg, hsla(228,35%,8%,1), hsla(228,35%,6%,1))",
+            borderBottom: "1px solid hsla(228,25%,12%,1)"
+          }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{
+                background: isRunning
+                  ? "hsla(120,80%,50%,1)"
+                  : isPaused
+                  ? "hsla(38,95%,55%,1)"
+                  : "hsla(228,25%,22%,1)",
+                boxShadow: isRunning
+                  ? "0 0 6px hsla(120,80%,50%,0.8)"
+                  : isPaused
+                  ? "0 0 6px hsla(38,95%,55%,0.8)"
+                  : "none"
+              }}
+            />
+            <h3 className="text-sm font-mono font-medium text-white/80 truncate">{op.name}</h3>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span
+              className="text-[9px] font-mono uppercase px-2 py-0.5 rounded"
+              style={{
+                background: isRunning
+                  ? "hsla(270,35%,18%,1)"
+                  : isPaused
+                  ? "hsla(38,35%,12%,1)"
+                  : "hsla(228,25%,10%,1)",
+                border: isRunning
+                  ? "1px solid hsla(270,45%,30%,0.6)"
+                  : isPaused
+                  ? "1px solid hsla(38,60%,35%,0.5)"
+                  : "1px solid hsla(228,25%,16%,0.8)",
+                color: isRunning
+                  ? "hsla(270,75%,70%,1)"
+                  : isPaused
+                  ? "hsla(38,95%,62%,1)"
+                  : "hsla(228,10%,40%,1)"
+              }}
+            >
+              {op.status}
+            </span>
+          </div>
+        </div>
 
-              {/* TARGET */}
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-amber-400/60">
-                  <Target className="w-3 h-3" /> TARGET
-                </div>
-                <div className="flex items-center gap-2">
-                  {op.target.photo && (
-                    <img src={op.target.photo} alt="Witness" className="w-8 h-8 rounded object-cover border border-amber-500/20 shrink-0" />
-                  )}
-                  <span className="text-sm font-medium text-foreground">{op.target.name}</span>
-                </div>
-                {op.targetRate && (
-                  <div className="mt-1">
-                    <span className="text-xs font-mono tracking-widest px-2 py-0.5 rounded border border-amber-500/25 bg-amber-500/8 text-amber-400/80">{op.targetRate}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Params row */}
-              <div className="flex items-center gap-3 text-xs font-mono">
-                <div className="bg-background/50 px-2 py-1 rounded border border-border/40 text-primary">
-                  {op.frequencyHz} Hz
-                </div>
-                <div className="bg-background/50 px-2 py-1 rounded border border-border/40 flex items-center gap-1 text-muted-foreground">
-                  <Clock className="w-3 h-3" /> {op.sessionDurationMinutes}m
-                </div>
-                {op.elapsedSeconds > 0 && (
-                  <div className="text-muted-foreground/50">
-                    {Math.floor(op.elapsedSeconds / 60)}m elapsed
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between border-t border-border/20 pt-3">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className={op.status === 'running'
-                      ? 'bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30'
-                      : 'bg-primary hover:bg-primary/90'}
-                    onClick={() => handleStatusChange(op.id, op.status === 'running' ? 'paused' : 'running')}
-                    data-testid={`button-toggle-${op.id}`}
-                  >
-                    {op.status === 'running' ? <Pause className="w-3.5 h-3.5 mr-1" /> : <Play className="w-3.5 h-3.5 mr-1" />}
-                    {op.status === 'running' ? 'Pause' : op.status === 'paused' ? 'Resume' : 'Transmit'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    title="Edit position"
-                    onClick={() => navigate(`/builder?edit=${op.id}`)}
-                    data-testid={`button-edit-${op.id}`}
-                    className="border-amber-500/30 text-amber-400/80 hover:bg-amber-500/10 hover:text-amber-400"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button size="sm" variant="outline" title="Duplicate position" onClick={() => handleDuplicate(op)} data-testid={`button-duplicate-${op.id}`}>
-                    <Copy className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-                <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(op.id)} data-testid={`button-delete-${op.id}`}>
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </div>
+        {/* Card body */}
+        <div className="p-4 space-y-3">
+          {/* Trend */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-2.5 h-2.5" style={{ color: "hsla(270,75%,65%,0.7)" }} />
+              <span className="text-[8px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>Trend</span>
             </div>
-          </Card>
-        ))}
+            <p className="text-xs italic text-white/40 line-clamp-2 leading-relaxed"
+              style={{ borderLeft: "2px solid hsla(270,45%,40%,0.35)", paddingLeft: "8px" }}>
+              "{op.intention}"
+            </p>
+            {op.trendRate && (
+              <span
+                className="text-[10px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
+                style={{
+                  background: "hsla(120,30%,4%,1)",
+                  border: "1px solid hsla(120,50%,20%,0.3)",
+                  color: "hsla(120,75%,55%,0.85)",
+                  letterSpacing: "0.2em"
+                }}
+              >
+                {op.trendRate}
+              </span>
+            )}
+          </div>
+
+          {/* Target */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <Target className="w-2.5 h-2.5" style={{ color: "hsla(38,85%,62%,0.7)" }} />
+              <span className="text-[8px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>Target</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {op.target.photo && (
+                <img src={op.target.photo} alt="Witness" className="w-7 h-7 rounded object-cover shrink-0"
+                  style={{ border: "1px solid hsla(38,85%,52%,0.25)" }} />
+              )}
+              <span className="text-xs font-medium text-white/65">{op.target.name}</span>
+            </div>
+            {op.targetRate && (
+              <span
+                className="text-[10px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
+                style={{
+                  background: "hsla(38,25%,4%,1)",
+                  border: "1px solid hsla(38,75%,28%,0.3)",
+                  color: "hsla(38,95%,60%,0.85)",
+                  letterSpacing: "0.2em"
+                }}
+              >
+                {op.targetRate}
+              </span>
+            )}
+          </div>
+
+          {/* Params */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className="text-[9px] font-mono px-2 py-0.5 rounded"
+              style={{
+                background: "hsla(270,25%,10%,1)",
+                border: "1px solid hsla(270,45%,22%,0.5)",
+                color: "hsla(270,75%,65%,0.8)"
+              }}
+            >
+              {op.frequencyHz} Hz
+            </span>
+            <span
+              className="text-[9px] font-mono px-2 py-0.5 rounded flex items-center gap-1"
+              style={{
+                background: "hsla(228,25%,8%,1)",
+                border: "1px solid hsla(228,25%,15%,0.8)",
+                color: "hsla(228,10%,40%,1)"
+              }}
+            >
+              <Clock className="w-2.5 h-2.5" /> {op.sessionDurationMinutes}m
+            </span>
+            {op.elapsedSeconds > 0 && (
+              <span className="text-[9px] font-mono text-white/20">
+                {Math.floor(op.elapsedSeconds / 60)}m elapsed
+              </span>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid hsla(228,25%,11%,1)" }}>
+            <div className="flex gap-1.5">
+              <button
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono transition-all"
+                style={isRunning ? {
+                  background: "hsla(270,35%,14%,1)",
+                  border: "1px solid hsla(270,45%,28%,0.5)",
+                  color: "hsla(270,75%,70%,1)"
+                } : {
+                  background: "linear-gradient(135deg, hsla(270,65%,35%,1), hsla(270,55%,28%,1))",
+                  border: "1px solid hsla(270,75%,50%,0.5)",
+                  color: "white",
+                  boxShadow: "0 0 10px hsla(270,75%,58%,0.2)"
+                }}
+                onClick={() => handleStatusChange(op.id, isRunning ? 'paused' : 'running')}
+                data-testid={`button-toggle-${op.id}`}
+              >
+                {isRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                {isRunning ? 'Pause' : isPaused ? 'Resume' : 'Transmit'}
+              </button>
+              <button
+                className="p-1.5 rounded transition-all"
+                style={{
+                  background: "hsla(38,25%,8%,1)",
+                  border: "1px solid hsla(38,60%,30%,0.35)",
+                  color: "hsla(38,85%,60%,0.7)"
+                }}
+                title="Edit"
+                onClick={() => navigate(`/builder?edit=${op.id}`)}
+                data-testid={`button-edit-${op.id}`}
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+              <button
+                className="p-1.5 rounded transition-all"
+                style={{
+                  background: "hsla(228,25%,8%,1)",
+                  border: "1px solid hsla(228,25%,15%,0.8)",
+                  color: "hsla(228,10%,38%,1)"
+                }}
+                title="Duplicate"
+                onClick={() => handleDuplicate(op)}
+                data-testid={`button-duplicate-${op.id}`}
+              >
+                <Copy className="w-3 h-3" />
+              </button>
+            </div>
+            <button
+              className="p-1.5 rounded transition-all"
+              style={{
+                background: "transparent",
+                border: "1px solid transparent",
+                color: "hsla(0,60%,45%,0.4)"
+              }}
+              onClick={() => handleDelete(op.id)}
+              data-testid={`button-delete-${op.id}`}
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  const Section = ({ title, ops, accent }: { title: string; ops: Operation[]; accent?: string }) => ops.length === 0 ? null : (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="w-4 h-px" style={{ background: accent ?? "hsla(228,25%,20%,1)" }} />
+        <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/30">{title}</span>
+        <span className="text-[9px] font-mono text-white/20">({ops.length})</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {ops.map((op, i) => <OperationCard key={op.id} op={op} idx={i} />)}
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500 max-w-5xl mx-auto pb-20">
-      <header className="flex justify-between items-end">
+    <div className="animate-in fade-in duration-400 space-y-6 pb-20">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-serif text-primary tracking-tight">Radionic Positions</h1>
-          <p className="text-muted-foreground mt-2">Manage your stored TREND/TARGET transmission configurations.</p>
+          <div className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+          <h1 className="text-2xl font-mono font-bold text-white/85">Radionic Operations</h1>
+          <p className="text-xs font-mono text-white/30 mt-0.5">Manage your stored TREND/TARGET transmission configurations.</p>
         </div>
         <Link href="/builder">
-          <Button className="bg-primary hover:bg-primary/90" data-testid="button-new-operation">New Position</Button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-all"
+            style={{
+              background: "linear-gradient(135deg, hsla(270,75%,38%,1), hsla(270,65%,28%,1))",
+              border: "1px solid hsla(270,75%,52%,0.5)",
+              color: "white",
+              boxShadow: "0 0 14px hsla(270,75%,58%,0.25)"
+            }}
+            data-testid="button-new-operation"
+          >
+            <Plus className="w-3.5 h-3.5" /> New Operation
+          </button>
         </Link>
-      </header>
+      </div>
 
       {operations.length === 0 ? (
-        <Card className="glass-card p-12 text-center border-dashed">
-          <h2 className="text-2xl font-serif mb-2 text-muted-foreground">No Positions Found</h2>
-          <p className="text-muted-foreground/60 mb-6">Build your first radionic position using the Position Builder.</p>
+        <div
+          className="rounded p-12 text-center"
+          style={{
+            background: "linear-gradient(160deg, hsla(228,35%,7%,0.95), hsla(228,40%,4%,1))",
+            border: "1px dashed hsla(228,25%,16%,0.8)"
+          }}
+        >
+          <h2 className="text-lg font-mono text-white/30 mb-2">No Operations Found</h2>
+          <p className="text-sm font-mono text-white/20 mb-6">Build your first radionic operation using the Position Builder.</p>
           <Link href="/builder">
-            <Button className="bg-primary hover:bg-primary/90">Open Position Builder</Button>
+            <button
+              className="px-4 py-2 rounded text-sm font-mono"
+              style={{
+                background: "linear-gradient(135deg, hsla(270,75%,38%,1), hsla(270,65%,28%,1))",
+                border: "1px solid hsla(270,75%,52%,0.5)",
+                color: "white"
+              }}
+            >
+              Open Position Builder
+            </button>
           </Link>
-        </Card>
+        </div>
       ) : (
-        <div className="space-y-10">
-          <Section title="Transmitting" ops={running} />
-          <Section title="Paused" ops={paused} />
-          <Section title="Stored Positions" ops={idle} />
+        <div className="space-y-8">
+          <Section title="Transmitting" ops={running} accent="hsla(120,70%,45%,0.7)" />
+          <Section title="Paused" ops={paused} accent="hsla(38,85%,52%,0.6)" />
+          <Section title="Stored Operations" ops={idle} accent="hsla(270,45%,45%,0.5)" />
         </div>
       )}
     </div>

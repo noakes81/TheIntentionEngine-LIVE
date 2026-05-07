@@ -2,18 +2,17 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation, SubPosition, SymbolicCard, RadionicRate } from "@/types";
 import { PRESET_OPERATIONS, FREQUENCY_PRESETS } from "@/data/presets";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FrequencySlider } from "@/components/FrequencySlider";
 import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
 import { StickPad } from "@/components/StickPad";
 import { useLocation, useSearch } from "wouter";
-import { Plus, Save, Zap, X, ImagePlus, Check, Sparkles, Target, Pencil } from "lucide-react";
+import { Plus, Save, Zap, X, ImagePlus, Check, Sparkles, Target, Pencil, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MAX_POSITIONS = 10;
 const MAX_CARDS = 10;
@@ -23,18 +22,16 @@ const POSITION_TYPES: SubPosition["positionType"][] = [
 ];
 
 function makeDefaultSubPosition(idx: number): SubPosition {
-  const trendNum = idx; // position 0 → Target, 1 → Trend 1, etc.
-  const defaults: Partial<SubPosition>[] = [
-    { name: "Target",  positionType: "Target",  targetLinkType: "name", targetName: "Self" },
-    { name: "Trend 1", positionType: "Trend 1", targetLinkType: "name" },
-    { name: "Trend 2", positionType: "Trend 2", targetLinkType: "name" },
-  ];
   const trendTypes: SubPosition["positionType"][] = [
     "Target","Trend 1","Trend 2","Trend 3","Trend 4","Trend 5","Trend 6","Trend 7","Trend 8","Trend 9"
   ];
   const type = trendTypes[idx] ?? "Trend 1";
+  const defaults: Record<number, Partial<SubPosition>> = {
+    0: { name: "Target", positionType: "Target", targetLinkType: "name", targetName: "Self" },
+    1: { name: "Trend 1", positionType: "Trend 1", targetLinkType: "name" },
+    2: { name: "Trend 2", positionType: "Trend 2", targetLinkType: "name" },
+  };
   const d = defaults[idx] ?? { name: type, positionType: type, targetLinkType: "name" };
-  void trendNum;
   return {
     id: `sp-${Date.now()}-${idx}`,
     intention: "",
@@ -44,6 +41,337 @@ function makeDefaultSubPosition(idx: number): SubPosition {
     cardIds: [],
     ...d,
   } as SubPosition;
+}
+
+function PositionModuleCard({
+  pos,
+  idx,
+  isActive,
+  cardsLib,
+  onSelect,
+  onRemove,
+  onUpdate,
+  onTriggerImageUpload,
+  onRemoveImage,
+  totalCount,
+  fileInputRef,
+}: {
+  pos: SubPosition;
+  idx: number;
+  isActive: boolean;
+  cardsLib: SymbolicCard[];
+  onSelect: () => void;
+  onRemove: () => void;
+  onUpdate: (patch: Partial<SubPosition>) => void;
+  onTriggerImageUpload: (slot: number) => void;
+  onRemoveImage: (slot: number) => void;
+  totalCount: number;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+}) {
+  const isTarget = pos.positionType === "Target";
+  const isTrend = pos.positionType.startsWith("Trend");
+  const totalCards = pos.customCardImages.length + pos.cardIds.length;
+  const [showCards, setShowCards] = useState(false);
+
+  const toggleLibraryCard = (cardId: string) => {
+    const current = pos.cardIds;
+    const next = current.includes(cardId)
+      ? current.filter(id => id !== cardId)
+      : [...current, cardId];
+    if (next.length + pos.customCardImages.length > MAX_CARDS) return;
+    onUpdate({ cardIds: next });
+  };
+
+  const accentColor = isTarget ? "hsla(38,85%,52%,1)" : "hsla(270,75%,58%,1)";
+  const accentFaint = isTarget ? "hsla(38,85%,52%,0.12)" : "hsla(270,75%,58%,0.12)";
+  const accentBorder = isTarget ? "hsla(38,85%,52%,0.35)" : "hsla(270,75%,52%,0.35)";
+  const headerBg = isTarget
+    ? "linear-gradient(90deg, hsla(38,45%,9%,1), hsla(228,35%,6%,1))"
+    : "linear-gradient(90deg, hsla(270,45%,11%,1), hsla(228,35%,6%,1))";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.15 }}
+      className="relative flex flex-col rounded overflow-hidden cursor-pointer"
+      style={{
+        background: "linear-gradient(175deg, hsla(228,35%,8%,0.99), hsla(228,40%,5%,1))",
+        border: isActive
+          ? `1px solid ${accentBorder}`
+          : "1px solid hsla(228,25%,14%,0.9)",
+        boxShadow: isActive
+          ? `0 0 20px ${accentFaint}, 0 4px 20px hsla(0,0%,0%,0.5)`
+          : "0 4px 16px hsla(0,0%,0%,0.4)"
+      }}
+      onClick={onSelect}
+    >
+      {/* Module header */}
+      <div
+        className="flex items-center justify-between px-3 py-2 shrink-0"
+        style={{
+          background: headerBg,
+          borderBottom: `1px solid ${isActive ? accentBorder : "hsla(228,25%,13%,1)"}`,
+        }}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Position number badge */}
+          <div
+            className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-mono font-bold shrink-0"
+            style={{
+              background: isActive ? accentColor : "hsla(228,25%,14%,1)",
+              color: isActive ? "white" : "hsla(228,10%,40%,1)",
+              boxShadow: isActive ? `0 0 8px ${accentFaint}` : "none"
+            }}
+          >
+            {idx + 1}
+          </div>
+          <Input
+            value={pos.name}
+            onChange={e => { e.stopPropagation(); onUpdate({ name: e.target.value }); }}
+            onClick={e => e.stopPropagation()}
+            className="bg-transparent border-0 p-0 h-auto text-[10px] font-mono uppercase tracking-[0.15em] focus-visible:ring-0 w-24"
+            style={{ color: isActive ? accentColor : "hsla(228,10%,45%,1)" }}
+            placeholder="Name..."
+          />
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Select
+            value={pos.positionType}
+            onValueChange={v => onUpdate({ positionType: v as SubPosition["positionType"] })}
+          >
+            <SelectTrigger
+              className="h-5 text-[9px] font-mono border-0 px-1 w-20 focus:ring-0"
+              style={{
+                background: "hsla(228,25%,10%,0.8)",
+                color: "hsla(228,10%,40%,1)"
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {POSITION_TYPES.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {totalCount > 1 && (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); onRemove(); }}
+              className="w-4 h-4 flex items-center justify-center rounded transition-colors"
+              style={{ color: "hsla(0,65%,55%,0.5)" }}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 p-3 space-y-3 flex flex-col">
+
+        {/* Target-specific fields */}
+        {isTarget && (
+          <div className="space-y-2" onClick={e => e.stopPropagation()}>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <div className="text-[8px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Target</div>
+                <Input
+                  value={pos.targetName ?? ""}
+                  onChange={e => onUpdate({ targetName: e.target.value })}
+                  placeholder="Self"
+                  className="text-xs h-7 font-mono"
+                  style={{
+                    background: "hsla(38,15%,6%,1)",
+                    border: "1px solid hsla(38,85%,45%,0.2)",
+                    color: "hsla(38,85%,70%,0.9)"
+                  }}
+                  data-testid="input-target-name"
+                />
+              </div>
+              <div>
+                <div className="text-[8px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Link</div>
+                <Select value={pos.targetLinkType ?? "name"} onValueChange={v => onUpdate({ targetLinkType: v as SubPosition["targetLinkType"] })}>
+                  <SelectTrigger className="text-xs h-7 font-mono"
+                    style={{ background: "hsla(38,15%,6%,1)", border: "1px solid hsla(38,85%,45%,0.2)" }}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="photo">Photo</SelectItem>
+                    <SelectItem value="written">Written</SelectItem>
+                    <SelectItem value="transfer">Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {pos.targetLinkType === "photo" && (
+              <WitnessPhotoUpload value={pos.targetPhoto} onChange={v => onUpdate({ targetPhoto: v })} />
+            )}
+            {pos.targetLinkType === "transfer" && (
+              <WitnessPhotoUpload value={pos.targetTransferDiagram} onChange={v => onUpdate({ targetTransferDiagram: v })} />
+            )}
+          </div>
+        )}
+
+        {/* Intention */}
+        <div onClick={e => e.stopPropagation()}>
+          <div className="text-[8px] font-mono uppercase tracking-widest mb-1"
+            style={{ color: isTarget ? "hsla(38,85%,52%,0.6)" : "hsla(270,75%,65%,0.6)" }}>
+            {isTarget ? "Description" : "Intention / Trend Statement"}
+          </div>
+          <Textarea
+            value={pos.intention}
+            onChange={e => onUpdate({ intention: e.target.value })}
+            placeholder={isTarget
+              ? "Describe target..."
+              : "I feel abundant and grateful, knowing prosperity flows to me now..."}
+            className="text-xs resize-none leading-relaxed font-mono min-h-[64px]"
+            style={{
+              background: "hsla(228,35%,5%,0.8)",
+              border: `1px solid ${isActive ? (isTarget ? "hsla(38,85%,45%,0.2)" : "hsla(270,45%,35%,0.2)") : "hsla(228,25%,14%,0.8)"}`,
+              color: "hsla(210,15%,72%,1)"
+            }}
+            data-testid={idx === 0 ? undefined : "textarea-intention"}
+          />
+        </div>
+
+        {/* Sigil image slots */}
+        <div onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="text-[8px] font-mono uppercase tracking-widest"
+              style={{ color: isTarget ? "hsla(38,85%,52%,0.5)" : "hsla(270,75%,65%,0.5)" }}>
+              Sigils / Filters
+            </div>
+            <span className="text-[8px] font-mono"
+              style={{ color: totalCards >= MAX_CARDS ? "hsla(0,70%,55%,0.8)" : "hsla(228,10%,35%,1)" }}>
+              {totalCards}/{MAX_CARDS}
+            </span>
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {pos.customCardImages.map((img, slot) => (
+              <div key={slot} className="relative group aspect-square rounded overflow-hidden"
+                style={{ border: "1px solid hsla(270,45%,35%,0.3)" }}>
+                <img src={img} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-0.5"
+                  style={{ background: "hsla(0,0%,0%,0.7)" }}>
+                  <button type="button" onClick={() => onTriggerImageUpload(slot)}
+                    className="w-4 h-4 rounded flex items-center justify-center"
+                    style={{ background: "hsla(228,25%,20%,1)", color: "hsla(270,75%,65%,1)" }}>
+                    <ImagePlus className="w-2.5 h-2.5" />
+                  </button>
+                  <button type="button" onClick={() => onRemoveImage(slot)}
+                    className="w-4 h-4 rounded flex items-center justify-center"
+                    style={{ background: "hsla(228,25%,20%,1)", color: "hsla(0,65%,55%,1)" }}>
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {totalCards < MAX_CARDS && (
+              <button type="button" onClick={() => onTriggerImageUpload(-1)}
+                className="aspect-square rounded flex flex-col items-center justify-center gap-0.5 transition-all"
+                style={{
+                  border: "1px dashed hsla(228,25%,18%,0.8)",
+                  background: "hsla(228,35%,6%,0.5)"
+                }}
+              >
+                <ImagePlus className="w-3 h-3" style={{ color: "hsla(228,10%,30%,1)" }} />
+              </button>
+            )}
+          </div>
+
+          {/* Library card toggle */}
+          <button
+            type="button"
+            onClick={() => setShowCards(s => !s)}
+            className="mt-1.5 w-full flex items-center justify-between px-2 py-1 rounded text-[8px] font-mono uppercase tracking-widest transition-all"
+            style={{
+              background: "hsla(228,25%,8%,0.8)",
+              border: "1px solid hsla(228,25%,14%,0.8)",
+              color: "hsla(228,10%,35%,1)"
+            }}
+          >
+            <span>Filter Library ({pos.cardIds.length} selected)</span>
+            {showCards ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
+          </button>
+
+          <AnimatePresence>
+            {showCards && cardsLib.length > 0 && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-5 gap-1 mt-1 max-h-28 overflow-y-auto">
+                  {cardsLib.map(card => {
+                    const sel = pos.cardIds.includes(card.id);
+                    const atMax = !sel && totalCards >= MAX_CARDS;
+                    return (
+                      <button
+                        key={card.id}
+                        type="button"
+                        onClick={() => !atMax && toggleLibraryCard(card.id)}
+                        className="rounded p-1 text-center transition-all"
+                        style={{
+                          background: sel ? "hsla(270,45%,18%,1)" : "hsla(228,25%,8%,0.8)",
+                          border: sel ? "1px solid hsla(270,75%,50%,0.4)" : "1px solid hsla(228,25%,14%,0.6)",
+                          opacity: atMax ? 0.3 : 1,
+                          cursor: atMax ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        <div className="text-sm">{card.symbol}</div>
+                        <div className="text-[6px] font-mono leading-tight line-clamp-1"
+                          style={{ color: "hsla(228,10%,40%,1)" }}>
+                          {card.title.split(' ')[0]}
+                        </div>
+                        {sel && <Check className="w-2 h-2 mx-auto mt-0.5" style={{ color: "hsla(270,75%,65%,1)" }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Rate display (compact) */}
+        <div>
+          <div className="text-[8px] font-mono uppercase tracking-widest mb-1.5"
+            style={{ color: isTarget ? "hsla(38,85%,52%,0.5)" : "hsla(270,75%,65%,0.5)" }}>
+            Radionic Rate
+          </div>
+          <div
+            className="px-3 py-1.5 rounded text-xs tabular-nums flex items-center justify-between"
+            style={isTarget ? {
+              background: "hsla(38,30%,4%,1)",
+              border: "1px solid hsla(38,85%,30%,0.3)",
+              color: "hsla(38,95%,62%,0.9)",
+              fontFamily: "'Space Mono', monospace",
+              letterSpacing: "0.2em",
+              textShadow: "0 0 8px hsla(38,95%,55%,0.5)"
+            } : {
+              background: "hsla(120,40%,4%,1)",
+              border: "1px solid hsla(120,60%,22%,0.3)",
+              color: "hsla(120,75%,58%,0.9)",
+              fontFamily: "'Space Mono', monospace",
+              letterSpacing: "0.2em",
+              textShadow: "0 0 8px hsla(120,75%,50%,0.5)"
+            }}
+          >
+            {pos.rate || "0000000000"}
+            {pos.rateLocked && (
+              <Lock className="w-2.5 h-2.5 shrink-0" style={{ color: isTarget ? "hsla(38,85%,52%,0.6)" : "hsla(270,75%,65%,0.6)" }} />
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 export default function Builder() {
@@ -63,7 +391,6 @@ export default function Builder() {
   ]);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Load operation for editing when ?edit=ID is in the URL
   useEffect(() => {
     const params = new URLSearchParams(search);
     const editId = params.get("edit");
@@ -77,7 +404,6 @@ export default function Builder() {
     if (op.subPositions && op.subPositions.length > 0) {
       setSubPositions(op.subPositions as SubPosition[]);
     } else {
-      // Reconstruct from flat fields for older operations
       const positions: SubPosition[] = [];
       positions.push({
         id: `sp-edit-0`,
@@ -108,18 +434,18 @@ export default function Builder() {
       setSubPositions(positions);
     }
     setActiveIdx(0);
-  // Only run once when operations are loaded and the search param is present
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadingSlot = useRef<number>(-1); // which image slot is being filled
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadingSlot = useRef<number>(-1);
+  const uploadingIdx = useRef<number>(0);
 
   const active = subPositions[activeIdx];
 
-  const updateActive = useCallback((patch: Partial<SubPosition>) => {
-    setSubPositions(prev => prev.map((p, i) => i === activeIdx ? { ...p, ...patch } : p));
-  }, [activeIdx]);
+  const updatePosition = useCallback((idx: number, patch: Partial<SubPosition>) => {
+    setSubPositions(prev => prev.map((p, i) => i === idx ? { ...p, ...patch } : p));
+  }, []);
 
   const addPosition = () => {
     if (subPositions.length >= MAX_POSITIONS) return;
@@ -133,9 +459,9 @@ export default function Builder() {
     setActiveIdx(prev => Math.min(prev, subPositions.length - 2));
   };
 
-  // Custom card image upload
-  const triggerImageUpload = (slot: number) => {
+  const triggerImageUpload = (posIdx: number, slot: number) => {
     uploadingSlot.current = slot;
+    uploadingIdx.current = posIdx;
     fileInputRef.current?.click();
   };
 
@@ -145,12 +471,12 @@ export default function Builder() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const data = ev.target?.result as string;
+      const posIdx = uploadingIdx.current;
       const slot = uploadingSlot.current;
       setSubPositions(prev => prev.map((p, i) => {
-        if (i !== activeIdx) return p;
+        if (i !== posIdx) return p;
         const imgs = [...p.customCardImages];
         if (slot === -1 || slot >= imgs.length) {
-          // append
           imgs.push(data);
         } else {
           imgs[slot] = data;
@@ -162,22 +488,11 @@ export default function Builder() {
     e.target.value = "";
   };
 
-  const removeCustomImage = (slot: number) => {
+  const removeCustomImage = (posIdx: number, slot: number) => {
     setSubPositions(prev => prev.map((p, i) =>
-      i === activeIdx ? { ...p, customCardImages: p.customCardImages.filter((_, s) => s !== slot) } : p
+      i === posIdx ? { ...p, customCardImages: p.customCardImages.filter((_, s) => s !== slot) } : p
     ));
   };
-
-  const toggleLibraryCard = (cardId: string) => {
-    const current = active.cardIds;
-    const next = current.includes(cardId)
-      ? current.filter(id => id !== cardId)
-      : [...current, cardId];
-    if (next.length + active.customCardImages.length > MAX_CARDS) return;
-    updateActive({ cardIds: next });
-  };
-
-  const totalCards = active.customCardImages.length + active.cardIds.length;
 
   const loadPreset = (presetId: string) => {
     const preset = PRESET_OPERATIONS.find(p => p.id === presetId);
@@ -208,7 +523,6 @@ export default function Builder() {
         targetName: preset.target.name,
         targetDescription: preset.target.description,
         targetLinkType: (preset.structuralLinkType ?? "name") as SubPosition["targetLinkType"],
-        targetPhoto: preset.target.photo,
       },
     ]);
     setActiveIdx(0);
@@ -221,7 +535,6 @@ export default function Builder() {
     }
     const mainTrend = subPositions.find(p => p.positionType.startsWith("Trend")) ?? subPositions[0];
     const mainTarget = subPositions.find(p => p.positionType === "Target");
-
     const allCardIds = Array.from(new Set(subPositions.flatMap(p => p.cardIds)));
 
     const updatedFields = {
@@ -248,7 +561,7 @@ export default function Builder() {
 
     if (editingId) {
       setOperations(ops => ops.map(op => op.id === editingId ? { ...op, ...updatedFields } : op));
-      toast({ title: "Position Updated", description: `${subPositions.length} position${subPositions.length > 1 ? "s" : ""} saved.` });
+      toast({ title: "Position Updated", description: `${subPositions.length} position(s) saved.` });
     } else {
       const newOp: Operation = {
         id: `op-${Date.now()}`,
@@ -258,352 +571,285 @@ export default function Builder() {
         createdAt: new Date().toISOString(),
       };
       setOperations([...operations, newOp]);
-      toast({ title: "Position Saved", description: `${subPositions.length} position${subPositions.length > 1 ? "s" : ""} saved to library.` });
+      toast({ title: "Position Saved", description: `${subPositions.length} position(s) saved to library.` });
     }
     navigate("/operations");
   };
 
   const rateToDisplay = (r: RadionicRate) => r || "0000000000";
-  const isTarget = active.positionType === "Target";
-  const isTrend = active.positionType.startsWith("Trend");
+  const isActiveTarget = active?.positionType === "Target";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto pb-20">
-      {/* Header */}
-      <header className="flex justify-between items-end flex-wrap gap-4">
-        <div>
-          <h1 className="text-4xl font-serif text-primary tracking-tight">
-            {editingId ? "Edit Position" : "Position Builder"}
-          </h1>
-          {editingId ? (
-            <div className="flex items-center gap-2 mt-2">
-              <Pencil className="w-3.5 h-3.5 text-amber-400/70" />
-              <p className="text-amber-400/70 text-sm font-mono">Editing — changes will overwrite the saved position</p>
-            </div>
-          ) : (
-            <p className="text-muted-foreground mt-2">Build up to 10 positions — each with its own trend, rate, and cards.</p>
-          )}
-        </div>
-        <div className="flex gap-3">
+    <div className="animate-in fade-in duration-400 pb-20 space-y-4">
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
+
+      {/* Top toolbar */}
+      <div
+        className="flex items-center justify-between gap-4 px-4 py-3 rounded"
+        style={{
+          background: "linear-gradient(90deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
+          border: "1px solid hsla(228,25%,13%,0.9)"
+        }}
+      >
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div>
+            <h1 className="text-base font-mono font-bold text-white/85">
+              {editingId ? "Edit Operation" : "Position Builder"}
+            </h1>
+            {editingId && (
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <Pencil className="w-2.5 h-2.5" style={{ color: "hsla(38,85%,52%,0.7)" }} />
+                <span className="text-[9px] font-mono text-white/30">Editing — changes overwrite saved operation</span>
+              </div>
+            )}
+          </div>
+
+          <div className="h-6 w-px" style={{ background: "hsla(228,25%,16%,1)" }} />
+
+          <div className="flex-1 min-w-0 max-w-xs">
+            <Input
+              value={sessionName}
+              onChange={e => setSessionName(e.target.value)}
+              placeholder="Operation name..."
+              className="text-sm font-mono h-8"
+              style={{
+                background: "hsla(228,35%,6%,1)",
+                border: "1px solid hsla(228,25%,16%,0.8)",
+                color: "white"
+              }}
+              data-testid="input-operation-name"
+            />
+          </div>
+
           <Select onValueChange={loadPreset}>
-            <SelectTrigger className="w-52 bg-background/50 border-primary/20 text-sm">
+            <SelectTrigger
+              className="w-44 text-xs h-8 font-mono"
+              style={{
+                background: "hsla(228,35%,6%,1)",
+                border: "1px solid hsla(228,25%,16%,0.8)",
+                color: "hsla(228,10%,45%,1)"
+              }}
+            >
               <SelectValue placeholder="Load preset..." />
             </SelectTrigger>
             <SelectContent>
               {PRESET_OPERATIONS.map(p => (
-                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                <SelectItem key={p.id} value={p.id} className="text-xs">{p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleSave} className="bg-primary hover:bg-primary/90 gap-2" data-testid="button-save-operation">
-            <Save className="w-4 h-4" /> {editingId ? "Update Position" : "Save Position"}
-          </Button>
         </div>
-      </header>
 
-      {/* Session name */}
-      <div className="space-y-2">
-        <Label htmlFor="session-name">Position Name</Label>
-        <Input
-          id="session-name"
-          value={sessionName}
-          onChange={e => setSessionName(e.target.value)}
-          placeholder="e.g. Big Money — 9 Positions — 333 Hz"
-          className="bg-background/50 border-primary/20 text-lg"
-          data-testid="input-operation-name"
-        />
+        <button
+          onClick={handleSave}
+          className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono font-medium shrink-0 transition-all"
+          style={{
+            background: "linear-gradient(135deg, hsla(270,75%,40%,1), hsla(270,65%,30%,1))",
+            border: "1px solid hsla(270,75%,55%,0.5)",
+            color: "white",
+            boxShadow: "0 0 14px hsla(270,75%,58%,0.25)"
+          }}
+          data-testid="button-save-operation"
+        >
+          <Save className="w-3.5 h-3.5" />
+          {editingId ? "Update" : "Save Operation"}
+        </button>
       </div>
 
-      {/* Position selector — SM-X style numbered pills */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground/60 mr-1">Positions</span>
-        {subPositions.map((pos, idx) => (
-          <div key={pos.id} className="relative group">
-            <button
-              type="button"
-              onClick={() => setActiveIdx(idx)}
-              className={`w-10 h-10 rounded-lg border font-mono text-sm font-bold transition-all ${
-                idx === activeIdx
-                  ? "bg-primary/20 border-primary/50 text-primary shadow-[0_0_12px_rgba(157,78,221,0.25)]"
-                  : "bg-background/40 border-border/40 text-muted-foreground hover:border-primary/30 hover:text-foreground"
-              }`}
-            >
-              {idx + 1}
-            </button>
-            {subPositions.length > 1 && (
+      {/* Main area: position canvas (left) + active editor (right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4 items-start">
+
+        {/* ====== POSITION CANVAS ====== */}
+        <div className="space-y-3">
+          {/* Canvas toolbar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-px" style={{ background: "hsla(270,75%,58%,0.5)" }} />
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">
+                Radionic Canvas — {subPositions.length} / {MAX_POSITIONS} Positions
+              </span>
+            </div>
+            {subPositions.length < MAX_POSITIONS && (
               <button
                 type="button"
-                onClick={() => removePosition(idx)}
-                className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-background border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 items-center justify-center hidden group-hover:flex transition-all"
+                onClick={addPosition}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono transition-all"
+                style={{
+                  background: "hsla(228,35%,7%,1)",
+                  border: "1px dashed hsla(270,45%,35%,0.5)",
+                  color: "hsla(270,75%,65%,0.8)"
+                }}
               >
-                <X className="w-2.5 h-2.5" />
+                <Plus className="w-3 h-3" /> Add Position
               </button>
             )}
           </div>
-        ))}
-        {subPositions.length < MAX_POSITIONS && (
-          <button
-            type="button"
-            onClick={addPosition}
-            className="w-10 h-10 rounded-lg border border-dashed border-border/40 text-muted-foreground/50 hover:border-primary/40 hover:text-primary/70 flex items-center justify-center transition-all"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        )}
-        <span className="ml-auto text-xs font-mono text-muted-foreground/40">
-          {subPositions.length} / {MAX_POSITIONS}
-        </span>
-      </div>
 
-      {/* Position editor */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* LEFT — trend/intention + cards */}
-        <Card className={`glass-card p-6 space-y-5 ${isTrend ? "border-primary/20" : isTarget ? "border-amber-500/20" : "border-border/30"}`}>
-          <div className="flex items-center gap-3 border-b border-border/30 pb-4">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isTrend ? "bg-primary/15" : isTarget ? "bg-amber-500/10" : "bg-muted/20"}`}>
-              {isTrend ? <Sparkles className="w-4 h-4 text-primary" /> : <Target className="w-4 h-4 text-amber-400" />}
-            </div>
-            <div className="flex-1 flex items-center gap-3">
-              <div>
-                <Input
-                  value={active.name}
-                  onChange={e => updateActive({ name: e.target.value })}
-                  className={`bg-transparent border-0 p-0 h-auto text-sm font-mono uppercase tracking-widest focus-visible:ring-0 ${isTrend ? "text-primary" : isTarget ? "text-amber-400" : "text-muted-foreground"}`}
-                  placeholder="Position name..."
+          {/* Position grid — SMX style: all visible simultaneously */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <AnimatePresence mode="popLayout">
+              {subPositions.map((pos, idx) => (
+                <PositionModuleCard
+                  key={pos.id}
+                  pos={pos}
+                  idx={idx}
+                  isActive={idx === activeIdx}
+                  cardsLib={cardsLib}
+                  onSelect={() => setActiveIdx(idx)}
+                  onRemove={() => removePosition(idx)}
+                  onUpdate={patch => updatePosition(idx, patch)}
+                  onTriggerImageUpload={(slot) => triggerImageUpload(idx, slot)}
+                  onRemoveImage={(slot) => removeCustomImage(idx, slot)}
+                  totalCount={subPositions.length}
+                  fileInputRef={fileInputRef}
                 />
-              </div>
-              <Select value={active.positionType} onValueChange={v => updateActive({ positionType: v as SubPosition["positionType"] })}>
-                <SelectTrigger className="h-7 text-xs bg-background/40 border-border/30 w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {POSITION_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Intention / text */}
-          <div className="space-y-2">
-            <Label className="text-xs">{isTarget ? "Target Description" : "Trend Statement (present tense, feeling-based)"}</Label>
-            <Textarea
-              value={active.intention}
-              onChange={e => updateActive({ intention: e.target.value })}
-              placeholder={isTarget
-                ? "Brief description of target or situation..."
-                : "I feel deeply grateful knowing that abundance flows freely to me now..."}
-              className={`min-h-[100px] bg-background/50 resize-none leading-relaxed text-sm italic ${isTrend ? "border-primary/20" : isTarget ? "border-amber-500/20" : "border-border/30"}`}
-              data-testid="textarea-intention"
-            />
-            {isTrend && <p className="text-[10px] text-muted-foreground/50">Write from the feeling of already having the result. (Magic of the Future — Welz)</p>}
-          </div>
-
-          {/* Trend Cards / Sigils */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className={`text-xs font-mono uppercase tracking-widest ${isTrend ? "text-primary/70" : isTarget ? "text-amber-400/70" : "text-muted-foreground/60"}`}>
-                Trend Cards / Sigils
-              </span>
-              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                totalCards >= MAX_CARDS ? "bg-destructive/20 text-destructive" : isTrend ? "bg-primary/15 text-primary" : "bg-muted/20 text-muted-foreground"
-              }`}>
-                {totalCards} / {MAX_CARDS}
-              </span>
-            </div>
-
-            {/* Custom image grid — up to 10 slots */}
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
-
-            <div className="grid grid-cols-5 gap-2">
-              {/* Filled slots */}
-              {active.customCardImages.map((img, slot) => (
-                <div key={slot} className="relative group aspect-square rounded-lg overflow-hidden border border-primary/30 bg-background/50">
-                  <img src={img} alt={`Card ${slot + 1}`} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => triggerImageUpload(slot)}
-                      className="w-5 h-5 rounded bg-background/80 flex items-center justify-center text-primary/80 hover:text-primary"
-                    >
-                      <ImagePlus className="w-3 h-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeCustomImage(slot)}
-                      className="w-5 h-5 rounded bg-background/80 flex items-center justify-center text-destructive/70 hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
               ))}
-
-              {/* Add slot (if under 10 total) */}
-              {totalCards < MAX_CARDS && (
-                <button
-                  type="button"
-                  onClick={() => triggerImageUpload(-1)}
-                  className="aspect-square rounded-lg border-2 border-dashed border-border/30 hover:border-primary/40 bg-background/30 hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-all group"
-                >
-                  <ImagePlus className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
-                  <span className="text-[8px] text-muted-foreground/40 font-mono">SIGIL</span>
-                </button>
-              )}
-            </div>
-
-            {/* Library card picker */}
-            <div className="grid grid-cols-5 gap-1.5 max-h-[150px] overflow-y-auto pr-1">
-              {cardsLib.map(card => {
-                const sel = active.cardIds.includes(card.id);
-                const atMax = !sel && totalCards >= MAX_CARDS;
-                return (
-                  <div
-                    key={card.id}
-                    onClick={() => !atMax && toggleLibraryCard(card.id)}
-                    className={`rounded-lg p-1.5 text-center border transition-all ${
-                      atMax ? "opacity-30 cursor-not-allowed border-border/20 bg-background/20"
-                      : sel ? "border-primary bg-primary/15 shadow-[0_0_6px_rgba(139,92,246,0.2)] cursor-pointer"
-                      : "border-border/30 bg-background/40 hover:border-primary/30 cursor-pointer"
-                    }`}
-                  >
-                    <div className="text-base">{card.symbol}</div>
-                    <div className="text-[7px] font-medium leading-tight line-clamp-1 mt-0.5 text-muted-foreground">{card.title}</div>
-                    {sel && <Check className="w-2.5 h-2.5 text-primary mx-auto mt-0.5" />}
-                  </div>
-                );
-              })}
-            </div>
+            </AnimatePresence>
           </div>
-        </Card>
+        </div>
 
-        {/* RIGHT — target fields (if Main Target) + rate + stick pad */}
-        <Card className={`glass-card p-6 space-y-5 ${isTarget ? "border-amber-500/20" : "border-border/30"}`}>
+        {/* ====== ACTIVE POSITION EDITOR (right panel) ====== */}
+        {active && (
+          <div className="space-y-3">
+            {/* Panel header */}
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-px" style={{ background: "hsla(38,85%,52%,0.5)" }} />
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">
+                Position {activeIdx + 1} — Rate Dialing
+              </span>
+            </div>
 
-          {/* Main Target specific fields */}
-          {isTarget && (
-            <div className="space-y-4 border-b border-amber-500/15 pb-4">
+            {/* Rate dial section */}
+            <div
+              className="rounded p-4 space-y-4"
+              style={{
+                background: "linear-gradient(160deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
+                border: `1px solid ${isActiveTarget ? "hsla(38,85%,52%,0.3)" : "hsla(270,45%,35%,0.3)"}`,
+                boxShadow: "0 4px 16px hsla(0,0%,0%,0.4)"
+              }}
+            >
+              <div className="flex items-center gap-2">
+                {isActiveTarget
+                  ? <Target className="w-3.5 h-3.5" style={{ color: "hsla(38,85%,62%,0.8)" }} />
+                  : <Sparkles className="w-3.5 h-3.5" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+                }
+                <span className="text-xs font-mono font-bold"
+                  style={{ color: isActiveTarget ? "hsla(38,85%,65%,0.9)" : "hsla(270,75%,70%,0.9)" }}>
+                  {active.name} — Virtual Stick Pad
+                </span>
+              </div>
+
+              <StickPad
+                locked={active.rateLocked}
+                onLock={rate => updatePosition(activeIdx, { rate, rateLocked: true })}
+                onClear={() => updatePosition(activeIdx, { rateLocked: false })}
+                rateDisplay={rateToDisplay(active.rate)}
+                color={isActiveTarget ? "amber" : "primary"}
+              />
+            </div>
+
+            {/* Chi frequency + duration */}
+            <div
+              className="rounded p-4 space-y-4"
+              style={{
+                background: "linear-gradient(160deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
+                border: "1px solid hsla(228,25%,14%,0.9)",
+                boxShadow: "0 4px 16px hsla(0,0%,0%,0.4)"
+              }}
+            >
+              <div className="flex items-center gap-2 pb-3" style={{ borderBottom: "1px solid hsla(228,25%,12%,1)" }}>
+                <Zap className="w-3.5 h-3.5 text-white/30" />
+                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">Chi Frequency</span>
+              </div>
+
+              <FrequencySlider value={frequencyHz} onChange={setFrequencyHz} />
+
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Target Name</Label>
-                  <Input
-                    value={active.targetName ?? ""}
-                    onChange={e => updateActive({ targetName: e.target.value })}
-                    placeholder="Self"
-                    className="bg-background/50 border-amber-500/20 text-sm"
-                    data-testid="input-target-name"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Structural Link Type</Label>
-                  <Select value={active.targetLinkType ?? "name"} onValueChange={v => updateActive({ targetLinkType: v as SubPosition["targetLinkType"] })}>
-                    <SelectTrigger className="bg-background/50 border-amber-500/20 text-sm">
-                      <SelectValue />
+                <div>
+                  <div className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Frequency</div>
+                  <Select
+                    value=""
+                    onValueChange={v => setFrequencyHz(parseFloat(v))}
+                  >
+                    <SelectTrigger
+                      className="text-xs h-8 font-mono w-full"
+                      style={{ background: "hsla(228,35%,6%,1)", border: "1px solid hsla(228,25%,16%,0.8)" }}
+                    >
+                      <SelectValue placeholder="Select preset..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="name">Written Name</SelectItem>
-                      <SelectItem value="photo">Witness Photo</SelectItem>
-                      <SelectItem value="written">Written Rate</SelectItem>
-                      <SelectItem value="transfer">Transfer Diagram</SelectItem>
+                      {FREQUENCY_PRESETS.map(p => (
+                        <SelectItem key={p.hz} value={String(p.hz)} className="text-xs">
+                          {p.hz} Hz — {p.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <div className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Duration (min)</div>
+                  <Input
+                    type="number"
+                    value={duration}
+                    onChange={e => setDuration(e.target.value)}
+                    min="1"
+                    max="1440"
+                    className="text-sm font-mono h-8"
+                    style={{
+                      background: "hsla(228,35%,6%,1)",
+                      border: "1px solid hsla(228,25%,16%,0.8)"
+                    }}
+                  />
+                </div>
               </div>
-
-              {active.targetLinkType === "photo" && (
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Witness Photo</Label>
-                  <WitnessPhotoUpload value={active.targetPhoto} onChange={v => updateActive({ targetPhoto: v })} />
-                </div>
-              )}
-              {active.targetLinkType === "transfer" && (
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Transfer Diagram</Label>
-                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
-                    <p className="text-[10px] text-amber-400/60">Upload the Transfer Diagram provided upon purchase. Place the printout on your chi generator.</p>
-                    <WitnessPhotoUpload value={active.targetTransferDiagram} onChange={v => updateActive({ targetTransferDiagram: v })} />
-                  </div>
-                </div>
-              )}
             </div>
-          )}
 
-          {/* Stick pad — hold to generate random rate, release to lock */}
-          <StickPad
-            locked={active.rateLocked}
-            onLock={rate => updateActive({ rate, rateLocked: true })}
-            onClear={() => updateActive({ rateLocked: false })}
-            rateDisplay={rateToDisplay(active.rate)}
-            color={isTarget ? "amber" : "primary"}
-          />
-
-          {/* Position summary (non-active positions preview) */}
-          {subPositions.length > 1 && (
-            <div className="border-t border-border/20 pt-4 space-y-1.5">
-              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40">All Positions</p>
+            {/* All positions summary */}
+            <div
+              className="rounded p-3 space-y-1"
+              style={{
+                background: "hsla(228,35%,6%,0.8)",
+                border: "1px solid hsla(228,25%,12%,0.8)"
+              }}
+            >
+              <div className="text-[8px] font-mono uppercase tracking-widest text-white/20 mb-2">All Positions</div>
               {subPositions.map((pos, idx) => (
                 <button
                   key={pos.id}
                   type="button"
                   onClick={() => setActiveIdx(idx)}
-                  className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-all ${
-                    idx === activeIdx ? "bg-primary/10 border border-primary/20" : "hover:bg-muted/20 border border-transparent"
-                  }`}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded text-left transition-all"
+                  style={{
+                    background: idx === activeIdx ? "hsla(270,35%,12%,1)" : "transparent",
+                    border: idx === activeIdx ? "1px solid hsla(270,45%,25%,0.4)" : "1px solid transparent"
+                  }}
                 >
-                  <span className="font-mono text-muted-foreground/60 w-4">{idx + 1}</span>
-                  <span className="font-medium truncate flex-1">{pos.name}</span>
-                  <span className="text-muted-foreground/40 font-mono">{pos.rate}</span>
-                  {pos.rateLocked && <span className="text-primary/60 font-mono text-[9px]">LOCKED</span>}
+                  <span
+                    className="w-4 h-4 rounded flex items-center justify-center text-[8px] font-mono font-bold shrink-0"
+                    style={{
+                      background: idx === activeIdx ? "hsla(270,75%,50%,1)" : "hsla(228,25%,14%,1)",
+                      color: idx === activeIdx ? "white" : "hsla(228,10%,40%,1)"
+                    }}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="text-[10px] font-mono truncate flex-1"
+                    style={{ color: idx === activeIdx ? "hsla(270,75%,70%,1)" : "hsla(228,10%,40%,1)" }}>
+                    {pos.name}
+                  </span>
+                  <span className="text-[8px] font-mono shrink-0"
+                    style={{ color: "hsla(228,10%,30%,1)" }}>
+                    {pos.rate.slice(0, 5)}···
+                  </span>
+                  {pos.rateLocked && (
+                    <Lock className="w-2 h-2 shrink-0" style={{ color: "hsla(270,75%,58%,0.5)" }} />
+                  )}
                 </button>
               ))}
             </div>
-          )}
-        </Card>
+          </div>
+        )}
       </div>
-
-      {/* Chi frequency + session duration */}
-      <Card className="glass-card p-6 space-y-6">
-        <div className="flex items-center gap-3 border-b border-border/30 pb-4">
-          <div className="w-8 h-8 rounded-lg bg-background/50 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <div>
-            <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Chi Generator Frequency</h2>
-            <p className="text-xs text-muted-foreground/60">Pulse frequency for the orgone/chi field — applies to all positions (0.6–1000 Hz)</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-background/30 p-4 rounded-xl border border-border/30">
-            <FrequencySlider value={frequencyHz} onChange={setFrequencyHz} />
-          </div>
-          <div className="space-y-3">
-            <Label>Quick-Select Frequency</Label>
-            <Select onValueChange={v => setFrequencyHz(parseFloat(v))}>
-              <SelectTrigger className="bg-background/50 border-border/30">
-                <SelectValue placeholder="Choose a preset frequency..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-64">
-                {FREQUENCY_PRESETS.map(fp => (
-                  <SelectItem key={fp.hz} value={String(fp.hz)}>
-                    <span className="font-mono">{fp.hz} Hz</span> — {fp.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="space-y-2">
-              <Label htmlFor="duration">Session Duration (Minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={duration}
-                onChange={e => setDuration(e.target.value)}
-                className="bg-background/50 border-border/30"
-                data-testid="input-duration"
-              />
-            </div>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }

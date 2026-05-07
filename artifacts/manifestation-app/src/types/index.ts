@@ -66,6 +66,7 @@ export type Operation = {
   createdAt: string;
   lastRunAt?: string;
   notes?: string;
+  subPositions?: SubPosition[];
 };
 
 export type SequencerStep = {

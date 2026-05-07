@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Radio } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Operation } from "@/data/presets";
+import { Operation } from "@/types";
+import { motion } from "framer-motion";
 
 export function Sidebar() {
   const [location] = useLocation();
@@ -10,54 +11,106 @@ export function Sidebar() {
   const activeOperation = operations.find(op => op.status === 'running');
 
   const navItems = [
-    { href: "/", label: "Dashboard", icon: Activity },
-    { href: "/builder", label: "Builder", icon: Compass },
+    { href: "/", label: "Control Panel", icon: Activity },
+    { href: "/builder", label: "Position Builder", icon: Compass },
     { href: "/sequencer", label: "Sequencer", icon: Layers },
-    { href: "/cards", label: "Library", icon: Database },
+    { href: "/cards", label: "Filter Library", icon: Database },
     { href: "/operations", label: "Operations", icon: PlayCircle },
     { href: "/transfer-diagram", label: "Transfer Diagram", icon: Hexagon },
     { href: "/export", label: "Export", icon: FileText },
   ];
 
   return (
-    <aside className="w-64 h-screen border-r bg-sidebar flex flex-col fixed left-0 top-0">
-      <div className="h-16 flex items-center px-6 border-b">
-        <h1 className="text-xl font-serif text-primary font-bold tracking-widest">ORGONE STUDIO</h1>
+    <aside className="w-56 h-screen flex flex-col fixed left-0 top-0 z-20"
+      style={{
+        background: "linear-gradient(180deg, hsl(228,40%,4%) 0%, hsl(228,40%,3%) 100%)",
+        borderRight: "1px solid hsla(228,25%,12%,1)",
+        boxShadow: "2px 0 20px hsla(0,0%,0%,0.4)"
+      }}
+    >
+      {/* Logo / Brand */}
+      <div className="h-14 flex items-center px-4 gap-3 shrink-0"
+        style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}
+      >
+        <div className="w-7 h-7 rounded flex items-center justify-center shrink-0"
+          style={{
+            background: "linear-gradient(135deg, hsla(270,75%,45%,1), hsla(270,75%,30%,1))",
+            boxShadow: "0 0 10px hsla(270,75%,58%,0.4), inset 0 1px 0 hsla(255,100%,100%,0.15)"
+          }}
+        >
+          <Radio className="w-3.5 h-3.5 text-white" />
+        </div>
+        <div>
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/90 leading-none">Orgone</div>
+          <div className="text-[9px] font-mono uppercase tracking-widest text-primary/70 leading-none mt-0.5">Manifestation X</div>
+        </div>
       </div>
-      
-      <nav className="flex-1 py-6 px-4 space-y-2">
+
+      {/* Transmission status */}
+      {activeOperation && (
+        <div className="mx-3 mt-3 rounded px-3 py-2 shrink-0 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, hsla(270,45%,10%,1), hsla(270,35%,7%,1))",
+            border: "1px solid hsla(270,75%,45%,0.4)",
+            boxShadow: "0 0 16px hsla(270,75%,45%,0.12)"
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, hsla(270,75%,58%,0.6), transparent)" }} />
+          <div className="flex items-center gap-2 mb-1">
+            <motion.div
+              className="led-green"
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+            />
+            <span className="text-[9px] font-mono uppercase tracking-widest text-primary/80">Transmitting</span>
+          </div>
+          <p className="text-[11px] font-medium text-white/80 truncate leading-tight">{activeOperation.name}</p>
+          <p className="text-[9px] font-mono text-primary/50 mt-0.5">{activeOperation.frequencyHz} Hz</p>
+        </div>
+      )}
+
+      {/* Nav */}
+      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location === item.href;
           const Icon = item.icon;
-          
           return (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                isActive 
-                  ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(157,78,221,0.15)]" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium transition-all duration-150 ${
+                isActive
+                  ? "text-primary"
+                  : "text-white/35 hover:text-white/65 hover:bg-white/4"
               }`}
+              style={isActive ? {
+                background: "linear-gradient(90deg, hsla(270,55%,15%,1), hsla(270,35%,9%,1))",
+                border: "1px solid hsla(270,75%,45%,0.3)",
+                boxShadow: "0 0 10px hsla(270,75%,58%,0.08)"
+              } : { border: "1px solid transparent" }}
             >
-              <Icon className="w-5 h-5" />
-              <span className="font-medium tracking-wide">{item.label}</span>
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              <span className="tracking-wide">{item.label}</span>
+              {isActive && (
+                <div className="ml-auto w-1 h-1 rounded-full bg-primary" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {activeOperation && (
-        <div className="p-4 m-4 rounded-xl bg-card border border-primary/30 shadow-[0_0_20px_rgba(157,78,221,0.1)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
-            <span className="text-xs font-bold text-primary uppercase tracking-wider">Active</span>
-          </div>
-          <p className="text-sm font-medium truncate">{activeOperation.name}</p>
-          <p className="text-xs text-muted-foreground truncate">{activeOperation.frequencyHz} Hz</p>
+      {/* Bottom info */}
+      <div className="px-3 pb-3 shrink-0"
+        style={{ borderTop: "1px solid hsla(228,25%,10%,1)" }}
+      >
+        <div className="pt-3 flex items-center gap-2">
+          <div className="led-off" />
+          <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">
+            {activeOperation ? "Field Active" : "Standby"}
+          </span>
         </div>
-      )}
+      </div>
     </aside>
   );
 }
