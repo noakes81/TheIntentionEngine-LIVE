@@ -407,17 +407,6 @@ export default function Builder() {
       const positions: SubPosition[] = [];
       positions.push({
         id: `sp-edit-0`,
-        name: "Trend 1",
-        positionType: "Trend 1",
-        intention: op.intention,
-        rate: op.trendRate,
-        rateLocked: op.trendRateLocked ?? false,
-        customCardImages: op.customTrendCardImage ? [op.customTrendCardImage] : [],
-        cardIds: op.trendCardIds ?? [],
-        targetLinkType: "name",
-      });
-      positions.push({
-        id: `sp-edit-1`,
         name: "Target",
         positionType: "Target",
         intention: op.target.description ?? "",
@@ -430,6 +419,17 @@ export default function Builder() {
         targetDescription: op.target.description,
         targetPhoto: op.target.photo,
         targetTransferDiagram: op.target.transferDiagram,
+      });
+      positions.push({
+        id: `sp-edit-1`,
+        name: "Trend 1",
+        positionType: "Trend 1",
+        intention: op.intention,
+        rate: op.trendRate,
+        rateLocked: op.trendRateLocked ?? false,
+        customCardImages: op.customTrendCardImage ? [op.customTrendCardImage] : [],
+        cardIds: op.trendCardIds ?? [],
+        targetLinkType: "name",
       });
       setSubPositions(positions);
     }
@@ -503,16 +503,6 @@ export default function Builder() {
     setSubPositions([
       {
         id: `sp-${Date.now()}-0`,
-        name: "Trend 1",
-        positionType: "Trend 1",
-        intention: preset.intention,
-        rate: preset.trendRate,
-        rateLocked: false,
-        customCardImages: [],
-        cardIds: preset.cards,
-      },
-      {
-        id: `sp-${Date.now()}-1`,
         name: "Target",
         positionType: "Target",
         intention: preset.target.description,
@@ -523,6 +513,16 @@ export default function Builder() {
         targetName: preset.target.name,
         targetDescription: preset.target.description,
         targetLinkType: (preset.structuralLinkType ?? "name") as SubPosition["targetLinkType"],
+      },
+      {
+        id: `sp-${Date.now()}-1`,
+        name: "Trend 1",
+        positionType: "Trend 1",
+        intention: preset.intention,
+        rate: preset.trendRate,
+        rateLocked: false,
+        customCardImages: [],
+        cardIds: preset.cards,
       },
     ]);
     setActiveIdx(0);
