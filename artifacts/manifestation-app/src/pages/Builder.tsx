@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation, SubPosition, SymbolicCard, RadionicRate } from "@/types";
 import { PRESET_OPERATIONS, FREQUENCY_PRESETS } from "@/data/presets";
@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FrequencySlider } from "@/components/FrequencySlider";
 import { WitnessPhotoUpload } from "@/components/WitnessPhotoUpload";
 import { StickPad } from "@/components/StickPad";
-import { useLocation } from "wouter";
-import { Plus, Save, Zap, X, ImagePlus, Check, Sparkles, Target } from "lucide-react";
+import { useLocation, useSearch } from "wouter";
+import { Plus, Save, Zap, X, ImagePlus, Check, Sparkles, Target, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const MAX_POSITIONS = 10;
@@ -48,10 +48,12 @@ function makeDefaultSubPosition(idx: number): SubPosition {
 
 export default function Builder() {
   const [, navigate] = useLocation();
+  const search = useSearch();
   const { toast } = useToast();
   const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
   const [cardsLib] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
 
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState("");
   const [frequencyHz, setFrequencyHz] = useState(7.83);
   const [duration, setDuration] = useState("30");
@@ -60,6 +62,55 @@ export default function Builder() {
     makeDefaultSubPosition(1),
   ]);
   const [activeIdx, setActiveIdx] = useState(0);
+
+  // Load operation for editing when ?edit=ID is in the URL
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const editId = params.get("edit");
+    if (!editId) return;
+    const op = operations.find(o => o.id === editId);
+    if (!op) return;
+    setEditingId(editId);
+    setSessionName(op.name);
+    setFrequencyHz(op.frequencyHz);
+    setDuration(String(op.sessionDurationMinutes));
+    if (op.subPositions && op.subPositions.length > 0) {
+      setSubPositions(op.subPositions as SubPosition[]);
+    } else {
+      // Reconstruct from flat fields for older operations
+      const positions: SubPosition[] = [];
+      positions.push({
+        id: `sp-edit-0`,
+        name: "Trend 1",
+        positionType: "Trend 1",
+        intention: op.intention,
+        rate: op.trendRate,
+        rateLocked: op.trendRateLocked ?? false,
+        customCardImages: op.customTrendCardImage ? [op.customTrendCardImage] : [],
+        cardIds: op.trendCardIds ?? [],
+        targetLinkType: "name",
+      });
+      positions.push({
+        id: `sp-edit-1`,
+        name: "Target",
+        positionType: "Target",
+        intention: op.target.description ?? "",
+        rate: op.targetRate,
+        rateLocked: op.targetRateLocked ?? false,
+        customCardImages: [],
+        cardIds: [],
+        targetLinkType: op.structuralLinkType ?? "name",
+        targetName: op.target.name,
+        targetDescription: op.target.description,
+        targetPhoto: op.target.photo,
+        targetTransferDiagram: op.target.transferDiagram,
+      });
+      setSubPositions(positions);
+    }
+    setActiveIdx(0);
+  // Only run once when operations are loaded and the search param is present
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadingSlot = useRef<number>(-1); // which image slot is being filled
@@ -173,8 +224,7 @@ export default function Builder() {
 
     const allCardIds = Array.from(new Set(subPositions.flatMap(p => p.cardIds)));
 
-    const newOp: Operation = {
-      id: `op-${Date.now()}`,
+    const updatedFields = {
       name: sessionName,
       intention: mainTrend.intention,
       trendRate: mainTrend.rate,
@@ -193,14 +243,23 @@ export default function Builder() {
       frequencyHz,
       cards: allCardIds,
       subPositions,
-      status: "idle",
       sessionDurationMinutes: parseInt(duration) || 30,
-      elapsedSeconds: 0,
-      createdAt: new Date().toISOString(),
     };
 
-    setOperations([...operations, newOp]);
-    toast({ title: "Position Saved", description: `${subPositions.length} position${subPositions.length > 1 ? "s" : ""} saved to library.` });
+    if (editingId) {
+      setOperations(ops => ops.map(op => op.id === editingId ? { ...op, ...updatedFields } : op));
+      toast({ title: "Position Updated", description: `${subPositions.length} position${subPositions.length > 1 ? "s" : ""} saved.` });
+    } else {
+      const newOp: Operation = {
+        id: `op-${Date.now()}`,
+        ...updatedFields,
+        status: "idle",
+        elapsedSeconds: 0,
+        createdAt: new Date().toISOString(),
+      };
+      setOperations([...operations, newOp]);
+      toast({ title: "Position Saved", description: `${subPositions.length} position${subPositions.length > 1 ? "s" : ""} saved to library.` });
+    }
     navigate("/operations");
   };
 
@@ -213,8 +272,17 @@ export default function Builder() {
       {/* Header */}
       <header className="flex justify-between items-end flex-wrap gap-4">
         <div>
-          <h1 className="text-4xl font-serif text-primary tracking-tight">Position Builder</h1>
-          <p className="text-muted-foreground mt-2">Build up to 10 positions — each with its own trend, rate, and cards.</p>
+          <h1 className="text-4xl font-serif text-primary tracking-tight">
+            {editingId ? "Edit Position" : "Position Builder"}
+          </h1>
+          {editingId ? (
+            <div className="flex items-center gap-2 mt-2">
+              <Pencil className="w-3.5 h-3.5 text-amber-400/70" />
+              <p className="text-amber-400/70 text-sm font-mono">Editing — changes will overwrite the saved position</p>
+            </div>
+          ) : (
+            <p className="text-muted-foreground mt-2">Build up to 10 positions — each with its own trend, rate, and cards.</p>
+          )}
         </div>
         <div className="flex gap-3">
           <Select onValueChange={loadPreset}>
@@ -228,7 +296,7 @@ export default function Builder() {
             </SelectContent>
           </Select>
           <Button onClick={handleSave} className="bg-primary hover:bg-primary/90 gap-2" data-testid="button-save-operation">
-            <Save className="w-4 h-4" /> Save Position
+            <Save className="w-4 h-4" /> {editingId ? "Update Position" : "Save Position"}
           </Button>
         </div>
       </header>

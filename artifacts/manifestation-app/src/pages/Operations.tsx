@@ -3,11 +3,12 @@ import { Operation } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target } from "lucide-react";
-import { Link } from "wouter";
+import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target, Pencil } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export default function Operations() {
   const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
+  const [, navigate] = useLocation();
 
   const handleStatusChange = (id: string, newStatus: Operation["status"]) => {
     setOperations(ops =>
@@ -127,6 +128,16 @@ export default function Operations() {
                   >
                     {op.status === 'running' ? <Pause className="w-3.5 h-3.5 mr-1" /> : <Play className="w-3.5 h-3.5 mr-1" />}
                     {op.status === 'running' ? 'Pause' : op.status === 'paused' ? 'Resume' : 'Transmit'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    title="Edit position"
+                    onClick={() => navigate(`/builder?edit=${op.id}`)}
+                    data-testid={`button-edit-${op.id}`}
+                    className="border-amber-500/30 text-amber-400/80 hover:bg-amber-500/10 hover:text-amber-400"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" title="Duplicate position" onClick={() => handleDuplicate(op)} data-testid={`button-duplicate-${op.id}`}>
                     <Copy className="w-3.5 h-3.5" />
