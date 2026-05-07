@@ -264,8 +264,9 @@ const toc: [string, string][] = [
   ["10", "Background & Visual Settings"],
   ["11", "Sequencer"],
   ["12", "Export & Transfer Diagrams"],
-  ["13", "Best Practices & Tips"],
-  ["14", "Troubleshooting"],
+  ["13", "Compatible Hardware & Devices"],
+  ["14", "Best Practices & Tips"],
+  ["15", "Troubleshooting"],
 ];
 
 for (const [num, title] of toc) {
@@ -302,10 +303,13 @@ pageHeader();
 
 sectionHeading("1 · Introduction & Overview");
 body(
-  `${APP_FULL} is a professional-grade radionic broadcasting platform inspired by hardware workstation radionics devices. It provides a digital chi-field transmission environment where you can compose multi-position radionic operations, lock precise numerical rates, and broadcast Trend/Target pairings continuously or on a timed schedule.`
+  `${APP_FULL} is a professional-grade radionic broadcasting platform inspired by the pioneering hardware workstation devices of Karl Hans Welz — inventor of the orgone chi generator and founder of modern radionic instrument design. The Intention Engine brings the core workflow of a Welz-style radionics workstation into a digital environment accessible from any browser.`
 );
 body(
-  "The software runs entirely in your browser with all session data stored locally on your device. No data is transmitted externally except for license key verification."
+  "The software provides a digital chi-field transmission environment where you can compose multi-position radionic operations, lock precise numerical rates, and broadcast Trend/Target pairings continuously or on a timed schedule. All session data is stored locally on your device. No data is transmitted externally except for license key verification."
+);
+body(
+  `${APP_FULL} is designed to work alongside any physical orgone or radionic device. Whether you use Karl Welz orgone generators, a QSB (Quantum Scalar Box), a scalar energy device, or a paper radionics board such as the classic Hieronymus machine, the software acts as the digital intelligence layer — handling rate computation, structural linking, intention broadcasting, and session timing while your physical device provides the chi or scalar carrier field.`
 );
 
 subHeading("Core Concepts");
@@ -683,22 +687,92 @@ body(
 
 subHeading("Transfer Diagrams");
 body(
-  "A Transfer Diagram is a printable document that encodes the operation's intention and target information. It is designed to be placed on a physical chi generator (such as an orgone accumulator or radionic broadcaster) to create a structural link between the digital operation and a physical device."
+  "A Transfer Diagram is a printable document that encodes the operation's intention and target information. It is designed to be placed on or in front of a physical chi generator, orgone device, or scalar broadcaster to create a structural link between the digital operation and your hardware."
 );
 bullet([
   "Navigate to Transfer Diagram in the sidebar.",
   "Select an operation to generate its diagram.",
-  "Print the diagram and place it on your physical device.",
+  "Print the diagram and place it on your physical device — on the output plate, well, or broadcast surface.",
   "The diagram includes the operation name, target, trend intention, and radionic rates.",
+  "Compatible with Karl Welz orgone generators, QSB (Quantum Scalar Box), scalar devices, and paper radionics boards including the Hieronymus machine.",
 ]);
 
 pageFooter(pageNum++);
 
-// ── Section 13: Best Practices ────────────────────────────────────────────────
+// ── Section 13: Compatible Hardware & Devices ─────────────────────────────────
 doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
-sectionHeading("13 · Best Practices & Tips");
+sectionHeading("13 · Compatible Hardware & Devices");
+body(
+  `${APP_FULL} was designed with hardware integration in mind from the ground up. The software is inspired by the radionic workstation architecture pioneered by Karl Hans Welz, and functions as the digital control and intelligence layer for any physical orgone, scalar, or radionic device you already own.`
+);
+
+subHeading("Karl Welz Orgone Generators");
+body(
+  "Karl Hans Welz invented the modern orgone chi generator in 1991 and developed the first PC-controlled radionics workstation software. His devices generate a continuous stream of chi (orgone) energy that serves as a carrier for radionic transmissions."
+);
+bullet([
+  "Supported models: Any Welz LPOG, RAD, ATGS, or PCHD series orgone generator.",
+  "Place the printed Transfer Diagram on the output plate or in the transfer cavity of the device.",
+  "Run The Intention Engine operation simultaneously — the software handles the intention and rate information while the Welz device provides the chi carrier field.",
+  "For Welz devices with a built-in Manifestation Program (such as the ATGS 3000), The Intention Engine can act as the rate and intention controller.",
+]);
+
+subHeading("QSB — Quantum Scalar Box");
+body(
+  "The QSB (Quantum Scalar Box) by Life Technology™ generates scalar longitudinal waves modulated by solfeggio and sacred frequencies. It pairs exceptionally well with The Intention Engine's built-in solfeggio chi frequency presets."
+);
+bullet([
+  "Set The Intention Engine's chi frequency to match or harmonically complement the QSB's active frequency.",
+  "Place the printed Transfer Diagram beneath or in front of the QSB coil.",
+  "Use the Sequencer to step through multiple solfeggio frequencies while the QSB broadcasts continuously.",
+  "The 528 Hz, 396 Hz, and 963 Hz presets are particularly effective when paired with QSB scalar output.",
+]);
+
+subHeading("Scalar Energy Devices");
+body(
+  "Scalar devices — including scalar pendants, coil-based scalar generators, torsion-field emitters, and scalar laser devices — can all be combined with The Intention Engine to add a directed intention layer to their output."
+);
+bullet([
+  "Print the Transfer Diagram and place it on the scalar device's output face, coil, or broadcast surface.",
+  "Point the scalar output toward the diagram or target photograph.",
+  "Use continuous session mode for passive environmental broadcasts with scalar devices.",
+  "The Intention Engine's Filter Cards add an additional symbolic-frequency modulation to the scalar carrier.",
+]);
+
+subHeading("Paper Radionics Boards — The Hieronymus Machine");
+body(
+  "T. Galen Hieronymus designed one of the first eloptic energy analyzers and radionic instruments in the early 20th century. His paper radionics board design — sometimes called the 'Symbolic Hieronymus Machine' — demonstrated that a paper diagram of a circuit can function as an operational radionic device when charged with intent."
+);
+bullet([
+  "Print The Intention Engine's Transfer Diagram and use it as the broadcast well or witness plate on a Hieronymus-style paper board.",
+  "Write or paste the radionic rates from the operation directly onto the board's rate dials.",
+  "Run The Intention Engine operation simultaneously to reinforce the paper broadcast with digital chi cycling.",
+  "The paper board's symbolic circuitry and The Intention Engine's digital rates work synergistically — the paper provides the physical link, the software provides precision rate locking and session timing.",
+]);
+
+subHeading("General Integration Workflow");
+bullet([
+  "Step 1 — Build your operation in The Intention Engine's Position Builder. Set your Trend, Target, rate, and filter cards.",
+  "Step 2 — Navigate to Transfer Diagram and print the diagram for the operation.",
+  "Step 3 — Place the diagram on or in front of your physical device.",
+  "Step 4 — Power on your physical device and set it to broadcast.",
+  "Step 5 — Start the operation in The Intention Engine. The software and device now work in unison.",
+  "Step 6 — Monitor progress in the Control Panel. Use timed sessions for protocols, or continuous mode for ambient broadcasting.",
+]);
+
+callout(
+  "You do not need a physical device to use The Intention Engine — the software broadcasts intentions digitally on its own. Physical devices amplify and extend the broadcast with a tangible chi or scalar carrier field."
+);
+
+pageFooter(pageNum++);
+
+// ── Section 14: Best Practices ────────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
+
+sectionHeading("14 · Best Practices & Tips");
 
 subHeading("Crafting Effective Intentions");
 bullet([
@@ -727,9 +801,10 @@ bullet([
 
 subHeading("Working with Physical Devices");
 bullet([
-  "Print the Transfer Diagram and place it on your orgone accumulator or chi generator.",
-  "Point the output of the physical device toward the diagram.",
-  "Run the corresponding digital operation simultaneously for maximum effect.",
+  "Print the Transfer Diagram and place it on your Karl Welz orgone generator, QSB scalar box, scalar coil, or Hieronymus paper board.",
+  "Point the output of the physical device toward the diagram or target photograph.",
+  "Run the corresponding digital operation simultaneously for maximum effect — the software and device work in unison.",
+  "Match The Intention Engine's chi frequency to your device's carrier frequency for optimal resonance.",
   "Replace printed diagrams weekly or whenever the intention changes.",
 ]);
 
@@ -743,7 +818,7 @@ pageFooter(pageNum++);
 doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
-sectionHeading("14 · Troubleshooting");
+sectionHeading("15 · Troubleshooting");
 
 const troubleshooting: [string, string][] = [
   [
