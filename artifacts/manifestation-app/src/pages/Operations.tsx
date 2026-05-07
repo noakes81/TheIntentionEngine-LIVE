@@ -11,11 +11,23 @@ export default function Operations() {
   const handleStatusChange = (id: string, newStatus: Operation["status"]) => {
     setOperations(ops =>
       ops.map(op => {
-        if (op.id === id) return { ...op, status: newStatus, lastRunAt: newStatus === 'running' ? new Date().toISOString() : op.lastRunAt };
+        if (op.id === id) {
+          // Reset elapsed when starting fresh (not resuming from paused)
+          const shouldResetElapsed =
+            newStatus === 'running' && (op.status === 'idle' || op.status === 'completed');
+          return {
+            ...op,
+            status: newStatus,
+            elapsedSeconds: shouldResetElapsed ? 0 : op.elapsedSeconds,
+            lastRunAt: newStatus === 'running' ? new Date().toISOString() : op.lastRunAt,
+          };
+        }
         if (newStatus === 'running' && op.status === 'running') return { ...op, status: 'paused' };
         return op;
       })
     );
+    // Go to Control Panel so the user can see the active transmission
+    if (newStatus === 'running') navigate("/");
   };
 
   const handleDelete = (id: string) => {
