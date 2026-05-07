@@ -287,15 +287,15 @@ function PositionModuleCard({
           <button
             type="button"
             onClick={() => setShowCards(s => !s)}
-            className="mt-1.5 w-full flex items-center justify-between px-2 py-1 rounded text-[11px] font-mono uppercase tracking-widest transition-all"
+            className="mt-1.5 w-full flex items-center justify-between px-2.5 py-1.5 rounded text-xs font-mono uppercase tracking-widest transition-all"
             style={{
               background: "hsla(228,25%,8%,0.8)",
               border: "1px solid hsla(228,25%,14%,0.8)",
-              color: "hsla(228,10%,35%,1)"
+              color: "hsla(228,10%,42%,1)"
             }}
           >
             <span>Filter Library ({pos.cardIds.length} selected)</span>
-            {showCards ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
+            {showCards ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
           <AnimatePresence>
@@ -307,7 +307,7 @@ function PositionModuleCard({
                 transition={{ duration: 0.15 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-5 gap-1 mt-1 max-h-28 overflow-y-auto">
+                <div className="grid grid-cols-4 gap-1.5 mt-1.5 max-h-40 overflow-y-auto pr-0.5">
                   {cardsLib.map(card => {
                     const sel = pos.cardIds.includes(card.id);
                     const atMax = !sel && totalCards >= MAX_CARDS;
@@ -316,7 +316,7 @@ function PositionModuleCard({
                         key={card.id}
                         type="button"
                         onClick={() => !atMax && toggleLibraryCard(card.id)}
-                        className="rounded p-1 text-center transition-all"
+                        className="rounded p-1.5 text-center transition-all"
                         style={{
                           background: sel ? "hsla(270,45%,18%,1)" : "hsla(228,25%,8%,0.8)",
                           border: sel ? "1px solid hsla(270,75%,50%,0.4)" : "1px solid hsla(228,25%,14%,0.6)",
@@ -324,12 +324,12 @@ function PositionModuleCard({
                           cursor: atMax ? "not-allowed" : "pointer"
                         }}
                       >
-                        <div className="text-sm">{card.symbol}</div>
-                        <div className="text-[6px] font-mono leading-tight line-clamp-1"
-                          style={{ color: "hsla(228,10%,40%,1)" }}>
+                        <div className="text-base leading-none mb-0.5">{card.symbol}</div>
+                        <div className="text-[10px] font-mono leading-tight line-clamp-1"
+                          style={{ color: sel ? "hsla(270,65%,72%,0.9)" : "hsla(228,10%,50%,1)" }}>
                           {card.title.split(' ')[0]}
                         </div>
-                        {sel && <Check className="w-2 h-2 mx-auto mt-0.5" style={{ color: "hsla(270,75%,65%,1)" }} />}
+                        {sel && <Check className="w-2.5 h-2.5 mx-auto mt-0.5" style={{ color: "hsla(270,75%,65%,1)" }} />}
                       </button>
                     );
                   })}
