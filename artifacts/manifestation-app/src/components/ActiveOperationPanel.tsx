@@ -100,9 +100,11 @@ function AnimatedLCDRate({ rate, color }: { rate?: string; color: "green" | "amb
 function TrendCycler({
   trendPositions,
   isRunning,
+  cards,
 }: {
   trendPositions: SubPosition[];
   isRunning: boolean;
+  cards: SymbolicCard[];
 }) {
   const [idx, setIdx] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -219,6 +221,41 @@ function TrendCycler({
 
             {/* LCD rate */}
             <AnimatedLCDRate rate={pos.rate} color="green" />
+
+            {/* Trend cards for this position */}
+            {((pos.customCardImages?.length ?? 0) > 0 || (pos.cardIds?.length ?? 0) > 0) && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {pos.customCardImages?.map((img, i) => (
+                  <img
+                    key={`cimg-${i}`}
+                    src={img}
+                    alt="Trend card"
+                    className="w-8 h-8 rounded object-cover shrink-0"
+                    style={{ border: "1px solid hsla(270,60%,45%,0.35)" }}
+                  />
+                ))}
+                {pos.cardIds?.map(cid => {
+                  const card = cards.find(c => c.id === cid);
+                  if (!card) return null;
+                  return (
+                    <div
+                      key={cid}
+                      className="flex items-center gap-1 rounded px-2 py-0.5"
+                      style={{
+                        background: "hsla(270,35%,10%,1)",
+                        border: "1px solid hsla(270,55%,28%,0.45)"
+                      }}
+                      title={card.title}
+                    >
+                      <span className="text-base leading-none">{card.symbol}</span>
+                      <span className="text-[11px] font-mono max-w-[52px] truncate" style={{ color: "hsla(270,65%,68%,0.8)" }}>
+                        {card.title.split(" ")[0]}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
 
@@ -360,7 +397,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           </div>
 
           {/* Trend cycler — animates between positions when running */}
-          <TrendCycler trendPositions={trendSubPositions} isRunning={isRunning} />
+          <TrendCycler trendPositions={trendSubPositions} isRunning={isRunning} cards={cards} />
 
           {/* Target */}
           <div className="space-y-2">
@@ -517,26 +554,31 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           {opCards.length > 0 && (
             <div className="space-y-2">
               <div className="text-[11px] font-mono uppercase tracking-widest text-white/25">Filter Cards</div>
-              <div className="flex flex-wrap gap-1">
-                {opCards.slice(0, 8).map(card => (
+              <div className="grid grid-cols-3 gap-1.5">
+                {opCards.slice(0, 9).map(card => (
                   <div
                     key={card.id}
-                    className="flex items-center gap-1 rounded px-2 py-0.5"
+                    className="flex flex-col items-center gap-1 rounded p-2"
                     style={{
-                      background: "hsla(270,35%,12%,1)",
-                      border: "1px solid hsla(270,45%,25%,0.5)"
+                      background: "hsla(270,30%,9%,1)",
+                      border: "1px solid hsla(270,45%,22%,0.5)"
                     }}
                     title={card.title}
                     data-testid={`badge-card-${card.id}`}
                   >
-                    <span className="text-xs">{card.symbol}</span>
-                    <span className="text-[11px] font-mono text-primary/70 max-w-[45px] truncate">{card.title.split(' ')[0]}</span>
+                    <span className="text-2xl leading-none">{card.symbol}</span>
+                    <span className="text-[10px] font-mono text-center leading-tight w-full truncate"
+                      style={{ color: "hsla(270,60%,65%,0.7)" }}>
+                      {card.title.split(' ').slice(0, 2).join(' ')}
+                    </span>
                   </div>
                 ))}
-                {opCards.length > 8 && (
-                  <div className="rounded px-2 py-0.5 text-[11px] font-mono text-white/30"
-                    style={{ background: "hsla(228,25%,10%,1)", border: "1px solid hsla(228,25%,16%,1)" }}>
-                    +{opCards.length - 8}
+                {opCards.length > 9 && (
+                  <div
+                    className="flex items-center justify-center rounded p-2 text-[11px] font-mono text-white/25"
+                    style={{ background: "hsla(228,25%,8%,1)", border: "1px solid hsla(228,25%,14%,1)" }}
+                  >
+                    +{opCards.length - 9}
                   </div>
                 )}
               </div>
