@@ -1,9 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Square, RotateCcw, Clock, Sparkles, Target, Radio } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Play, Pause, Square, RotateCcw, Sparkles, Target, Radio, ArrowLeftRight } from "lucide-react";
 import { useSessionTimer } from "@/hooks/useSessionTimer";
-import { Operation, SymbolicCard } from "@/types";
+import { Operation, SubPosition, SymbolicCard } from "@/types";
 
 interface ActiveOperationPanelProps {
   operation: Operation;
@@ -73,6 +72,172 @@ function LCDRate({ rate, color }: { rate?: string; color: "green" | "amber" }) {
   );
 }
 
+// Animated rate digits — each digit flips to the new value
+function AnimatedLCDRate({ rate, color }: { rate?: string; color: "green" | "amber" }) {
+  const digits = (rate || "0000000000").split("");
+  const lcdClass = color === "amber" ? "lcd-display-amber" : "lcd-display";
+  return (
+    <div className={`px-3 py-1.5 rounded flex gap-[2px] ${lcdClass}`}>
+      {digits.map((d, i) => (
+        <AnimatePresence key={i} mode="wait">
+          <motion.span
+            key={`${i}-${d}`}
+            className="tabular-nums inline-block w-[1.1ch] text-center font-mono text-sm"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.12, delay: i * 0.025 }}
+          >
+            {d}
+          </motion.span>
+        </AnimatePresence>
+      ))}
+    </div>
+  );
+}
+
+// The cycling trend broadcaster panel
+function TrendCycler({
+  trendPositions,
+  isRunning,
+}: {
+  trendPositions: SubPosition[];
+  isRunning: boolean;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!isRunning || trendPositions.length < 2) return;
+    intervalRef.current = setInterval(() => {
+      setDirection(1);
+      setIdx(prev => (prev + 1) % trendPositions.length);
+    }, 3200);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isRunning, trendPositions.length]);
+
+  // Reset to 0 when stopped
+  useEffect(() => {
+    if (!isRunning) { setIdx(0); setDirection(1); }
+  }, [isRunning]);
+
+  if (trendPositions.length === 0) return null;
+
+  const pos = trendPositions[idx];
+  const hasCycle = trendPositions.length > 1;
+
+  return (
+    <div className="relative overflow-hidden rounded"
+      style={{
+        background: "hsla(270,35%,5%,0.7)",
+        border: isRunning
+          ? "1px solid hsla(270,75%,45%,0.35)"
+          : "1px solid hsla(228,25%,14%,0.8)",
+        boxShadow: isRunning ? "0 0 20px hsla(270,75%,45%,0.08)" : "none"
+      }}
+    >
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-3 py-1.5"
+        style={{ borderBottom: "1px solid hsla(228,25%,10%,0.8)", background: "hsla(228,35%,5%,0.8)" }}>
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+          <span className="text-[11px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>
+            Trend / Intention
+          </span>
+        </div>
+        {hasCycle && (
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {trendPositions.map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="rounded-full"
+                  animate={{
+                    width: i === idx ? 14 : 4,
+                    background: i === idx ? "hsla(270,75%,60%,1)" : "hsla(228,25%,22%,1)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                  style={{ height: 4 }}
+                />
+              ))}
+            </div>
+            <ArrowLeftRight className="w-3 h-3" style={{ color: "hsla(270,50%,45%,0.6)" }} />
+          </div>
+        )}
+      </div>
+
+      {/* Cycling content */}
+      <div className="relative px-3 py-3 min-h-[96px]">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={`trend-${idx}`}
+            custom={direction}
+            initial={{ x: direction * 40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction * -40, opacity: 0 }}
+            transition={{ duration: 0.32, ease: "easeInOut" }}
+            className="space-y-2"
+          >
+            {/* Position badge + name */}
+            <div className="flex items-center gap-2">
+              <div
+                className="w-5 h-5 rounded flex items-center justify-center text-[11px] font-mono font-bold shrink-0"
+                style={{
+                  background: "hsla(270,45%,18%,1)",
+                  border: "1px solid hsla(270,75%,45%,0.3)",
+                  color: "hsla(270,75%,70%,1)"
+                }}
+              >
+                {idx + 1}
+              </div>
+              <span className="text-xs font-mono uppercase tracking-widest"
+                style={{ color: "hsla(270,60%,65%,0.8)" }}>
+                {pos.positionType || pos.name}
+              </span>
+              {hasCycle && isRunning && (
+                <motion.span
+                  className="text-[10px] font-mono uppercase tracking-widest ml-auto"
+                  style={{ color: "hsla(270,50%,40%,0.6)" }}
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 3.2, repeat: Infinity }}
+                >
+                  broadcasting
+                </motion.span>
+              )}
+            </div>
+
+            {/* Intention */}
+            <p className="text-sm italic leading-relaxed"
+              style={{
+                color: "hsla(228,10%,65%,0.7)",
+                borderLeft: "2px solid hsla(270,75%,50%,0.4)",
+                paddingLeft: "10px"
+              }}>
+              "{pos.intention || "No intention set"}"
+            </p>
+
+            {/* LCD rate */}
+            <AnimatedLCDRate rate={pos.rate} color="green" />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Shimmer sweep when running */}
+        {isRunning && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none rounded"
+            animate={{ x: ["-100%", "110%"] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, hsla(270,75%,58%,0.06) 50%, transparent 100%)"
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick }: ActiveOperationPanelProps) {
   const { elapsedSeconds, progress, start, pause, stop, reset } = useSessionTimer(
     operation.sessionDurationMinutes,
@@ -99,6 +264,36 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
   const targetSeconds = operation.sessionDurationMinutes * 60;
   const remainingSeconds = Math.max(0, targetSeconds - elapsedSeconds);
   const opCards = cards.filter(c => operation.cards.includes(c.id));
+
+  // Collect trend subPositions (non-Target), fall back to single trend from operation
+  const trendSubPositions: SubPosition[] = (() => {
+    const subs = operation.subPositions ?? [];
+    const trends = subs.filter(p => p.positionType !== "Target");
+    if (trends.length > 0) return trends;
+    // Fallback: synthesize one from operation root fields
+    return [{
+      id: "root-trend",
+      name: "Trend",
+      positionType: "Trend 1",
+      intention: operation.intention,
+      rate: operation.trendRate,
+      rateLocked: !!operation.trendRateLocked,
+      customCardImages: [],
+      cardIds: operation.trendCardIds ?? [],
+    }];
+  })();
+
+  // Target subPosition (for display)
+  const targetSub: Partial<SubPosition> & { name: string; rate?: string } = (() => {
+    const subs = operation.subPositions ?? [];
+    const t = subs.find(p => p.positionType === "Target");
+    if (t) return t;
+    return {
+      name: operation.target.name,
+      rate: operation.targetRate,
+      intention: operation.target.description || "",
+    };
+  })();
 
   return (
     <div
@@ -164,20 +359,8 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
             <h2 className="text-xl font-mono font-bold text-white/90 tracking-wide">{operation.name}</h2>
           </div>
 
-          {/* Trend */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3" style={{ color: "hsla(270,75%,65%,0.8)" }} />
-              <span className="text-[11px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>
-                Trend / Intention
-              </span>
-            </div>
-            <p className="text-sm italic text-white/55 leading-relaxed line-clamp-2"
-              style={{ borderLeft: "2px solid hsla(270,75%,50%,0.4)", paddingLeft: "10px" }}>
-              "{operation.intention}"
-            </p>
-            <LCDRate rate={operation.trendRate} color="green" />
-          </div>
+          {/* Trend cycler — animates between positions when running */}
+          <TrendCycler trendPositions={trendSubPositions} isRunning={isRunning} />
 
           {/* Target */}
           <div className="space-y-2">
@@ -196,13 +379,13 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
                 />
               )}
               <div>
-                <p className="text-sm font-medium text-white/80">{operation.target.name}</p>
+                <p className="text-sm font-medium text-white/80">{targetSub.name}</p>
                 {operation.target.description && (
                   <p className="text-xs text-white/35 line-clamp-1">{operation.target.description}</p>
                 )}
               </div>
             </div>
-            <LCDRate rate={operation.targetRate} color="amber" />
+            <LCDRate rate={targetSub.rate} color="amber" />
           </div>
 
           {/* Transfer Diagram */}
@@ -321,6 +504,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
               { label: "Session", value: `${operation.sessionDurationMinutes} min` },
               ...(operation.structuralLinkType ? [{ label: "Link Type", value: operation.structuralLinkType }] : []),
               { label: "Frequency", value: `${operation.frequencyHz} Hz` },
+              { label: "Positions", value: `${trendSubPositions.length} trend${trendSubPositions.length !== 1 ? "s" : ""}` },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-white/25">{item.label}</span>
