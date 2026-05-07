@@ -53,7 +53,7 @@ export function Sidebar() {
           src="/intention-engine-logo.png"
           alt="The Intention Engine"
           className="w-full h-auto object-contain"
-          style={{ maxHeight: "160px" }}
+          style={{ maxHeight: "240px" }}
         />
       </div>
 
