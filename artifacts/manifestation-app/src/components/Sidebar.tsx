@@ -46,7 +46,7 @@ export function Sidebar() {
       }}
     >
       {/* Logo / Brand */}
-      <div className="flex items-center justify-center px-2 py-2 shrink-0"
+      <div className="flex flex-col items-center px-2 pt-2 pb-3 shrink-0"
         style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}
       >
         <img
@@ -55,6 +55,21 @@ export function Sidebar() {
           className="w-full h-auto object-contain"
           style={{ maxHeight: "240px" }}
         />
+        <div className="flex items-center gap-2 mt-1">
+          {["FOCUS", "MANIFEST", "TRANSFORM"].map((word, i) => (
+            <span key={word} className="flex items-center gap-2">
+              <span
+                className="text-[10px] font-mono tracking-[0.18em] font-semibold"
+                style={{ color: "hsla(42,80%,58%,0.9)" }}
+              >
+                {word}
+              </span>
+              {i < 2 && (
+                <span style={{ color: "hsla(42,80%,40%,0.5)", fontSize: "8px" }}>·</span>
+              )}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Transmission status */}
