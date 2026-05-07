@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Square, RotateCcw, Sparkles, Target, Radio, ArrowLeftRight } from "lucide-react";
+import { Play, Pause, Square, RotateCcw, Sparkles, Target, Radio, ArrowLeftRight, Volume2, VolumeX } from "lucide-react";
 import { useSessionTimer } from "@/hooks/useSessionTimer";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useChiAudio } from "@/hooks/useChiAudio";
 import { Operation, SubPosition, SymbolicCard } from "@/types";
 
 interface ActiveOperationPanelProps {
@@ -284,6 +286,9 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
   const isRunning = operation.status === 'running';
   const isPaused = operation.status === 'paused';
 
+  const [volume, setVolume] = useLocalStorage<number>("orgone_volume", 0);
+  useChiAudio(operation.frequencyHz, volume, isRunning);
+
   useEffect(() => {
     if (isRunning) start();
     else if (isPaused) pause();
@@ -444,6 +449,57 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
 
           {/* Waveform */}
           <WaveformDisplay active={isRunning} frequency={operation.frequencyHz} />
+
+          {/* Volume slider */}
+          <div className="flex items-center gap-3 px-1">
+            <button
+              onClick={() => setVolume(volume > 0 ? 0 : 0.4)}
+              className="shrink-0 transition-colors"
+              title={volume === 0 ? "Unmute" : "Mute"}
+            >
+              {volume === 0
+                ? <VolumeX className="w-4 h-4" style={{ color: "hsla(228,10%,35%,1)" }} />
+                : <Volume2 className="w-4 h-4" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+              }
+            </button>
+            <div className="flex-1 relative flex items-center" style={{ height: 20 }}>
+              <div className="absolute inset-x-0 h-[3px] rounded-full" style={{ background: "hsla(228,25%,15%,1)" }} />
+              <div
+                className="absolute left-0 h-[3px] rounded-full"
+                style={{
+                  width: `${volume * 100}%`,
+                  background: volume > 0
+                    ? "linear-gradient(90deg, hsla(270,75%,45%,0.7), hsla(270,75%,65%,1))"
+                    : "hsla(228,25%,18%,1)",
+                  boxShadow: volume > 0 ? "0 0 6px hsla(270,75%,58%,0.5)" : "none"
+                }}
+              />
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={e => setVolume(parseFloat(e.target.value))}
+                className="absolute inset-x-0 w-full opacity-0 cursor-pointer"
+                style={{ height: 20 }}
+              />
+              {/* Thumb indicator */}
+              <div
+                className="absolute w-3 h-3 rounded-full pointer-events-none transition-all"
+                style={{
+                  left: `calc(${volume * 100}% - 6px)`,
+                  background: volume > 0 ? "hsla(270,75%,70%,1)" : "hsla(228,25%,30%,1)",
+                  boxShadow: volume > 0 ? "0 0 8px hsla(270,75%,58%,0.7)" : "none",
+                  border: "1px solid hsla(270,75%,50%,0.4)"
+                }}
+              />
+            </div>
+            <span className="text-[11px] font-mono tabular-nums shrink-0 w-8 text-right"
+              style={{ color: "hsla(228,10%,35%,1)" }}>
+              {Math.round(volume * 100)}
+            </span>
+          </div>
 
           {/* Progress bar */}
           {targetSeconds > 0 && (
