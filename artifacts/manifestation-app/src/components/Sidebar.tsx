@@ -38,7 +38,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-56 h-screen flex flex-col fixed left-0 top-0 z-20"
+    <aside className="w-80 h-screen flex flex-col fixed left-0 top-0 z-20"
       style={{
         background: "linear-gradient(180deg, hsl(228,40%,4%) 0%, hsl(228,40%,3%) 100%)",
         borderRight: "1px solid hsla(228,25%,12%,1)",
