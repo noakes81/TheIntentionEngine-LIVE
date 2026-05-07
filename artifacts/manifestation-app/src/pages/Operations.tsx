@@ -49,9 +49,12 @@ export default function Operations() {
     setOperations([duplicated, ...operations]);
   };
 
-  const running = operations.filter(op => op.status === 'running');
-  const paused = operations.filter(op => op.status === 'paused');
-  const idle = operations.filter(op => op.status !== 'running' && op.status !== 'paused');
+  const byNewest = (a: Operation, b: Operation) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+  const running = operations.filter(op => op.status === 'running').sort(byNewest);
+  const paused = operations.filter(op => op.status === 'paused').sort(byNewest);
+  const idle = operations.filter(op => op.status !== 'running' && op.status !== 'paused').sort(byNewest);
 
   const OperationCard = ({ op, idx }: { op: Operation; idx: number }) => {
     const isRunning = op.status === 'running';

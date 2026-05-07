@@ -573,7 +573,7 @@ export default function Builder() {
         elapsedSeconds: 0,
         createdAt: new Date().toISOString(),
       };
-      setOperations([...operations, newOp]);
+      setOperations(ops => [newOp, ...ops]);
       toast({ title: "Position Saved", description: `${subPositions.length} position(s) saved to library.` });
     }
     navigate("/operations");
@@ -613,12 +613,13 @@ export default function Builder() {
             <Input
               value={sessionName}
               onChange={e => setSessionName(e.target.value)}
-              placeholder="Operation name..."
+              placeholder="★ Name your operation (required)"
               className="text-sm font-mono h-8"
               style={{
                 background: "hsla(228,35%,6%,1)",
-                border: "1px solid hsla(228,25%,16%,0.8)",
-                color: "white"
+                border: sessionName ? "1px solid hsla(228,25%,16%,0.8)" : "1px solid hsla(38,85%,45%,0.55)",
+                color: "white",
+                boxShadow: sessionName ? "none" : "0 0 8px hsla(38,85%,45%,0.15)"
               }}
               data-testid="input-operation-name"
             />
