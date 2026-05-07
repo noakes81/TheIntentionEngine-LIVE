@@ -107,7 +107,7 @@ function LicenseScreen({
           </div>
 
           <h1 className="text-xl font-mono font-bold text-white/90 tracking-wide mb-1">
-            Orgone Manifestation X
+            The Intention Engine
           </h1>
           <p className="text-xs font-mono text-white/35 tracking-wider">
             Super Manifestation X — Professional Radionic System

@@ -102,7 +102,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">Orgone Manifestation X</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">The Intention Engine</span>
               <span className="text-[11px] font-mono text-white/15">—</span>
               <span className="text-[11px] font-mono uppercase tracking-widest text-white/20">Virtual Radionic Device</span>
             </div>

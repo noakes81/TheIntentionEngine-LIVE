@@ -300,7 +300,7 @@ export default function Operations() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">The Intention Engine</div>
           <h1 className="text-2xl font-mono font-bold text-white/85">Radionic Operations</h1>
           <p className="text-xs font-mono text-white/30 mt-0.5">Manage your stored TREND/TARGET transmission configurations.</p>
         </div>

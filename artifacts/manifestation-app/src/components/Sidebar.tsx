@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Radio, Palette, Upload, X, Check } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,21 +46,15 @@ export function Sidebar() {
       }}
     >
       {/* Logo / Brand */}
-      <div className="h-14 flex items-center px-4 gap-3 shrink-0"
+      <div className="h-14 flex items-center px-3 shrink-0"
         style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}
       >
-        <div className="w-7 h-7 rounded flex items-center justify-center shrink-0"
-          style={{
-            background: "linear-gradient(135deg, hsla(270,75%,45%,1), hsla(270,75%,30%,1))",
-            boxShadow: "0 0 10px hsla(270,75%,58%,0.4), inset 0 1px 0 hsla(255,100%,100%,0.15)"
-          }}
-        >
-          <Radio className="w-3.5 h-3.5 text-white" />
-        </div>
-        <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/90 leading-none">Orgone</div>
-          <div className="text-[11px] font-mono uppercase tracking-widest text-primary/70 leading-none mt-0.5">Manifestation X</div>
-        </div>
+        <img
+          src="/intention-engine-logo.png"
+          alt="The Intention Engine"
+          className="h-10 w-auto object-contain"
+          style={{ maxWidth: "100%" }}
+        />
       </div>
 
       {/* Transmission status */}

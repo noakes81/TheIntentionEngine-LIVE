@@ -85,7 +85,7 @@ export default function Sequencer() {
     <div className="animate-in fade-in duration-400 space-y-5 pb-20">
       {/* Header */}
       <div>
-        <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+        <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">The Intention Engine</div>
         <h1 className="text-2xl font-mono font-bold text-white/85">Frequency Sequencer</h1>
         <p className="text-xs font-mono text-white/30 mt-0.5">Chain multiple frequencies into a continuous barrage transmission.</p>
       </div>

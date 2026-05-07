@@ -33,7 +33,7 @@ export default function Cards() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">The Intention Engine</div>
           <h1 className="text-2xl font-mono font-bold text-white/85">Filter Library</h1>
           <p className="text-xs font-mono text-white/30 mt-0.5">
             Browse and curate energetic archetypes for your radionic operations.

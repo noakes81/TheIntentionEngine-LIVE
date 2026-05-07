@@ -162,7 +162,7 @@ ${selectedOp.notes || ''}
                   />
                   <p className="text-[12px] uppercase tracking-widest text-gray-400 text-center">
                     Place this diagram on your chi generator to activate the structural link.
-                    This diagram is unique to your licensed copy of Orgone Manifestation Studio.
+                    This diagram is unique to your licensed copy of The Intention Engine.
                   </p>
                 </div>
               </section>

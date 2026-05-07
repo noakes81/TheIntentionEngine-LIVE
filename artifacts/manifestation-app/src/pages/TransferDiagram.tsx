@@ -57,7 +57,7 @@ export default function TransferDiagram() {
 
       {/* Header — hidden on print */}
       <header className="print:hidden">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Orgone Manifestation Studio</p>
+        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">The Intention Engine</p>
         <h1 className="text-4xl font-serif text-primary tracking-tight">Transfer Diagram</h1>
         <p className="text-muted-foreground mt-2 max-w-xl">
           Your unique structural link — provided by Orgone Studio upon purchase. Upload it here and place the physical printout on your chi generator to activate the link between the field and this software.
@@ -109,7 +109,7 @@ export default function TransferDiagram() {
 
               {/* Print header */}
               <div className="hidden print:block px-10 pt-10 pb-4 border-b border-gray-200">
-                <p className="text-xs uppercase tracking-widest text-gray-400 font-mono">Orgone Manifestation Studio — Structural Link Certificate</p>
+                <p className="text-xs uppercase tracking-widest text-gray-400 font-mono">The Intention Engine — Structural Link Certificate</p>
                 <p className="text-xs text-gray-400 mt-1 font-mono">Issued: {new Date(diagram.uploadedAt).toLocaleDateString()}</p>
               </div>
 
@@ -137,7 +137,7 @@ export default function TransferDiagram() {
               {/* Print footer */}
               <div className="hidden print:block px-10 py-6 border-t border-gray-200 space-y-2">
                 <p className="text-[12px] uppercase tracking-widest text-gray-500 text-center font-mono">
-                  Place this diagram on your chi generator to activate the structural link between your device and Orgone Manifestation Studio.
+                  Place this diagram on your chi generator to activate the structural link between your device and The Intention Engine.
                   This diagram is unique to your licensed copy and should not be shared or reproduced.
                 </p>
                 <p className="text-[11px] text-gray-400 text-center mt-3">
