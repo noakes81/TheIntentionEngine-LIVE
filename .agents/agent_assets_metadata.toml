@@ -6,3 +6,9 @@ id = "E8ClCnF4p8YEBaEGiT9F1"
 uri = "file://scripts/manuals/orgone-manifestation-x-manual.pdf"
 type = "pdf"
 title = "Orgone Manifestation X — User Manual"
+
+[[outputs]]
+id = "oxhswxiHGf9Y37Pq7vP7R"
+uri = "file://scripts/manuals/intention-engine-v1-manual.pdf"
+type = "pdf"
+title = "The Intention Engine V.1 — User Manual"

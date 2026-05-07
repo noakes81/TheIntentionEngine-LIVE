@@ -2,195 +2,256 @@ import PDFDocument from "pdfkit";
 import fs from "node:fs";
 import path from "node:path";
 
+const APP_NAME = "The Intention Engine";
+const APP_VERSION = "V.1";
+const APP_FULL = `${APP_NAME} ${APP_VERSION}`;
+const COMPANY = "Super Manifestation X";
+
 const doc = new PDFDocument({
   size: "A4",
-  margins: { top: 60, bottom: 60, left: 60, right: 60 },
+  margins: { top: 72, bottom: 72, left: 72, right: 72 },
   info: {
-    Title: "Orgone Manifestation X — User Manual",
-    Author: "Super Manifestation X",
+    Title: `${APP_FULL} — User Manual`,
+    Author: COMPANY,
     Subject: "Professional Radionic Software Manual",
-    Keywords: "radionics, manifestation, orgone, chi, broadcasting",
+    Keywords: "radionics, manifestation, orgone, chi, broadcasting, intention",
   },
 });
 
-const OUT_PATH = path.resolve("./manuals/orgone-manifestation-x-manual.pdf");
+const OUT_PATH = path.resolve("./manuals/intention-engine-v1-manual.pdf");
 fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
 const stream = fs.createWriteStream(OUT_PATH);
 doc.pipe(stream);
 
-// Colours
-const PURPLE = "#7C3AED";
-const PURPLE_LIGHT = "#A78BFA";
-const AMBER = "#F59E0B";
-const DIM = "#6B7280";
-const BODY = "#1F2937";
-const BG_DARK = "#0F1117";
-const WHITE = "#FFFFFF";
+// ── Palette ───────────────────────────────────────────────────────────────────
+const INDIGO       = "#4338CA";   // headings & accents
+const INDIGO_LIGHT = "#818CF8";   // sub-accents
+const AMBER        = "#B45309";   // callout labels
+const AMBER_BG     = "#FFFBEB";   // callout background
+const AMBER_BORDER = "#FCD34D";
+const TEXT         = "#111827";   // primary body text
+const TEXT_MUTED   = "#6B7280";   // captions / running headers
+const DIVIDER      = "#E5E7EB";
+const SECTION_BG   = "#EEF2FF";   // indigo-50 section header bg
+const WHITE        = "#FFFFFF";
+const PAGE_W       = 595.28;      // A4 pt
+const MARGIN       = 72;
+const CONTENT_W    = PAGE_W - MARGIN * 2;
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function hr(y?: number) {
-  const posY = y ?? doc.y;
+function hr() {
   doc
-    .moveTo(60, posY)
-    .lineTo(doc.page.width - 60, posY)
-    .strokeColor("#3B3B5C")
+    .moveTo(MARGIN, doc.y)
+    .lineTo(PAGE_W - MARGIN, doc.y)
+    .strokeColor(DIVIDER)
+    .lineWidth(0.75)
+    .stroke();
+  doc.moveDown(0.6);
+}
+
+function pageHeader(title: string = APP_FULL.toUpperCase()) {
+  doc
+    .fillColor(TEXT_MUTED)
+    .font("Helvetica")
+    .fontSize(7.5)
+    .text(title, MARGIN, 36, { width: CONTENT_W, align: "left", characterSpacing: 1.2 });
+  doc
+    .moveTo(MARGIN, 48)
+    .lineTo(PAGE_W - MARGIN, 48)
+    .strokeColor(DIVIDER)
     .lineWidth(0.5)
     .stroke();
-  doc.moveDown(0.5);
+  doc.y = MARGIN;
+}
+
+function pageFooter(pageNum: number) {
+  const footY = 595.28 - 40;
+  doc
+    .moveTo(MARGIN, footY - 8)
+    .lineTo(PAGE_W - MARGIN, footY - 8)
+    .strokeColor(DIVIDER)
+    .lineWidth(0.5)
+    .stroke();
+  doc
+    .fillColor(TEXT_MUTED)
+    .font("Helvetica")
+    .fontSize(8)
+    .text(`${APP_FULL} — User Manual`, MARGIN, footY, {
+      width: CONTENT_W / 2,
+      align: "left",
+    });
+  doc
+    .fillColor(TEXT_MUTED)
+    .font("Helvetica")
+    .fontSize(8)
+    .text(`Page ${pageNum}`, MARGIN + CONTENT_W / 2, footY, {
+      width: CONTENT_W / 2,
+      align: "right",
+    });
 }
 
 function sectionHeading(text: string) {
-  doc.moveDown(1);
+  if (doc.y > 680) {
+    doc.addPage();
+    pageHeader();
+  }
+  doc.moveDown(1.2);
+  const y = doc.y;
+  doc.rect(MARGIN, y, CONTENT_W, 28).fill(SECTION_BG);
   doc
-    .rect(60, doc.y, doc.page.width - 120, 22)
-    .fill("#1A1A2E");
-  doc
-    .fillColor(PURPLE_LIGHT)
+    .fillColor(INDIGO)
     .font("Helvetica-Bold")
-    .fontSize(11)
-    .text(text.toUpperCase(), 68, doc.y - 18, { continued: false });
-  doc.moveDown(0.8);
+    .fontSize(13)
+    .text(text, MARGIN + 10, y + 7, { width: CONTENT_W - 20 });
+  doc.y = y + 38;
 }
 
 function subHeading(text: string) {
-  doc.moveDown(0.6);
+  doc.moveDown(0.9);
   doc
-    .fillColor(AMBER)
+    .fillColor(INDIGO)
     .font("Helvetica-Bold")
-    .fontSize(10)
-    .text(text);
-  doc.moveDown(0.2);
+    .fontSize(11.5)
+    .text(text, MARGIN, doc.y);
+  doc.moveDown(0.35);
+  doc
+    .moveTo(MARGIN, doc.y)
+    .lineTo(MARGIN + 160, doc.y)
+    .strokeColor(INDIGO_LIGHT)
+    .lineWidth(1)
+    .stroke();
+  doc.moveDown(0.5);
 }
 
 function body(text: string, opts?: PDFKit.Mixins.TextOptions) {
   doc
-    .fillColor(BODY)
+    .fillColor(TEXT)
     .font("Helvetica")
-    .fontSize(9.5)
-    .text(text, { lineGap: 3, ...opts });
-  doc.moveDown(0.3);
+    .fontSize(11)
+    .text(text, MARGIN, doc.y, { width: CONTENT_W, lineGap: 4, ...opts });
+  doc.moveDown(0.5);
 }
 
 function bullet(items: string[]) {
   for (const item of items) {
+    const y = doc.y;
     doc
-      .fillColor(PURPLE_LIGHT)
+      .fillColor(INDIGO)
       .font("Helvetica-Bold")
-      .fontSize(9.5)
-      .text("• ", { continued: true });
+      .fontSize(11)
+      .text("•", MARGIN + 6, y, { width: 14, lineBreak: false });
     doc
-      .fillColor(BODY)
+      .fillColor(TEXT)
       .font("Helvetica")
-      .fontSize(9.5)
-      .text(item, { lineGap: 3 });
+      .fontSize(11)
+      .text(item, MARGIN + 22, y, { width: CONTENT_W - 22, lineGap: 4 });
+    doc.moveDown(0.3);
   }
-  doc.moveDown(0.3);
+  doc.moveDown(0.4);
 }
 
-function note(text: string) {
-  const y = doc.y;
+function callout(text: string) {
+  doc.moveDown(0.5);
+  const startY = doc.y;
+  const approxHeight = Math.ceil(text.length / 70) * 16 + 20;
+  doc.rect(MARGIN, startY, CONTENT_W, approxHeight).fill(AMBER_BG);
   doc
-    .rect(60, y, doc.page.width - 120, 0)
-    .stroke();
+    .rect(MARGIN, startY, 4, approxHeight)
+    .fill(AMBER_BORDER);
   doc
-    .rect(60, y, 3, 999)
-    .fillColor(PURPLE);
-
+    .fillColor(AMBER)
+    .font("Helvetica-Bold")
+    .fontSize(8.5)
+    .text("NOTE", MARGIN + 14, startY + 6, { characterSpacing: 1 });
   doc
-    .fillColor(DIM)
+    .fillColor(TEXT)
     .font("Helvetica-Oblique")
-    .fontSize(9)
-    .text(text, 72, y, {
-      width: doc.page.width - 132,
+    .fontSize(10.5)
+    .text(text, MARGIN + 14, startY + 18, {
+      width: CONTENT_W - 24,
       lineGap: 3,
     });
-
-  const endY = doc.y;
-  doc
-    .rect(60, y, 3, endY - y + 4)
-    .fill(PURPLE);
-  doc.moveDown(0.5);
+  doc.y = startY + approxHeight + 6;
+  doc.moveDown(0.4);
 }
 
-// ─── Cover Page ───────────────────────────────────────────────────────────────
+// ── Cover Page ────────────────────────────────────────────────────────────────
 
-doc
-  .rect(0, 0, doc.page.width, doc.page.height)
-  .fill(BG_DARK);
+doc.rect(0, 0, PAGE_W, 841.89).fill(WHITE);
 
-// Decorative border
-doc
-  .rect(30, 30, doc.page.width - 60, doc.page.height - 60)
-  .strokeColor("#2D2D5A")
-  .lineWidth(1)
-  .stroke();
+// Top colour band
+doc.rect(0, 0, PAGE_W, 220).fill(INDIGO);
 
+// Decorative inner rectangle
 doc
-  .rect(36, 36, doc.page.width - 72, doc.page.height - 72)
-  .strokeColor("#1F1F40")
+  .rect(MARGIN - 10, 20, PAGE_W - (MARGIN - 10) * 2, 180)
+  .strokeColor(INDIGO_LIGHT)
   .lineWidth(0.5)
   .stroke();
 
-// Logo area
-doc
-  .rect(doc.page.width / 2 - 40, 140, 80, 80)
-  .fillAndStroke("#14143A", PURPLE);
-
-doc
-  .fillColor(PURPLE_LIGHT)
-  .font("Helvetica-Bold")
-  .fontSize(32)
-  .text("Ψ", doc.page.width / 2 - 40, 158, { width: 80, align: "center" });
-
-doc.moveDown(2);
+// Product name on cover
 doc
   .fillColor(WHITE)
   .font("Helvetica-Bold")
-  .fontSize(26)
-  .text("ORGONE MANIFESTATION X", 60, 260, {
+  .fontSize(34)
+  .text(APP_NAME, MARGIN, 70, {
+    width: CONTENT_W,
     align: "center",
-    width: doc.page.width - 120,
+    characterSpacing: 1,
+  });
+
+doc
+  .fillColor(INDIGO_LIGHT)
+  .font("Helvetica")
+  .fontSize(17)
+  .text(`Software ${APP_VERSION}`, MARGIN, 116, {
+    width: CONTENT_W,
+    align: "center",
     characterSpacing: 2,
   });
 
 doc
-  .fillColor(PURPLE_LIGHT)
+  .fillColor("rgba(255,255,255,0.55)")
   .font("Helvetica")
-  .fontSize(13)
-  .text("Super Manifestation X — Professional Radionic Software", {
+  .fontSize(12)
+  .text(COMPANY, MARGIN, 148, {
+    width: CONTENT_W,
     align: "center",
-    width: doc.page.width - 120,
-    characterSpacing: 0.5,
+    characterSpacing: 0.8,
   });
 
-doc.moveDown(2);
-hr(doc.y);
-doc.moveDown(1);
+// Sub-title below band
+doc
+  .fillColor(TEXT_MUTED)
+  .font("Helvetica")
+  .fontSize(13)
+  .text("User Manual & Operation Guide", MARGIN, 248, {
+    width: CONTENT_W,
+    align: "center",
+  });
 
 doc
-  .fillColor(DIM)
+  .fillColor(TEXT_MUTED)
   .font("Helvetica")
   .fontSize(10)
-  .text("User Manual & Operation Guide", { align: "center", width: doc.page.width - 120 });
+  .text(`Version 1.0  ·  ${new Date().getFullYear()}`, MARGIN, 270, {
+    width: CONTENT_W,
+    align: "center",
+  });
 
+doc.y = 310;
+hr();
+
+// Table of Contents
 doc
-  .fillColor(DIM)
-  .font("Helvetica")
-  .fontSize(9)
-  .text(`Version 1.0  ·  ${new Date().getFullYear()}`, { align: "center", width: doc.page.width - 120 });
-
-doc.moveDown(4);
-
-doc
-  .fillColor(PURPLE_LIGHT)
+  .fillColor(INDIGO)
   .font("Helvetica-Bold")
-  .fontSize(9)
-  .text("CONTENTS", { align: "center", width: doc.page.width - 120, characterSpacing: 3 });
-
+  .fontSize(13)
+  .text("Contents", MARGIN, doc.y, { width: CONTENT_W, align: "left" });
 doc.moveDown(0.8);
 
-const toc = [
+const toc: [string, string][] = [
   ["1", "Introduction & Overview"],
   ["2", "Getting Started — License Activation"],
   ["3", "Control Panel (Dashboard)"],
@@ -208,119 +269,108 @@ const toc = [
 ];
 
 for (const [num, title] of toc) {
-  const cx = doc.page.width / 2;
+  const y = doc.y;
   doc
-    .fillColor(PURPLE_LIGHT)
+    .fillColor(INDIGO)
     .font("Helvetica-Bold")
-    .fontSize(9)
-    .text(`${num}.`, cx - 160, doc.y, { continued: true, width: 20 });
+    .fontSize(11)
+    .text(`${num}.`, MARGIN + 10, y, { width: 28, lineBreak: false });
   doc
-    .fillColor("#C0C0D0")
+    .fillColor(TEXT)
     .font("Helvetica")
-    .fontSize(9)
-    .text(` ${title}`, { width: 280 });
+    .fontSize(11)
+    .text(title, MARGIN + 40, y, { width: CONTENT_W - 40 });
+  doc.moveDown(0.25);
 }
 
-// Footer
+doc.y = 700;
 doc
-  .fillColor("#2D2D5A")
-  .font("Helvetica")
-  .fontSize(8)
+  .fillColor(TEXT_MUTED)
+  .font("Helvetica-Oblique")
+  .fontSize(9)
   .text(
     "CONFIDENTIAL — For licensed users only. Unauthorized distribution is prohibited.",
-    60,
-    doc.page.height - 60,
-    { align: "center", width: doc.page.width - 120 }
+    MARGIN, 770,
+    { width: CONTENT_W, align: "center" }
   );
 
-// ─── Page 2+ ──────────────────────────────────────────────────────────────────
+// ── Page 2: Section 1 ─────────────────────────────────────────────────────────
+let pageNum = 2;
 
-doc.addPage({
-  size: "A4",
-  margins: { top: 60, bottom: 60, left: 60, right: 60 },
-});
-
-// Running header
-function pageHeader() {
-  doc
-    .fillColor(DIM)
-    .font("Helvetica")
-    .fontSize(7.5)
-    .text("ORGONE MANIFESTATION X — USER MANUAL", 60, 30, { characterSpacing: 1.5 });
-  doc
-    .moveTo(60, 42)
-    .lineTo(doc.page.width - 60, 42)
-    .strokeColor("#2D2D5A")
-    .lineWidth(0.5)
-    .stroke();
-  doc.y = 60;
-}
-
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
-
-// ─── Section 1: Introduction ─────────────────────────────────────────────────
 
 sectionHeading("1 · Introduction & Overview");
 body(
-  "Orgone Manifestation X (OMX) is a professional-grade radionic broadcasting platform inspired by hardware workstation radionics devices. It provides a digital chi-field transmission environment where you can compose multi-position radionic operations, lock precise numerical rates, and broadcast trend/target pairings continuously or on a timed schedule."
+  `${APP_FULL} is a professional-grade radionic broadcasting platform inspired by hardware workstation radionics devices. It provides a digital chi-field transmission environment where you can compose multi-position radionic operations, lock precise numerical rates, and broadcast Trend/Target pairings continuously or on a timed schedule.`
 );
 body(
-  "The software operates entirely in your browser with all data stored locally on your device. No data is transmitted externally except for license key validation."
+  "The software runs entirely in your browser with all session data stored locally on your device. No data is transmitted externally except for license key verification."
 );
 
 subHeading("Core Concepts");
 bullet([
   "Trend — the desired outcome or intention you wish to manifest or broadcast.",
-  "Target — the person, place, or thing that the operation is directed toward.",
+  "Target — the person, place, or object that the operation is directed toward.",
   "Radionic Rate — a 10-digit numerical code representing the subtle-energy signature of a quality or intention.",
-  "Chi Frequency (Hz) — the carrier frequency in hertz at which the operation broadcasts.",
-  "Position — a single Trend or Target slot within an operation; multiple positions enable complex multi-layer broadcasts.",
-  "Filter Cards — symbolic sigil cards applied to an operation that modulate or amplify the broadcast.",
+  "Chi Frequency (Hz) — the carrier frequency at which the operation broadcasts.",
+  "Position — a single Trend or Target slot within an operation. Multiple positions enable complex multi-layer broadcasts.",
+  "Filter Cards — symbolic sigil cards applied to an operation to modulate or amplify the broadcast field.",
 ]);
 
-// ─── Section 2: License Activation ───────────────────────────────────────────
+callout(
+  `${APP_FULL} is a tool for focused intention and energetic broadcasting. Use it ethically and with positive intent.`
+);
+
+pageFooter(pageNum++);
+
+// ── Section 2: License Activation ────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("2 · Getting Started — License Activation");
 body(
-  "When you first open Orgone Manifestation X, you will see the License Activation screen. You must enter a valid license key to access the software."
+  `When you first open ${APP_FULL}, you will see the License Activation screen. You must enter a valid license key to access the software.`
 );
 
 subHeading("Entering Your License Key");
 bullet([
-  "Your license key follows the format: ORGX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+  "Your license key follows the format:  ORGX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
   "Type or paste the key exactly as provided — it is not case-sensitive.",
-  "Click 'Activate License'. The system verifies your key with the server.",
-  "Once activated, the key is stored in your browser and you will not need to enter it again on this device.",
+  "Click Activate License. The system verifies your key with the server.",
+  "Once activated, the key is stored in your browser and you will not need to re-enter it on this device.",
 ]);
 
-note(
+callout(
   "If you clear your browser data or switch devices, you will need to re-enter your license key. Keep a copy of your key in a safe place."
 );
 
 subHeading("Key Activation Rules");
 bullet([
-  "Each key is tied to first activation and is verified on every session start.",
+  "Each key is checked against the server on every session start.",
   "If a key is revoked, you will be prompted to enter a valid key on your next visit.",
   "Contact your supplier if you lose your key or need a replacement.",
 ]);
 
-// ─── Section 3: Control Panel ─────────────────────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 3: Control Panel ──────────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("3 · Control Panel (Dashboard)");
 body(
-  "The Control Panel is your main hub. It shows the currently active operation (if any) and a list of recently configured operations ready to launch."
+  "The Control Panel is your main hub. It shows the currently active operation (if any) along with recently configured operations ready to launch."
 );
 
 subHeading("Active Operation Panel");
-body(
-  "When an operation is transmitting or paused, the Active Operation Panel appears at the top of the Control Panel. It displays:"
-);
+body("When an operation is transmitting or paused, the Active Operation Panel appears at the top. It displays:");
 bullet([
-  "Operation name and current status (transmitting / paused / standby).",
-  "Trend / Intention section — cycles through all trend positions every 3 seconds when running, showing each position's intention statement, radionic rate, and associated filter cards.",
-  "Target / Structural Link — shows the target name, witness photo (if provided), and amber LCD rate.",
-  "Chi waveform display — an animated bar graph synchronized to the chi frequency.",
-  "Session timer — shows elapsed time (for unlimited sessions) or a countdown with progress ring (for timed sessions).",
+  "Operation name and current status: Transmitting, Paused, or Standby.",
+  "Trend / Intention — cycles through all Trend positions every 3 seconds, showing each position's intention statement, radionic rate, and filter cards.",
+  "Target / Structural Link — shows the target name, witness photo (if provided), and amber LCD rate display.",
+  "Chi waveform — an animated bar graph synchronized to the chi frequency.",
+  "Session timer — shows elapsed time for unlimited sessions, or a countdown with progress ring for timed sessions.",
   "Filter Cards — displayed as a visual grid of symbolic sigil tiles in the right column.",
 ]);
 
@@ -328,38 +378,39 @@ subHeading("Transmit / Pause / Stop Controls");
 bullet([
   "Play / Transmit — begins or resumes the operation.",
   "Pause — freezes the timer while keeping the operation active.",
-  "Stop (square) — ends the operation and returns it to idle status.",
-  "Reset (circular arrow) — stops and resets the elapsed time to zero.",
+  "Stop — ends the operation and returns it to idle status.",
+  "Reset — stops and resets elapsed time to zero.",
 ]);
 
 subHeading("Launching Stored Operations");
 body(
-  "Below the active panel, recently configured operations are listed. Click the Transmit button on any card to launch it instantly. Only one operation can be running at a time; starting a new one will pause any currently running operation."
+  "Below the active panel, recently configured operations are listed as cards. Click the Transmit button on any card to launch it instantly. Only one operation can be running at a time; starting a new one will pause the currently running operation."
 );
 
-// ─── Section 4: Position Builder ──────────────────────────────────────────────
+pageFooter(pageNum++);
 
-doc.addPage({ size: "A4", margins: { top: 60, bottom: 60, left: 60, right: 60 } });
+// ── Section 4: Position Builder ───────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
 sectionHeading("4 · Position Builder");
 body(
-  "The Position Builder is where you create and configure radionic operations. Each operation consists of one or more positions — a Target and up to nine Trend positions."
+  "The Position Builder is where you create and configure radionic operations. Each operation consists of one or more positions — one Target and up to nine Trend positions."
 );
 
 subHeading("Creating an Operation");
 bullet([
-  "Navigate to 'Builder' in the sidebar.",
-  "Enter a descriptive name for the operation in the Session Name field at the top.",
+  "Navigate to Builder in the sidebar.",
+  "Enter a descriptive name for the operation in the Session Name field.",
   "You will see two default positions: Target and Trend 1.",
-  "Click the + Add Position button to add additional Trend positions (up to 9 total).",
+  "Click + Add Position to add additional Trend positions (up to 9 total).",
   "Use the tabs at the top to switch between positions.",
 ]);
 
 subHeading("Configuring the Target Position");
 bullet([
   "Target Name — the full name of the person, place, or object.",
-  "Description — optional additional notes or intention.",
+  "Description — optional notes or supporting intention.",
   "Witness / Photo — upload a photo to create a stronger structural link.",
   "Transfer Diagram — upload or generate a diagram for physical chi-generator use.",
   "Structural Link Type — choose from Name, Photo, Written, or Transfer.",
@@ -370,56 +421,56 @@ subHeading("Configuring Trend Positions");
 bullet([
   "Position Type — label such as Trend 1, Trend 2, etc.",
   "Intention Statement — a clear, present-tense affirmative statement of the desired outcome.",
-  "Radionic Rate — set via StickPad or manual entry.",
+  "Radionic Rate — set via the StickPad or manual entry.",
   "Filter Cards — select symbolic cards from the library to amplify this specific trend.",
   "Custom Sigil Image — upload your own image as a card for this position.",
 ]);
 
 subHeading("Chi Frequency & Session Duration");
-body(
-  "At the bottom of the Builder, configure the broadcast parameters:"
-);
 bullet([
-  "Frequency (Hz) — use the logarithmic slider or the preset dropdown to select a chi carrier frequency. Common presets include 7.83 Hz (Schumann Resonance), 432 Hz, 528 Hz (DNA repair), and 963 Hz.",
-  "Duration — choose 'Timed session' and enter a duration in minutes (1–1440), or toggle to 'Continuous' for an unlimited run with no auto-stop.",
+  "Frequency (Hz) — use the logarithmic slider or the preset dropdown to select a chi carrier frequency.",
+  "Duration — choose Timed Session and enter a value in minutes (1–1440), or toggle Continuous for an unlimited run.",
 ]);
 
 subHeading("Saving & Launching");
 bullet([
-  "Click 'Save Operation' to store the operation without running it.",
-  "Click 'Save & Transmit' to store and immediately launch the operation.",
+  "Click Save Operation to store the operation without running it.",
+  "Click Save & Transmit to store and immediately launch the operation.",
   "Saved operations appear in the Operations list and on the Control Panel.",
 ]);
 
-// ─── Section 5: StickPad & Rates ──────────────────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 5: StickPad & Rates ───────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("5 · Radionic Rates & the StickPad");
 body(
-  "Radionic rates are 10-digit numerical codes that encode the subtle-energy signature of an intention, quality, or target. In traditional radionics, rates are found by dowsing dials while rubbing a 'stick pad' until you feel a sticky resistance (the stick reaction)."
+  "Radionic rates are 10-digit numerical codes that encode the subtle-energy signature of an intention, quality, or target. In traditional radionics, rates are found by dowsing dials while rubbing a stick pad until you feel a sticky resistance — called the stick reaction."
 );
-body(
-  "The OMX StickPad digitally simulates this process:"
-);
+body(`${APP_FULL} digitally simulates this process:`);
 bullet([
-  "Press and hold the StickPad circle to begin scanning — it will cycle randomly through digits.",
-  "Release when you feel or intuitively sense the correct digit — it locks in place.",
+  "Press and hold the StickPad circle to begin scanning — it will cycle through digits.",
+  "Release when you intuitively sense the correct digit — it locks in place.",
   "Repeat for each of the 10 digit positions.",
-  "The pencil icon opens manual entry mode, where you can type any digit directly.",
+  "The pencil icon opens manual entry mode so you can type any digit directly.",
   "The lock icon freezes the entire rate to prevent accidental changes.",
 ]);
 
-note(
-  "Trust your intuition during the stick reaction process. Many practitioners report a tactile or energetic response when the correct digit is reached. Others prefer to set rates analytically or use known reference rates."
+callout(
+  "Trust your intuition during the stick reaction process. Many practitioners report a tactile or energetic sense when the correct digit is reached. Others prefer to set rates analytically or use published reference rates."
 );
 
 subHeading("LCD Rate Display");
 body(
-  "Trend rates are shown in green LCD-style displays. Target rates are shown in amber. During an active operation, the trend display animates digit-by-digit as positions cycle — each digit flips to the new value independently."
+  "Trend rates are displayed in green LCD-style digits. Target rates are shown in amber. During an active operation, each digit animates independently as positions cycle through."
 );
 
-// ─── Section 6: Trends & Targets ─────────────────────────────────────────────
+pageFooter(pageNum++);
 
-doc.addPage({ size: "A4", margins: { top: 60, bottom: 60, left: 60, right: 60 } });
+// ── Section 6: Trends & Targets ───────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
 sectionHeading("6 · Trends & Targets Explained");
@@ -436,7 +487,7 @@ bullet([
   "Deep and restful sleep every night",
 ]);
 body(
-  "Write Trend intentions in the present tense, as if already manifested. Avoid negations ('not', 'no', 'without') — state what you want, not what you don't want."
+  "Write Trend intentions in the present tense, as if already manifested. Avoid negations — state what you want, not what you don't want."
 );
 
 subHeading("The Target");
@@ -453,10 +504,14 @@ bullet([
 
 subHeading("Multi-Position Operations");
 body(
-  "Advanced operators use multiple Trend positions within a single operation. This allows you to broadcast several intentions simultaneously toward the same target. The Active Operation Panel cycles through all trend positions during transmission, showing each in turn."
+  "Advanced operators use multiple Trend positions within a single operation to broadcast several intentions simultaneously toward the same target. The Active Operation Panel cycles through all Trend positions during transmission."
 );
 
-// ─── Section 7: Operations Manager ───────────────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 7: Operations Manager ────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("7 · Operations Manager");
 body(
@@ -473,72 +528,82 @@ bullet([
 subHeading("Card Controls");
 bullet([
   "Transmit / Pause — starts or pauses the operation and navigates to the Control Panel.",
-  "Edit (pencil) — opens the Position Builder with the operation pre-loaded.",
-  "Duplicate (copy) — creates a copy of the operation with 'idle' status.",
-  "Delete (trash) — permanently removes the operation (with confirmation).",
+  "Edit (pencil icon) — opens the Position Builder with the operation pre-loaded.",
+  "Duplicate (copy icon) — creates a copy of the operation with idle status.",
+  "Delete (trash icon) — permanently removes the operation after confirmation.",
 ]);
 
-note(
+callout(
   "Starting an operation from the Operations list will automatically navigate you to the Control Panel so you can monitor the active transmission."
 );
 
-// ─── Section 8: Session Timer & Chi Frequency ────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 8: Session Timer & Chi Frequency ─────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("8 · Session Timer & Chi Frequency");
 
 subHeading("Timed Sessions");
 body(
-  "Set a duration in minutes (1–1440 min). The session runs until the elapsed time reaches the target, then automatically stops and marks the operation as completed. The progress ring in the Control Panel shows percentage completion."
+  "Set a duration in minutes (1–1440). The session runs until elapsed time reaches the target, then automatically stops and marks the operation as completed. The progress ring in the Control Panel shows percentage completion."
 );
 
 subHeading("Continuous Sessions");
 body(
-  "When 'Continuous' mode is selected, the session runs indefinitely until you manually stop or pause it. The clock displays elapsed time counting upward. This is ideal for long-running environmental broadcasts."
+  "When Continuous mode is selected, the session runs indefinitely until you manually stop or pause it. The clock displays elapsed time counting upward. Ideal for long-running environmental broadcasts."
 );
 
 subHeading("Chi Frequency Presets");
-const freqs = [
-  ["0.6 Hz", "Deep delta — unconscious programming"],
-  ["7.83 Hz", "Schumann Resonance — Earth's natural frequency"],
-  ["10 Hz", "Alpha — relaxation, enhanced receptivity"],
-  ["40 Hz", "Gamma — peak focus, manifestation clarity"],
-  ["174 Hz", "Foundation / pain relief"],
-  ["285 Hz", "Tissue and field repair"],
-  ["396 Hz", "Liberation from fear and guilt"],
-  ["417 Hz", "Undoing situations, facilitating change"],
-  ["432 Hz", "Natural tuning, heart resonance"],
-  ["528 Hz", "DNA repair, transformation, miracles"],
-  ["639 Hz", "Relationships and reconnection"],
-  ["741 Hz", "Awakening intuition, solutions"],
-  ["852 Hz", "Spiritual order, intuition"],
-  ["963 Hz", "Crown activation, divine connection"],
-];
-for (const [hz, desc] of freqs) {
-  doc
-    .fillColor(AMBER)
-    .font("Courier-Bold")
-    .fontSize(9)
-    .text(`${hz.padEnd(9)}`, 60, doc.y, { continued: true, width: 90 });
-  doc
-    .fillColor(BODY)
-    .font("Helvetica")
-    .fontSize(9)
-    .text(desc, { lineGap: 2 });
-}
 doc.moveDown(0.5);
 
-// ─── Section 9: Symbolic Filter Cards ────────────────────────────────────────
+const freqs: [string, string][] = [
+  ["0.6 Hz",   "Deep delta — unconscious programming"],
+  ["7.83 Hz",  "Schumann Resonance — Earth's natural frequency"],
+  ["10 Hz",    "Alpha — relaxation, enhanced receptivity"],
+  ["40 Hz",    "Gamma — peak focus, manifestation clarity"],
+  ["174 Hz",   "Foundation / pain relief"],
+  ["285 Hz",   "Tissue and field repair"],
+  ["396 Hz",   "Liberation from fear and guilt"],
+  ["417 Hz",   "Undoing situations, facilitating change"],
+  ["432 Hz",   "Natural tuning, heart resonance"],
+  ["528 Hz",   "DNA repair, transformation, miracles"],
+  ["639 Hz",   "Relationships and reconnection"],
+  ["741 Hz",   "Awakening intuition, solutions"],
+  ["852 Hz",   "Spiritual order, intuition"],
+  ["963 Hz",   "Crown activation, divine connection"],
+];
 
-doc.addPage({ size: "A4", margins: { top: 60, bottom: 60, left: 60, right: 60 } });
+for (const [hz, desc] of freqs) {
+  const y = doc.y;
+  const col1 = 80;
+  doc.rect(MARGIN, y, col1, 18).fill("#F5F3FF");
+  doc
+    .fillColor(INDIGO)
+    .font("Courier-Bold")
+    .fontSize(10.5)
+    .text(hz, MARGIN + 4, y + 3, { width: col1 - 8, lineBreak: false });
+  doc
+    .fillColor(TEXT)
+    .font("Helvetica")
+    .fontSize(10.5)
+    .text(desc, MARGIN + col1 + 10, y + 3, { width: CONTENT_W - col1 - 10 });
+  doc.y = y + 22;
+}
+
+doc.moveDown(0.5);
+pageFooter(pageNum++);
+
+// ── Section 9: Symbolic Filter Cards ─────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
 sectionHeading("9 · Symbolic Filter Cards");
 body(
   "Filter Cards are symbolic sigils drawn from traditions of sacred geometry, solfeggio frequencies, chakra systems, numerology, and elemental forces. They act as energetic modulators applied to your broadcast."
 );
-body(
-  "Cards can be assigned at two levels:"
-);
+body("Cards can be assigned at two levels:");
 bullet([
   "Operation-wide — applied to the entire operation (all positions).",
   "Position-specific — applied only to the specific Trend position where they are selected.",
@@ -550,13 +615,13 @@ bullet([
   "Solfeggio — tonal frequencies with specific vibrational qualities.",
   "Protection — shields, barriers, and defensive energy patterns.",
   "Manifestation — amplifiers for attraction, abundance, and materialization.",
-  "Elements — Earth, Water, Fire, Air, Ether/Akasha.",
+  "Elements — Earth, Water, Fire, Air, Ether / Akasha.",
   "Numerology — numerical archetypes and their vibrational meaning.",
 ]);
 
 subHeading("Managing the Card Library");
 bullet([
-  "Navigate to 'Cards' in the sidebar to view all available cards.",
+  "Navigate to Cards in the sidebar to view all available cards.",
   "Star cards to mark them as favourites for quick access.",
   "Filter by category using the tabs at the top.",
   "Custom cards can be created with a name, symbol (emoji), and description.",
@@ -564,14 +629,18 @@ bullet([
 
 subHeading("Applying Cards to Operations");
 body(
-  "In the Position Builder, each position has a Cards section. Click cards to add or remove them. Selected cards appear highlighted. During transmission, cards are shown in the Control Panel — position-specific cards appear inside the cycling Trend panel, and operation-wide cards appear in the Filter Cards grid."
+  "In the Position Builder, each position has a Cards section. Click a card to add or remove it. During transmission, cards appear in the Control Panel — position-specific cards cycle inside the Trend panel, and operation-wide cards appear in the Filter Cards grid."
 );
 
-// ─── Section 10: Background & Visual Settings ─────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 10: Background & Visual Settings ──────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("10 · Background & Visual Settings");
 body(
-  "The 'BG' button at the bottom of the sidebar opens the Background Picker. You can personalize the machine-room atmosphere with six built-in gradient presets or a custom image upload."
+  "The BG button at the bottom of the sidebar opens the Background Picker. Personalize the machine-room atmosphere with six built-in gradient presets or a custom image upload."
 );
 bullet([
   "Dark — the default deep space background.",
@@ -584,11 +653,10 @@ bullet([
 ]);
 body("Your background choice is saved and persists across sessions.");
 
-// ─── Section 11: Sequencer ────────────────────────────────────────────────────
-
+// ── Section 11: Sequencer ─────────────────────────────────────────────────────
 sectionHeading("11 · Sequencer");
 body(
-  "The Sequencer allows you to chain multiple frequency steps into an automated sequence. Each step has its own chi frequency and duration, and the system moves through steps in order."
+  "The Sequencer lets you chain multiple frequency steps into an automated sequence. Each step has its own chi frequency and duration, and the system advances through steps in order."
 );
 bullet([
   "Add steps with the + button.",
@@ -596,15 +664,21 @@ bullet([
   "Give the sequence a name and save it.",
   "Start the sequencer from the Sequencer page — it will step through automatically.",
 ]);
-note("The Sequencer is ideal for multi-stage clearing protocols, layered healing sessions, or progressive manifestation sequences.");
+callout(
+  "The Sequencer is ideal for multi-stage clearing protocols, layered healing sessions, or progressive manifestation sequences."
+);
 
-// ─── Section 12: Export & Transfer Diagrams ───────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 12: Export & Transfer Diagrams ────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("12 · Export & Transfer Diagrams");
 
 subHeading("Export Page");
 body(
-  "The Export page allows you to save a complete snapshot of your operations and cards to a JSON file, which you can back up or import on another device."
+  "The Export page lets you save a complete snapshot of your operations and cards to a JSON file. You can back it up or import it on another device at any time."
 );
 
 subHeading("Transfer Diagrams");
@@ -612,15 +686,16 @@ body(
   "A Transfer Diagram is a printable document that encodes the operation's intention and target information. It is designed to be placed on a physical chi generator (such as an orgone accumulator or radionic broadcaster) to create a structural link between the digital operation and a physical device."
 );
 bullet([
-  "Navigate to 'Transfer Diagram' in the sidebar.",
+  "Navigate to Transfer Diagram in the sidebar.",
   "Select an operation to generate its diagram.",
   "Print the diagram and place it on your physical device.",
   "The diagram includes the operation name, target, trend intention, and radionic rates.",
 ]);
 
-// ─── Section 13: Best Practices ───────────────────────────────────────────────
+pageFooter(pageNum++);
 
-doc.addPage({ size: "A4", margins: { top: 60, bottom: 60, left: 60, right: 60 } });
+// ── Section 13: Best Practices ────────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
 pageHeader();
 
 sectionHeading("13 · Best Practices & Tips");
@@ -628,16 +703,16 @@ sectionHeading("13 · Best Practices & Tips");
 subHeading("Crafting Effective Intentions");
 bullet([
   "Use present-tense, positive language: 'I am healthy and vibrant' rather than 'I am not sick'.",
-  "Be specific but not restrictive — allow the universe to find the best path.",
+  "Be specific but not restrictive — allow the best path to emerge naturally.",
   "Charge each word with genuine feeling and belief.",
   "Review and refine your intention statements regularly.",
 ]);
 
 subHeading("Rate Finding");
 bullet([
-  "Find rates in a calm, centered state — meditation before rate-finding improves accuracy.",
+  "Find rates in a calm, centered state — brief meditation before rate-finding improves accuracy.",
   "Trust your first impression. Overthinking leads to less accurate rates.",
-  "Reference rate books can be used for common qualities — enter them manually.",
+  "Published rate books can be used for common qualities — enter them manually using the pencil icon.",
   "Lock rates once found to protect them from accidental changes.",
 ]);
 
@@ -658,11 +733,15 @@ bullet([
   "Replace printed diagrams weekly or whenever the intention changes.",
 ]);
 
-note(
-  "Orgone Manifestation X is a tool for focused intention and energetic broadcasting. Results vary based on operator skill, clarity of intention, and alignment with natural laws. Use this software ethically and with positive intent."
+callout(
+  `${APP_FULL} is a spiritual intention-focusing tool. It is not a medical device and makes no medical claims. Use responsibly and ethically.`
 );
 
-// ─── Section 14: Troubleshooting ─────────────────────────────────────────────
+pageFooter(pageNum++);
+
+// ── Section 14: Troubleshooting ───────────────────────────────────────────────
+doc.addPage({ size: "A4", margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+pageHeader();
 
 sectionHeading("14 · Troubleshooting");
 
@@ -673,11 +752,11 @@ const troubleshooting: [string, string][] = [
   ],
   [
     "Operation stops immediately after starting",
-    "If an operation has a short timed duration and was previously run to completion, it will reset to zero and start fresh. If it stops in under 5 seconds, check the session duration setting in the Builder.",
+    "If a timed operation was previously run to completion, it will reset and start fresh. If it stops within 5 seconds, check the session duration setting in the Builder.",
   ],
   [
     "StickPad not responding to hold",
-    "Ensure you are pressing and holding (not just clicking) the StickPad circle. On touch devices, hold your finger without moving.",
+    "Ensure you are pressing and holding (not just clicking) the StickPad circle. On touch devices, hold without moving your finger.",
   ],
   [
     "Background image not displaying",
@@ -698,44 +777,41 @@ const troubleshooting: [string, string][] = [
 ];
 
 for (const [problem, solution] of troubleshooting) {
-  doc.moveDown(0.5);
+  doc.moveDown(0.6);
+  const y = doc.y;
+  doc.rect(MARGIN, y, CONTENT_W, 14).fill("#FEF3C7");
   doc
     .fillColor(AMBER)
     .font("Helvetica-Bold")
-    .fontSize(9.5)
-    .text(`Q: ${problem}`);
+    .fontSize(11)
+    .text(problem, MARGIN + 8, y + 1, { width: CONTENT_W - 16 });
+  doc.y = y + 18;
   doc
-    .fillColor(BODY)
+    .fillColor(TEXT)
     .font("Helvetica")
-    .fontSize(9.5)
-    .text(`A: ${solution}`, { lineGap: 3 });
+    .fontSize(11)
+    .text(solution, MARGIN + 8, doc.y, { width: CONTENT_W - 16, lineGap: 4 });
+  doc.moveDown(0.4);
 }
 
-doc.moveDown(2);
+doc.moveDown(1.5);
 hr();
-doc.moveDown(1);
+doc.moveDown(0.6);
 
 doc
-  .fillColor(DIM)
+  .fillColor(TEXT_MUTED)
   .font("Helvetica-Oblique")
-  .fontSize(9)
+  .fontSize(10)
   .text(
-    "Orgone Manifestation X is a spiritual and intention-focusing tool. It is not a medical device and makes no medical claims. Use responsibly and ethically.",
-    { align: "center", width: doc.page.width - 120 }
+    `© ${new Date().getFullYear()} ${COMPANY}. All rights reserved.`,
+    MARGIN,
+    doc.y,
+    { width: CONTENT_W, align: "center" }
   );
 
-doc.moveDown(0.5);
-doc
-  .fillColor("#2D2D5A")
-  .font("Helvetica-Bold")
-  .fontSize(9)
-  .text(`© ${new Date().getFullYear()} Super Manifestation X. All rights reserved.`, {
-    align: "center",
-    width: doc.page.width - 120,
-  });
+pageFooter(pageNum++);
 
-// ─── Finalize ─────────────────────────────────────────────────────────────────
-
+// ── Finalize ──────────────────────────────────────────────────────────────────
 doc.end();
 
 stream.on("finish", () => {
