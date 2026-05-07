@@ -136,11 +136,11 @@ export default function TransferDiagram() {
 
               {/* Print footer */}
               <div className="hidden print:block px-10 py-6 border-t border-gray-200 space-y-2">
-                <p className="text-[10px] uppercase tracking-widest text-gray-500 text-center font-mono">
+                <p className="text-[12px] uppercase tracking-widest text-gray-500 text-center font-mono">
                   Place this diagram on your chi generator to activate the structural link between your device and Orgone Manifestation Studio.
                   This diagram is unique to your licensed copy and should not be shared or reproduced.
                 </p>
-                <p className="text-[9px] text-gray-400 text-center mt-3">
+                <p className="text-[11px] text-gray-400 text-center mt-3">
                   This software is designed for meditation, visualization, intention-setting, and entertainment/wellness purposes only.
                   It does not diagnose, treat, cure, or prevent any medical condition, and makes no claims regarding financial, legal, or health outcomes.
                 </p>

@@ -96,7 +96,7 @@ export default function Operations() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span
-              className="text-[9px] font-mono uppercase px-2 py-0.5 rounded"
+              className="text-[11px] font-mono uppercase px-2 py-0.5 rounded"
               style={{
                 background: isRunning
                   ? "hsla(270,35%,18%,1)"
@@ -126,7 +126,7 @@ export default function Operations() {
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-2.5 h-2.5" style={{ color: "hsla(270,75%,65%,0.7)" }} />
-              <span className="text-[8px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>Trend</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>Trend</span>
             </div>
             <p className="text-xs italic text-white/40 line-clamp-2 leading-relaxed"
               style={{ borderLeft: "2px solid hsla(270,45%,40%,0.35)", paddingLeft: "8px" }}>
@@ -134,7 +134,7 @@ export default function Operations() {
             </p>
             {op.trendRate && (
               <span
-                className="text-[10px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
+                className="text-[12px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
                 style={{
                   background: "hsla(120,30%,4%,1)",
                   border: "1px solid hsla(120,50%,20%,0.3)",
@@ -151,7 +151,7 @@ export default function Operations() {
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
               <Target className="w-2.5 h-2.5" style={{ color: "hsla(38,85%,62%,0.7)" }} />
-              <span className="text-[8px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>Target</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>Target</span>
             </div>
             <div className="flex items-center gap-2">
               {op.target.photo && (
@@ -162,7 +162,7 @@ export default function Operations() {
             </div>
             {op.targetRate && (
               <span
-                className="text-[10px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
+                className="text-[12px] font-mono tabular-nums px-2 py-0.5 rounded inline-block"
                 style={{
                   background: "hsla(38,25%,4%,1)",
                   border: "1px solid hsla(38,75%,28%,0.3)",
@@ -178,7 +178,7 @@ export default function Operations() {
           {/* Params */}
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className="text-[9px] font-mono px-2 py-0.5 rounded"
+              className="text-[11px] font-mono px-2 py-0.5 rounded"
               style={{
                 background: "hsla(270,25%,10%,1)",
                 border: "1px solid hsla(270,45%,22%,0.5)",
@@ -188,7 +188,7 @@ export default function Operations() {
               {op.frequencyHz} Hz
             </span>
             <span
-              className="text-[9px] font-mono px-2 py-0.5 rounded flex items-center gap-1"
+              className="text-[11px] font-mono px-2 py-0.5 rounded flex items-center gap-1"
               style={{
                 background: "hsla(228,25%,8%,1)",
                 border: "1px solid hsla(228,25%,15%,0.8)",
@@ -198,7 +198,7 @@ export default function Operations() {
               <Clock className="w-2.5 h-2.5" /> {op.sessionDurationMinutes}m
             </span>
             {op.elapsedSeconds > 0 && (
-              <span className="text-[9px] font-mono text-white/20">
+              <span className="text-[11px] font-mono text-white/20">
                 {Math.floor(op.elapsedSeconds / 60)}m elapsed
               </span>
             )}
@@ -274,8 +274,8 @@ export default function Operations() {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="w-4 h-px" style={{ background: accent ?? "hsla(228,25%,20%,1)" }} />
-        <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/30">{title}</span>
-        <span className="text-[9px] font-mono text-white/20">({ops.length})</span>
+        <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/30">{title}</span>
+        <span className="text-[11px] font-mono text-white/20">({ops.length})</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         {ops.map((op, i) => <OperationCard key={op.id} op={op} idx={i} />)}
@@ -288,7 +288,7 @@ export default function Operations() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
           <h1 className="text-2xl font-mono font-bold text-white/85">Radionic Operations</h1>
           <p className="text-xs font-mono text-white/30 mt-0.5">Manage your stored TREND/TARGET transmission configurations.</p>
         </div>

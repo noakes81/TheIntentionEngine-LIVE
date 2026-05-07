@@ -12,7 +12,7 @@ export function RadionicRateDials({ label, value, color = "primary" }: RadionicR
     : "text-primary border-primary/40 bg-primary/5";
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/70">{label} Radionic Rate</div>
+      <div className="text-[12px] font-mono uppercase tracking-widest text-muted-foreground/70">{label} Radionic Rate</div>
       <div className={`font-mono text-sm tracking-widest px-2 py-1 rounded border inline-block ${accent}`}>
         {value || "0000000000"}
       </div>

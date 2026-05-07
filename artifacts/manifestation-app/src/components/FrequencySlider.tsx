@@ -71,7 +71,7 @@ export function FrequencySlider({ value, onChange }: FrequencySliderProps) {
           step={0.1}
           className="py-4 cursor-pointer"
         />
-        <div className="flex justify-between mt-2 text-[10px] font-mono text-muted-foreground">
+        <div className="flex justify-between mt-2 text-[12px] font-mono text-muted-foreground">
           <span>0.6</span>
           <span>10</span>
           <span>100</span>

@@ -85,7 +85,7 @@ export default function Sequencer() {
     <div className="animate-in fade-in duration-400 space-y-5 pb-20">
       {/* Header */}
       <div>
-        <div className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
+        <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">Orgone Manifestation X</div>
         <h1 className="text-2xl font-mono font-bold text-white/85">Frequency Sequencer</h1>
         <p className="text-xs font-mono text-white/30 mt-0.5">Chain multiple frequencies into a continuous barrage transmission.</p>
       </div>
@@ -113,13 +113,13 @@ export default function Sequencer() {
               animate={isRunning ? { opacity: [1, 0.3, 1] } : {}}
               transition={{ duration: 1.2, repeat: Infinity }}
             />
-            <span className="text-[9px] font-mono uppercase tracking-[0.18em] text-white/35">
+            <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-white/35">
               {isRunning ? `Sequencing — Step ${activeStepIndex + 1} of ${steps.length}` : status === 'paused' ? 'Paused' : 'Barrage Mode Ready'}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <Layers className="w-3 h-3 text-white/20" />
-            <span className="text-[9px] font-mono text-white/20">{steps.length} STEPS — {totalDuration} MIN TOTAL</span>
+            <span className="text-[11px] font-mono text-white/20">{steps.length} STEPS — {totalDuration} MIN TOTAL</span>
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export default function Sequencer() {
             </svg>
             <div className="text-center z-10">
               <div className="text-xl font-mono text-white/85 tabular-nums tracking-tighter">{formattedTime}</div>
-              <div className="text-[8px] font-mono uppercase tracking-widest text-white/25 mt-0.5">
+              <div className="text-[11px] font-mono uppercase tracking-widest text-white/25 mt-0.5">
                 / {totalDuration}:00
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function Sequencer() {
                   }}
                 />
               </div>
-              <div className="flex justify-between text-[8px] font-mono text-white/20">
+              <div className="flex justify-between text-[11px] font-mono text-white/20">
                 <span>{Math.round(overallProgress)}% complete</span>
                 <span>{totalDuration} min total</span>
               </div>
@@ -237,10 +237,10 @@ export default function Sequencer() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-4 h-px" style={{ background: "hsla(270,75%,58%,0.5)" }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/30">Sequence Timeline</span>
+            <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/30">Sequence Timeline</span>
           </div>
           <button
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[12px] font-mono transition-all"
             style={{
               background: "hsla(228,35%,7%,1)",
               border: "1px dashed hsla(270,45%,35%,0.5)",
@@ -295,7 +295,7 @@ export default function Sequencer() {
                     <GripVertical className="w-3.5 h-3.5 cursor-grab shrink-0" style={{ color: "hsla(228,10%,28%,1)" }} />
 
                     <div
-                      className="w-6 h-6 rounded flex items-center justify-center text-[9px] font-mono font-bold shrink-0"
+                      className="w-6 h-6 rounded flex items-center justify-center text-[11px] font-mono font-bold shrink-0"
                       style={{
                         background: isActive ? "hsla(270,75%,50%,1)" : "hsla(228,25%,14%,1)",
                         color: isActive ? "white" : "hsla(228,10%,40%,1)",
@@ -307,7 +307,7 @@ export default function Sequencer() {
 
                     <div className="flex-1 grid grid-cols-3 gap-3 min-w-0">
                       <div>
-                        <div className="text-[8px] font-mono uppercase tracking-widest mb-1 text-white/25">Label</div>
+                        <div className="text-[11px] font-mono uppercase tracking-widest mb-1 text-white/25">Label</div>
                         <Input
                           value={step.label}
                           onChange={e => updateStep(index, 'label', e.target.value)}
@@ -319,7 +319,7 @@ export default function Sequencer() {
                         />
                       </div>
                       <div>
-                        <div className="text-[8px] font-mono uppercase tracking-widest mb-1 text-white/25">Freq (Hz)</div>
+                        <div className="text-[11px] font-mono uppercase tracking-widest mb-1 text-white/25">Freq (Hz)</div>
                         <Input
                           type="number"
                           value={step.frequencyHz}
@@ -332,7 +332,7 @@ export default function Sequencer() {
                         />
                       </div>
                       <div>
-                        <div className="text-[8px] font-mono uppercase tracking-widest mb-1 text-white/25">Duration (min)</div>
+                        <div className="text-[11px] font-mono uppercase tracking-widest mb-1 text-white/25">Duration (min)</div>
                         <Input
                           type="number"
                           value={step.durationMinutes}

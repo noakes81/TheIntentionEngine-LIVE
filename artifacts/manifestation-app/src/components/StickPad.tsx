@@ -154,7 +154,7 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
                 </motion.span>
               ))}
               <motion.span
-                className="ml-2 text-[8px] font-mono uppercase tracking-widest"
+                className="ml-2 text-[11px] font-mono uppercase tracking-widest"
                 style={{ color: isPrimary ? "hsla(120,50%,40%,0.8)" : "hsla(38,70%,45%,0.8)" }}
                 animate={{ opacity: [1, 0.3, 1] }}
                 transition={{ repeat: Infinity, duration: 0.6 }}
@@ -181,7 +181,7 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="flex items-center gap-1 text-[9px] font-mono uppercase tracking-widest"
+                  className="flex items-center gap-1 text-[11px] font-mono uppercase tracking-widest"
                   style={{ color: isPrimary ? "hsla(120,65%,50%,0.8)" : "hsla(38,85%,55%,0.8)" }}
                 >
                   <Lock className="w-3 h-3" /> Locked
@@ -314,7 +314,7 @@ export function StickPad({ locked, onLock, onClear, rateDisplay, color = "primar
         </div>
       </motion.button>
 
-      <p className="text-[9px] font-mono text-center"
+      <p className="text-[11px] font-mono text-center"
         style={{ color: "hsla(228,10%,28%,1)" }}>
         {locked
           ? "Rate confirmed. Click pad to clear, or use ✎ to edit manually."

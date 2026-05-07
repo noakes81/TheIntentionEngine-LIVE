@@ -90,9 +90,9 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/25">Orgone Manifestation X</span>
-              <span className="text-[9px] font-mono text-white/15">—</span>
-              <span className="text-[9px] font-mono uppercase tracking-widest text-white/20">Virtual Radionic Device</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">Orgone Manifestation X</span>
+              <span className="text-[11px] font-mono text-white/15">—</span>
+              <span className="text-[11px] font-mono uppercase tracking-widest text-white/20">Virtual Radionic Device</span>
             </div>
             <h1 className="text-2xl font-mono font-bold text-white/90 tracking-wide">Control Panel</h1>
           </div>
@@ -121,7 +121,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center gap-2 mb-2">
             <div className="led-green" style={{ animationDuration: "1.2s" }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/35">Active Transmission</span>
+            <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/35">Active Transmission</span>
           </div>
           <ActiveOperationPanel
             operation={activeOperation}
@@ -177,7 +177,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-4 h-px" style={{ background: "hsla(270,75%,58%,0.5)" }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/35">Quick-Start Positions</span>
+            <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/35">Quick-Start Positions</span>
             <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, hsla(270,75%,58%,0.2), transparent)" }} />
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function Dashboard() {
               <div className="flex items-start justify-between mb-2.5">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-mono font-bold shrink-0"
+                    className="w-5 h-5 rounded flex items-center justify-center text-[11px] font-mono font-bold shrink-0"
                     style={{
                       background: "hsla(270,45%,18%,1)",
                       border: "1px solid hsla(270,75%,45%,0.3)",
@@ -223,7 +223,7 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <span
-                  className="text-[9px] font-mono px-1.5 py-0.5 rounded shrink-0 ml-1"
+                  className="text-[11px] font-mono px-1.5 py-0.5 rounded shrink-0 ml-1"
                   style={{
                     background: "hsla(270,35%,14%,1)",
                     border: "1px solid hsla(270,45%,25%,0.4)",
@@ -234,15 +234,15 @@ export default function Dashboard() {
                 </span>
               </div>
 
-              <p className="text-[10px] text-white/30 italic line-clamp-2 mb-2.5 font-mono leading-relaxed">
+              <p className="text-[12px] text-white/30 italic line-clamp-2 mb-2.5 font-mono leading-relaxed">
                 "{preset.intention.slice(0, 72)}…"
               </p>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-mono text-white/20">{preset.sessionDurationMinutes} min</span>
+                  <span className="text-[11px] font-mono text-white/20">{preset.sessionDurationMinutes} min</span>
                   <span className="text-white/10">·</span>
-                  <span className="text-[9px] font-mono" style={{ color: "hsla(120,60%,45%,0.7)" }}>
+                  <span className="text-[11px] font-mono" style={{ color: "hsla(120,60%,45%,0.7)" }}>
                     {preset.trendRate.slice(0, 5)}···
                   </span>
                 </div>
@@ -259,10 +259,10 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-4 h-px" style={{ background: "hsla(38,85%,52%,0.5)" }} />
-              <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-white/35">Stored Operations</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/35">Stored Operations</span>
             </div>
             <Link href="/operations">
-              <span className="text-[9px] font-mono uppercase tracking-widest text-white/25 hover:text-white/50 transition-colors cursor-pointer">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-white/25 hover:text-white/50 transition-colors cursor-pointer">
                 View All →
               </span>
             </Link>
@@ -289,10 +289,10 @@ export default function Dashboard() {
                   <p className="text-sm font-mono font-medium text-white/65 truncate group-hover:text-white/85 transition-colors">
                     {op.name}
                   </p>
-                  <p className="text-[10px] font-mono text-white/30">{op.frequencyHz} Hz — {op.target.name}</p>
+                  <p className="text-[12px] font-mono text-white/30">{op.frequencyHz} Hz — {op.target.name}</p>
                 </div>
                 <span
-                  className="shrink-0 ml-3 text-[9px] font-mono px-2 py-1 rounded transition-all"
+                  className="shrink-0 ml-3 text-[11px] font-mono px-2 py-1 rounded transition-all"
                   style={{
                     background: "hsla(38,35%,10%,1)",
                     border: "1px solid hsla(38,60%,35%,0.3)",
@@ -309,7 +309,7 @@ export default function Dashboard() {
 
       {/* Disclaimer */}
       <footer className="pt-4 pb-2 border-t" style={{ borderColor: "hsla(228,25%,12%,0.6)" }}>
-        <p className="text-[9px] font-mono text-white/15 max-w-3xl leading-relaxed">
+        <p className="text-[11px] font-mono text-white/15 max-w-3xl leading-relaxed">
           This software is designed for meditation, visualization, intention-setting, and entertainment/wellness purposes only. It does not diagnose, treat, cure, or prevent any medical condition. Results vary by individual. Not a substitute for professional medical, financial, or legal advice.
         </p>
       </footer>
@@ -348,10 +348,10 @@ export default function Dashboard() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <Sparkles className="w-3 h-3" style={{ color: "hsla(270,75%,65%,0.8)" }} />
-                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/35">Quick Launch</span>
+                      <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/35">Quick Launch</span>
                     </div>
                     <h2 className="text-base font-mono font-bold text-white/85 leading-tight">{pendingPreset.name}</h2>
-                    <p className="text-[9px] font-mono text-white/30 mt-0.5">{pendingPreset.frequencyHz} Hz — {pendingPreset.sessionDurationMinutes} min</p>
+                    <p className="text-[11px] font-mono text-white/30 mt-0.5">{pendingPreset.frequencyHz} Hz — {pendingPreset.sessionDurationMinutes} min</p>
                   </div>
                   <button onClick={closeModal} className="text-white/25 hover:text-white/60 transition-colors mt-0.5">
                     <X className="w-4 h-4" />
@@ -361,7 +361,7 @@ export default function Dashboard() {
                 {/* Fields */}
                 <div className="p-4 space-y-3.5">
                   <div className="space-y-1.5">
-                    <Label className="text-[9px] font-mono uppercase tracking-widest text-white/35">Target</Label>
+                    <Label className="text-[11px] font-mono uppercase tracking-widest text-white/35">Target</Label>
                     <Input
                       value={targetName}
                       onChange={e => setTargetName(e.target.value)}
@@ -377,7 +377,7 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-[9px] font-mono uppercase tracking-widest text-white/35">Structural Link Type</Label>
+                    <Label className="text-[11px] font-mono uppercase tracking-widest text-white/35">Structural Link Type</Label>
                     <Select value={linkType} onValueChange={v => setLinkType(v as "name" | "photo")}>
                       <SelectTrigger className="text-sm h-9 font-mono"
                         style={{ background: "hsla(228,35%,6%,1)", border: "1px solid hsla(38,85%,45%,0.25)" }}>
@@ -397,7 +397,7 @@ export default function Dashboard() {
                       exit={{ opacity: 0, height: 0 }}
                       className="space-y-1.5"
                     >
-                      <Label className="text-[9px] font-mono uppercase tracking-widest text-white/35">Witness Photo</Label>
+                      <Label className="text-[11px] font-mono uppercase tracking-widest text-white/35">Witness Photo</Label>
                       <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoFile} />
                       {targetPhoto ? (
                         <div className="relative group rounded overflow-hidden"

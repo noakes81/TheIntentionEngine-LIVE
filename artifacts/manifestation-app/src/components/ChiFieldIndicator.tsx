@@ -76,7 +76,7 @@ export function ChiFieldIndicator({ active, frequencyHz = 7.83, size = "md" }: C
         {size === "lg" && active && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center mt-1">
-              <div className="text-[10px] font-mono text-primary/80 mt-8">{frequencyHz} Hz</div>
+              <div className="text-[12px] font-mono text-primary/80 mt-8">{frequencyHz} Hz</div>
             </div>
           </div>
         )}
@@ -84,13 +84,13 @@ export function ChiFieldIndicator({ active, frequencyHz = 7.83, size = "md" }: C
 
       <div className="text-center">
         <div
-          className="text-[9px] font-mono uppercase tracking-[0.2em]"
+          className="text-[11px] font-mono uppercase tracking-[0.2em]"
           style={{ color: active ? "hsla(270,75%,68%,1)" : "hsla(228,10%,35%,1)" }}
         >
           {active ? "CHI ACTIVE" : "STANDBY"}
         </div>
         {active && size !== "sm" && (
-          <div className="text-[9px] font-mono mt-0.5" style={{ color: "hsla(228,10%,45%,1)" }}>
+          <div className="text-[11px] font-mono mt-0.5" style={{ color: "hsla(228,10%,45%,1)" }}>
             {frequencyHz} Hz
           </div>
         )}

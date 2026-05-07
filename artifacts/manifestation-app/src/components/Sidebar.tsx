@@ -42,7 +42,7 @@ export function Sidebar() {
         </div>
         <div>
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/90 leading-none">Orgone</div>
-          <div className="text-[9px] font-mono uppercase tracking-widest text-primary/70 leading-none mt-0.5">Manifestation X</div>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-primary/70 leading-none mt-0.5">Manifestation X</div>
         </div>
       </div>
 
@@ -63,10 +63,10 @@ export function Sidebar() {
               animate={{ opacity: [1, 0.4, 1] }}
               transition={{ duration: 1.2, repeat: Infinity }}
             />
-            <span className="text-[9px] font-mono uppercase tracking-widest text-primary/80">Transmitting</span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-primary/80">Transmitting</span>
           </div>
           <p className="text-[11px] font-medium text-white/80 truncate leading-tight">{activeOperation.name}</p>
-          <p className="text-[9px] font-mono text-primary/50 mt-0.5">{activeOperation.frequencyHz} Hz</p>
+          <p className="text-[11px] font-mono text-primary/50 mt-0.5">{activeOperation.frequencyHz} Hz</p>
         </div>
       )}
 
@@ -106,7 +106,7 @@ export function Sidebar() {
       >
         <div className="pt-3 flex items-center gap-2">
           <div className="led-off" />
-          <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">
+          <span className="text-[11px] font-mono text-white/20 uppercase tracking-widest">
             {activeOperation ? "Field Active" : "Standby"}
           </span>
         </div>

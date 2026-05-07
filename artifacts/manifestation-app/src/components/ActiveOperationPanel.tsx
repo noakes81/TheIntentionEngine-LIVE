@@ -142,15 +142,15 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
             animate={isRunning ? { opacity: [1, 0.3, 1] } : {}}
             transition={{ duration: 1.2, repeat: Infinity }}
           />
-          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-white/40">
+          <span className="text-[12px] font-mono uppercase tracking-[0.18em] text-white/40">
             {isRunning ? "Chi Field Transmitting" : isPaused ? "Transmission Paused" : "Standby"}
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[10px] font-mono text-white/25">{operation.frequencyHz} Hz</span>
+          <span className="text-[12px] font-mono text-white/25">{operation.frequencyHz} Hz</span>
           <div className="flex items-center gap-1.5">
             <Radio className="w-3 h-3 text-white/20" />
-            <span className="text-[10px] font-mono text-white/20">SMX VIRTUAL DEVICE</span>
+            <span className="text-[12px] font-mono text-white/20">SMX VIRTUAL DEVICE</span>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3 h-3" style={{ color: "hsla(270,75%,65%,0.8)" }} />
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>
+              <span className="text-[11px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(270,75%,65%,0.7)" }}>
                 Trend / Intention
               </span>
             </div>
@@ -183,7 +183,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Target className="w-3 h-3" style={{ color: "hsla(38,85%,62%,0.8)" }} />
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>
+              <span className="text-[11px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>
                 Target / Structural Link
               </span>
             </div>
@@ -208,7 +208,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           {/* Transfer Diagram */}
           {operation.target.transferDiagram && (
             <div className="space-y-1.5">
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>
+              <span className="text-[11px] font-mono uppercase tracking-[0.2em]" style={{ color: "hsla(38,85%,62%,0.7)" }}>
                 Transfer Diagram — Structural Link Active
               </span>
               <div className="relative rounded overflow-hidden"
@@ -218,7 +218,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
                   data-testid="img-transfer-diagram"
                 />
               </div>
-              <p className="text-[9px] text-white/25 font-mono">Place physical printout on chi generator.</p>
+              <p className="text-[11px] text-white/25 font-mono">Place physical printout on chi generator.</p>
             </div>
           )}
 
@@ -239,7 +239,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
                   }}
                 />
               </div>
-              <div className="flex justify-between text-[9px] font-mono text-white/25 uppercase tracking-wider">
+              <div className="flex justify-between text-[11px] font-mono text-white/25 uppercase tracking-wider">
                 <span>{formatTime(elapsedSeconds)}</span>
                 <span>{Math.round(progress)}%</span>
                 <span>{formatTime(remainingSeconds)} left</span>
@@ -309,7 +309,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
               <div className="text-xl font-mono font-light tabular-nums text-white/85 tracking-tighter">
                 {formatTime(targetSeconds > 0 ? remainingSeconds : elapsedSeconds)}
               </div>
-              <div className="text-[8px] font-mono uppercase tracking-widest text-white/25 mt-0.5">
+              <div className="text-[11px] font-mono uppercase tracking-widest text-white/25 mt-0.5">
                 {targetSeconds > 0 ? 'remaining' : 'elapsed'}
               </div>
             </div>
@@ -323,8 +323,8 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
               { label: "Frequency", value: `${operation.frequencyHz} Hz` },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between">
-                <span className="text-[9px] font-mono uppercase tracking-widest text-white/25">{item.label}</span>
-                <span className="font-mono text-[10px] text-white/55 capitalize">{item.value}</span>
+                <span className="text-[11px] font-mono uppercase tracking-widest text-white/25">{item.label}</span>
+                <span className="font-mono text-[12px] text-white/55 capitalize">{item.value}</span>
               </div>
             ))}
           </div>
@@ -332,7 +332,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           {/* Active filter cards */}
           {opCards.length > 0 && (
             <div className="space-y-2">
-              <div className="text-[9px] font-mono uppercase tracking-widest text-white/25">Filter Cards</div>
+              <div className="text-[11px] font-mono uppercase tracking-widest text-white/25">Filter Cards</div>
               <div className="flex flex-wrap gap-1">
                 {opCards.slice(0, 8).map(card => (
                   <div
@@ -346,11 +346,11 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
                     data-testid={`badge-card-${card.id}`}
                   >
                     <span className="text-xs">{card.symbol}</span>
-                    <span className="text-[9px] font-mono text-primary/70 max-w-[45px] truncate">{card.title.split(' ')[0]}</span>
+                    <span className="text-[11px] font-mono text-primary/70 max-w-[45px] truncate">{card.title.split(' ')[0]}</span>
                   </div>
                 ))}
                 {opCards.length > 8 && (
-                  <div className="rounded px-2 py-0.5 text-[9px] font-mono text-white/30"
+                  <div className="rounded px-2 py-0.5 text-[11px] font-mono text-white/30"
                     style={{ background: "hsla(228,25%,10%,1)", border: "1px solid hsla(228,25%,16%,1)" }}>
                     +{opCards.length - 8}
                   </div>

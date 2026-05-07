@@ -87,7 +87,7 @@ export function WitnessPhotoUpload({ value, onChange }: WitnessPhotoUploadProps)
             </Button>
           </div>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-            <p className="text-[10px] font-mono text-white/70 uppercase tracking-widest">Witness Attached</p>
+            <p className="text-[12px] font-mono text-white/70 uppercase tracking-widest">Witness Attached</p>
           </div>
         </div>
       ) : (

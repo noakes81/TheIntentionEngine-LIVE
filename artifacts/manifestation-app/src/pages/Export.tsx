@@ -160,7 +160,7 @@ ${selectedOp.notes || ''}
                     className="max-h-56 object-contain"
                     data-testid="img-export-transfer"
                   />
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400 text-center">
+                  <p className="text-[12px] uppercase tracking-widest text-gray-400 text-center">
                     Place this diagram on your chi generator to activate the structural link.
                     This diagram is unique to your licensed copy of Orgone Manifestation Studio.
                   </p>
@@ -176,7 +176,7 @@ ${selectedOp.notes || ''}
                     <div key={card.id} className="text-center border border-gray-200 rounded-lg p-4 bg-gray-50/50">
                       <div className="text-3xl mb-2 text-gray-800">{card.symbol}</div>
                       <div className="text-xs font-medium text-gray-700">{card.title}</div>
-                      <div className="text-[10px] text-gray-400 uppercase mt-1">{card.category}</div>
+                      <div className="text-[12px] text-gray-400 uppercase mt-1">{card.category}</div>
                     </div>
                   ))}
                 </div>
@@ -191,7 +191,7 @@ ${selectedOp.notes || ''}
             </section>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 relative z-10">
+          <div className="mt-8 pt-4 border-t border-gray-200 text-center text-[12px] text-gray-400 relative z-10">
             This software is designed for meditation, visualization, intention-setting, and entertainment/wellness purposes only. It does not diagnose, treat, cure, or prevent any medical condition, and makes no claims regarding financial, legal, or health outcomes. Results vary by individual. Not a substitute for professional medical, financial, or legal advice.
           </div>
         </Card>

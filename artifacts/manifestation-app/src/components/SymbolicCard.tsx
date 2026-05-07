@@ -67,7 +67,7 @@ export function SymbolicCard({
         </div>
         
         <div className="space-y-2 w-full">
-          <Badge variant="outline" className={cn("uppercase text-[10px] tracking-wider font-semibold", categoryColors[category] || "bg-muted text-foreground")}>
+          <Badge variant="outline" className={cn("uppercase text-[12px] tracking-wider font-semibold", categoryColors[category] || "bg-muted text-foreground")}>
             {category}
           </Badge>
           <h3 className="font-medium text-lg leading-tight">{title}</h3>

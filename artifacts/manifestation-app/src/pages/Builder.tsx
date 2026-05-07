@@ -119,7 +119,7 @@ function PositionModuleCard({
         <div className="flex items-center gap-2 min-w-0">
           {/* Position number badge */}
           <div
-            className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-mono font-bold shrink-0"
+            className="w-5 h-5 rounded flex items-center justify-center text-[11px] font-mono font-bold shrink-0"
             style={{
               background: isActive ? accentColor : "hsla(228,25%,14%,1)",
               color: isActive ? "white" : "hsla(228,10%,40%,1)",
@@ -132,7 +132,7 @@ function PositionModuleCard({
             value={pos.name}
             onChange={e => { e.stopPropagation(); onUpdate({ name: e.target.value }); }}
             onClick={e => e.stopPropagation()}
-            className="bg-transparent border-0 p-0 h-auto text-[10px] font-mono uppercase tracking-[0.15em] focus-visible:ring-0 w-24"
+            className="bg-transparent border-0 p-0 h-auto text-[12px] font-mono uppercase tracking-[0.15em] focus-visible:ring-0 w-24"
             style={{ color: isActive ? accentColor : "hsla(228,10%,45%,1)" }}
             placeholder="Name..."
           />
@@ -143,7 +143,7 @@ function PositionModuleCard({
             onValueChange={v => onUpdate({ positionType: v as SubPosition["positionType"] })}
           >
             <SelectTrigger
-              className="h-5 text-[9px] font-mono border-0 px-1 w-20 focus:ring-0"
+              className="h-5 text-[11px] font-mono border-0 px-1 w-20 focus:ring-0"
               style={{
                 background: "hsla(228,25%,10%,0.8)",
                 color: "hsla(228,10%,40%,1)"
@@ -177,7 +177,7 @@ function PositionModuleCard({
           <div className="space-y-2" onClick={e => e.stopPropagation()}>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <div className="text-[8px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Target</div>
+                <div className="text-[11px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Target</div>
                 <Input
                   value={pos.targetName ?? ""}
                   onChange={e => onUpdate({ targetName: e.target.value })}
@@ -192,7 +192,7 @@ function PositionModuleCard({
                 />
               </div>
               <div>
-                <div className="text-[8px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Link</div>
+                <div className="text-[11px] font-mono uppercase tracking-widest mb-1" style={{ color: "hsla(38,85%,52%,0.6)" }}>Link</div>
                 <Select value={pos.targetLinkType ?? "name"} onValueChange={v => onUpdate({ targetLinkType: v as SubPosition["targetLinkType"] })}>
                   <SelectTrigger className="text-xs h-7 font-mono"
                     style={{ background: "hsla(38,15%,6%,1)", border: "1px solid hsla(38,85%,45%,0.2)" }}>
@@ -218,7 +218,7 @@ function PositionModuleCard({
 
         {/* Intention */}
         <div onClick={e => e.stopPropagation()}>
-          <div className="text-[8px] font-mono uppercase tracking-widest mb-1"
+          <div className="text-[11px] font-mono uppercase tracking-widest mb-1"
             style={{ color: isTarget ? "hsla(38,85%,52%,0.6)" : "hsla(270,75%,65%,0.6)" }}>
             {isTarget ? "Description" : "Intention / Trend Statement"}
           </div>
@@ -241,11 +241,11 @@ function PositionModuleCard({
         {/* Sigil image slots */}
         <div onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-1.5">
-            <div className="text-[8px] font-mono uppercase tracking-widest"
+            <div className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: isTarget ? "hsla(38,85%,52%,0.5)" : "hsla(270,75%,65%,0.5)" }}>
               Sigils / Filters
             </div>
-            <span className="text-[8px] font-mono"
+            <span className="text-[11px] font-mono"
               style={{ color: totalCards >= MAX_CARDS ? "hsla(0,70%,55%,0.8)" : "hsla(228,10%,35%,1)" }}>
               {totalCards}/{MAX_CARDS}
             </span>
@@ -287,7 +287,7 @@ function PositionModuleCard({
           <button
             type="button"
             onClick={() => setShowCards(s => !s)}
-            className="mt-1.5 w-full flex items-center justify-between px-2 py-1 rounded text-[8px] font-mono uppercase tracking-widest transition-all"
+            className="mt-1.5 w-full flex items-center justify-between px-2 py-1 rounded text-[11px] font-mono uppercase tracking-widest transition-all"
             style={{
               background: "hsla(228,25%,8%,0.8)",
               border: "1px solid hsla(228,25%,14%,0.8)",
@@ -341,7 +341,7 @@ function PositionModuleCard({
 
         {/* Rate display (compact) */}
         <div>
-          <div className="text-[8px] font-mono uppercase tracking-widest mb-1.5"
+          <div className="text-[11px] font-mono uppercase tracking-widest mb-1.5"
             style={{ color: isTarget ? "hsla(38,85%,52%,0.5)" : "hsla(270,75%,65%,0.5)" }}>
             Radionic Rate
           </div>
@@ -599,7 +599,7 @@ export default function Builder() {
             {editingId && (
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Pencil className="w-2.5 h-2.5" style={{ color: "hsla(38,85%,52%,0.7)" }} />
-                <span className="text-[9px] font-mono text-white/30">Editing — changes overwrite saved operation</span>
+                <span className="text-[11px] font-mono text-white/30">Editing — changes overwrite saved operation</span>
               </div>
             )}
           </div>
@@ -665,7 +665,7 @@ export default function Builder() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-4 h-px" style={{ background: "hsla(270,75%,58%,0.5)" }} />
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">
+              <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/30">
                 Radionic Canvas — {subPositions.length} / {MAX_POSITIONS} Positions
               </span>
             </div>
@@ -673,7 +673,7 @@ export default function Builder() {
               <button
                 type="button"
                 onClick={addPosition}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[12px] font-mono transition-all"
                 style={{
                   background: "hsla(228,35%,7%,1)",
                   border: "1px dashed hsla(270,45%,35%,0.5)",
@@ -714,7 +714,7 @@ export default function Builder() {
             {/* Panel header */}
             <div className="flex items-center gap-2">
               <div className="w-4 h-px" style={{ background: "hsla(38,85%,52%,0.5)" }} />
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">
+              <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/30">
                 Position {activeIdx + 1} — Rate Dialing
               </span>
             </div>
@@ -759,14 +759,14 @@ export default function Builder() {
             >
               <div className="flex items-center gap-2 pb-3" style={{ borderBottom: "1px solid hsla(228,25%,12%,1)" }}>
                 <Zap className="w-3.5 h-3.5 text-white/30" />
-                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30">Chi Frequency</span>
+                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/30">Chi Frequency</span>
               </div>
 
               <FrequencySlider value={frequencyHz} onChange={setFrequencyHz} />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Frequency</div>
+                  <div className="text-[11px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Frequency</div>
                   <Select
                     value=""
                     onValueChange={v => setFrequencyHz(parseFloat(v))}
@@ -787,7 +787,7 @@ export default function Builder() {
                   </Select>
                 </div>
                 <div>
-                  <div className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Duration (min)</div>
+                  <div className="text-[11px] font-mono uppercase tracking-widest mb-1.5 text-white/30">Duration (min)</div>
                   <Input
                     type="number"
                     value={duration}
@@ -812,7 +812,7 @@ export default function Builder() {
                 border: "1px solid hsla(228,25%,12%,0.8)"
               }}
             >
-              <div className="text-[8px] font-mono uppercase tracking-widest text-white/20 mb-2">All Positions</div>
+              <div className="text-[11px] font-mono uppercase tracking-widest text-white/20 mb-2">All Positions</div>
               {subPositions.map((pos, idx) => (
                 <button
                   key={pos.id}
@@ -825,7 +825,7 @@ export default function Builder() {
                   }}
                 >
                   <span
-                    className="w-4 h-4 rounded flex items-center justify-center text-[8px] font-mono font-bold shrink-0"
+                    className="w-4 h-4 rounded flex items-center justify-center text-[11px] font-mono font-bold shrink-0"
                     style={{
                       background: idx === activeIdx ? "hsla(270,75%,50%,1)" : "hsla(228,25%,14%,1)",
                       color: idx === activeIdx ? "white" : "hsla(228,10%,40%,1)"
@@ -833,11 +833,11 @@ export default function Builder() {
                   >
                     {idx + 1}
                   </span>
-                  <span className="text-[10px] font-mono truncate flex-1"
+                  <span className="text-[12px] font-mono truncate flex-1"
                     style={{ color: idx === activeIdx ? "hsla(270,75%,70%,1)" : "hsla(228,10%,40%,1)" }}>
                     {pos.name}
                   </span>
-                  <span className="text-[8px] font-mono shrink-0"
+                  <span className="text-[11px] font-mono shrink-0"
                     style={{ color: "hsla(228,10%,30%,1)" }}>
                     {pos.rate.slice(0, 5)}···
                   </span>
