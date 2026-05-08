@@ -588,76 +588,82 @@ export default function Builder() {
 
       {/* Top toolbar */}
       <div
-        className="flex items-center justify-between gap-4 px-4 py-3 rounded"
+        className="rounded space-y-0 overflow-hidden"
         style={{
-          background: "linear-gradient(90deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
+          background: "linear-gradient(160deg, hsla(228,35%,7%,0.99), hsla(228,40%,5%,1))",
           border: "1px solid hsla(228,25%,13%,0.9)"
         }}
       >
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div>
-            <h1 className="text-base font-mono font-bold text-white/85">
+        {/* Row 1: title + preset + save */}
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5"
+          style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}>
+          <div className="flex items-center gap-3 min-w-0">
+            <h1 className="text-sm font-mono font-bold text-white/70 shrink-0">
               {editingId ? "Edit Operation" : "Position Builder"}
             </h1>
             {editingId && (
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Pencil className="w-2.5 h-2.5" style={{ color: "hsla(38,85%,52%,0.7)" }} />
+              <div className="flex items-center gap-1.5">
+                <Pencil className="w-2.5 h-2.5 shrink-0" style={{ color: "hsla(38,85%,52%,0.7)" }} />
                 <span className="text-[11px] font-mono text-white/30">Editing — changes overwrite saved operation</span>
               </div>
             )}
           </div>
-
-          <div className="h-6 w-px" style={{ background: "hsla(228,25%,16%,1)" }} />
-
-          <div className="flex-1 min-w-0 max-w-xs">
-            <Input
-              value={sessionName}
-              onChange={e => setSessionName(e.target.value)}
-              placeholder="★ Name your operation (required)"
-              className="text-sm font-mono h-8"
+          <div className="flex items-center gap-2 shrink-0">
+            <Select onValueChange={loadPreset}>
+              <SelectTrigger
+                className="w-40 text-xs h-7 font-mono"
+                style={{
+                  background: "hsla(228,35%,6%,1)",
+                  border: "1px solid hsla(228,25%,16%,0.8)",
+                  color: "hsla(228,10%,45%,1)"
+                }}
+              >
+                <SelectValue placeholder="Load preset..." />
+              </SelectTrigger>
+              <SelectContent>
+                {PRESET_OPERATIONS.map(p => (
+                  <SelectItem key={p.id} value={p.id} className="text-xs">{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-1.5 rounded text-sm font-mono font-medium shrink-0 transition-all"
               style={{
-                background: "hsla(228,35%,6%,1)",
-                border: sessionName ? "1px solid hsla(228,25%,16%,0.8)" : "1px solid hsla(38,85%,45%,0.55)",
+                background: "linear-gradient(135deg, hsla(270,75%,40%,1), hsla(270,65%,30%,1))",
+                border: "1px solid hsla(270,75%,55%,0.5)",
                 color: "white",
-                boxShadow: sessionName ? "none" : "0 0 8px hsla(38,85%,45%,0.15)"
+                boxShadow: "0 0 14px hsla(270,75%,58%,0.25)"
               }}
-              data-testid="input-operation-name"
-            />
-          </div>
-
-          <Select onValueChange={loadPreset}>
-            <SelectTrigger
-              className="w-44 text-xs h-8 font-mono"
-              style={{
-                background: "hsla(228,35%,6%,1)",
-                border: "1px solid hsla(228,25%,16%,0.8)",
-                color: "hsla(228,10%,45%,1)"
-              }}
+              data-testid="button-save-operation"
             >
-              <SelectValue placeholder="Load preset..." />
-            </SelectTrigger>
-            <SelectContent>
-              {PRESET_OPERATIONS.map(p => (
-                <SelectItem key={p.id} value={p.id} className="text-xs">{p.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <Save className="w-3.5 h-3.5" />
+              {editingId ? "Update" : "Save Operation"}
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono font-medium shrink-0 transition-all"
-          style={{
-            background: "linear-gradient(135deg, hsla(270,75%,40%,1), hsla(270,65%,30%,1))",
-            border: "1px solid hsla(270,75%,55%,0.5)",
-            color: "white",
-            boxShadow: "0 0 14px hsla(270,75%,58%,0.25)"
-          }}
-          data-testid="button-save-operation"
-        >
-          <Save className="w-3.5 h-3.5" />
-          {editingId ? "Update" : "Save Operation"}
-        </button>
+        {/* Row 2: Operation name — full width, prominent */}
+        <div className="px-4 py-3">
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] mb-1.5"
+            style={{ color: sessionName ? "hsla(228,10%,35%,1)" : "hsla(38,85%,52%,0.7)" }}>
+            {sessionName ? "Operation Name" : "★ Operation Name (required — type it here)"}
+          </div>
+          <input
+            value={sessionName}
+            onChange={e => setSessionName(e.target.value)}
+            placeholder="e.g. My Abundance Operation"
+            data-testid="input-operation-name"
+            className="w-full bg-transparent outline-none font-mono text-lg font-semibold"
+            style={{
+              color: sessionName ? "hsla(270,75%,75%,1)" : "hsla(228,10%,35%,1)",
+              caretColor: "hsla(270,75%,65%,1)",
+              borderBottom: sessionName
+                ? "1px solid hsla(270,45%,35%,0.4)"
+                : "1px solid hsla(38,85%,45%,0.45)",
+            }}
+          />
+        </div>
       </div>
 
       {/* Main area: position canvas (left) + active editor (right) */}
