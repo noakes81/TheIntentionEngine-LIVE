@@ -549,7 +549,7 @@ export default function Builder() {
       customTrendCardImage: mainTrend.customCardImages[0],
       target: {
         name: mainTarget?.targetName ?? "Self",
-        description: mainTarget?.targetDescription ?? "",
+        description: mainTarget?.intention ?? "",
         photo: mainTarget?.targetPhoto,
         transferDiagram: mainTarget?.targetTransferDiagram,
       },
@@ -654,12 +654,12 @@ export default function Builder() {
             onChange={e => setSessionName(e.target.value)}
             placeholder="e.g. My Abundance Operation"
             data-testid="input-operation-name"
-            className="w-full bg-transparent outline-none font-mono text-lg font-semibold"
+            className="w-full bg-transparent outline-none font-mono text-lg font-semibold placeholder:text-white/20"
             style={{
-              color: sessionName ? "hsla(270,75%,75%,1)" : "hsla(228,10%,35%,1)",
+              color: "hsla(270,75%,82%,1)",
               caretColor: "hsla(270,75%,65%,1)",
               borderBottom: sessionName
-                ? "1px solid hsla(270,45%,35%,0.4)"
+                ? "1px solid hsla(270,45%,40%,0.5)"
                 : "1px solid hsla(38,85%,45%,0.45)",
             }}
           />
