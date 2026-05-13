@@ -69,6 +69,14 @@ export type Operation = {
   subPositions?: SubPosition[];
 };
 
+export type BarrageSession = {
+  active: boolean;
+  operationIds: string[];
+  intervalMinutes: number;
+  currentIdx: number;
+  loop: boolean;
+};
+
 export type SequencerStep = {
   id: string;
   label: string;

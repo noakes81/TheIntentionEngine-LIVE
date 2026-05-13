@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,7 @@ export function Sidebar() {
   const navItems = [
     { href: "/", label: "Control Panel", icon: Activity },
     { href: "/builder", label: "Position Builder", icon: Compass },
+    { href: "/barrage", label: "Barrage Mode", icon: Zap },
     { href: "/sequencer", label: "Sequencer", icon: Layers },
     { href: "/cards", label: "Filter Library", icon: Database },
     { href: "/operations", label: "Operations", icon: PlayCircle },

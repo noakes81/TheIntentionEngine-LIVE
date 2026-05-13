@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PRESET_OPERATIONS } from "@/data/presets";
-import { Operation, SymbolicCard } from "@/types";
+import { Operation, SymbolicCard, BarrageSession } from "@/types";
 import { Link } from "wouter";
-import { Plus, X, Upload, ImageIcon, Zap, ChevronRight, Radio, Sparkles } from "lucide-react";
+import { Plus, X, Upload, ImageIcon, Zap, ChevronRight, Radio, SkipForward, Square, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type PresetItem = typeof PRESET_OPERATIONS[0];
@@ -17,6 +17,7 @@ type PresetItem = typeof PRESET_OPERATIONS[0];
 export default function Dashboard() {
   const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
   const [cards] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
+  const [barrage, setBarrage] = useLocalStorage<BarrageSession | null>("orgone_barrage", null);
 
   const [pendingPreset, setPendingPreset] = useState<PresetItem | null>(null);
   const [targetName, setTargetName] = useState("Self");
@@ -27,12 +28,59 @@ export default function Dashboard() {
   const activeOperation = operations.find(op => op.status === 'running' || op.status === 'paused');
   const recentOperations = operations.filter(op => op.status !== 'running' && op.status !== 'paused').slice(0, 6);
 
+  // Barrage: override sessionDurationMinutes with barrage interval for timing
+  const effectiveOperation = barrage?.active && activeOperation
+    ? { ...activeOperation, sessionDurationMinutes: barrage.intervalMinutes }
+    : activeOperation;
+
+  const barrageAdvance = () => {
+    if (!barrage?.active) return;
+    const nextIdx = barrage.currentIdx + 1;
+    if (nextIdx >= barrage.operationIds.length) {
+      if (barrage.loop) {
+        const firstId = barrage.operationIds[0];
+        setOperations(ops => ops.map(op => ({
+          ...op,
+          status: op.id === firstId ? "running" : op.status === "running" ? "idle" : op.status,
+          elapsedSeconds: op.id === firstId ? 0 : op.elapsedSeconds,
+          lastRunAt: op.id === firstId ? new Date().toISOString() : op.lastRunAt,
+        })));
+        setBarrage(b => b ? { ...b, currentIdx: 0 } : b);
+      } else {
+        setOperations(ops => ops.map(op =>
+          barrage.operationIds.includes(op.id) ? { ...op, status: "idle", elapsedSeconds: 0 } : op
+        ));
+        setBarrage(b => b ? { ...b, active: false, currentIdx: 0 } : b);
+      }
+    } else {
+      const nextId = barrage.operationIds[nextIdx];
+      setOperations(ops => ops.map(op => ({
+        ...op,
+        status: op.id === nextId ? "running" : op.status === "running" ? "idle" : op.status,
+        elapsedSeconds: op.id === nextId ? 0 : op.elapsedSeconds,
+        lastRunAt: op.id === nextId ? new Date().toISOString() : op.lastRunAt,
+      })));
+      setBarrage(b => b ? { ...b, currentIdx: nextIdx } : b);
+    }
+  };
+
+  const stopBarrage = () => {
+    if (!barrage) return;
+    setOperations(ops => ops.map(op =>
+      barrage.operationIds.includes(op.id) ? { ...op, status: "idle", elapsedSeconds: 0 } : op
+    ));
+    setBarrage(b => b ? { ...b, active: false, currentIdx: 0 } : b);
+  };
+
   const handleStatusChange = (id: string, newStatus: Operation["status"]) => {
+    // If barrage is running and this op completes, advance barrage instead
+    if (barrage?.active && newStatus === "completed") {
+      barrageAdvance();
+      return;
+    }
     setOperations(ops =>
       ops.map(op => {
         if (op.id === id) {
-          // Reset elapsed when starting fresh (not resuming from paused),
-          // and also when completing so a re-run always begins at 0.
           const shouldResetElapsed =
             (newStatus === 'running' && (op.status === 'idle' || op.status === 'completed')) ||
             newStatus === 'completed';
@@ -129,17 +177,65 @@ export default function Dashboard() {
       </div>
 
       {/* Active operation */}
-      {activeOperation ? (
+      {effectiveOperation ? (
         <section>
+          {/* Barrage status banner */}
+          {barrage?.active && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between rounded px-4 py-2.5 mb-2"
+              style={{
+                background: "linear-gradient(90deg, hsla(270,45%,10%,1), hsla(270,35%,7%,1))",
+                border: "1px solid hsla(270,75%,45%,0.4)",
+                boxShadow: "0 0 16px hsla(270,75%,45%,0.1)"
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <motion.div className="led-green" animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
+                <Zap className="w-3.5 h-3.5" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+                <div>
+                  <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/50">Barrage Active — </span>
+                  <span className="text-[11px] font-mono text-white/50">
+                    Operation {barrage.currentIdx + 1} of {barrage.operationIds.length} · {barrage.intervalMinutes}min each{barrage.loop ? " · looping" : ""}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={barrageAdvance}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded text-[11px] font-mono transition-all"
+                  style={{
+                    background: "hsla(270,35%,12%,1)",
+                    border: "1px solid hsla(270,75%,40%,0.4)",
+                    color: "hsla(270,75%,70%,1)"
+                  }}
+                >
+                  <SkipForward className="w-3 h-3" /> Skip
+                </button>
+                <button
+                  onClick={stopBarrage}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded text-[11px] font-mono transition-all"
+                  style={{
+                    background: "hsla(228,25%,9%,1)",
+                    border: "1px solid hsla(0,55%,35%,0.4)",
+                    color: "hsla(0,65%,60%,0.8)"
+                  }}
+                >
+                  <Square className="w-3 h-3" /> Stop Barrage
+                </button>
+              </div>
+            </motion.div>
+          )}
           <div className="flex items-center gap-2 mb-2">
             <div className="led-green" style={{ animationDuration: "1.2s" }} />
             <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/35">Active Transmission</span>
           </div>
           <ActiveOperationPanel
-            operation={activeOperation}
+            operation={effectiveOperation}
             cards={cards}
-            onStatusChange={(status) => handleStatusChange(activeOperation.id, status)}
-            onTick={(elapsed) => handleTick(activeOperation.id, elapsed)}
+            onStatusChange={(status) => handleStatusChange(effectiveOperation.id, status)}
+            onTick={(elapsed) => handleTick(effectiveOperation.id, elapsed)}
           />
         </section>
       ) : (

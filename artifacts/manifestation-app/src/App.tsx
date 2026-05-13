@@ -11,6 +11,7 @@ import Cards from "@/pages/Cards";
 import Operations from "@/pages/Operations";
 import Export from "@/pages/Export";
 import TransferDiagram from "@/pages/TransferDiagram";
+import Barrage from "@/pages/Barrage";
 import { useEffect } from "react";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
 import { LicenseGate } from "@/components/LicenseGate";
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/operations" component={Operations} />
         <Route path="/export" component={Export} />
         <Route path="/transfer-diagram" component={TransferDiagram} />
+        <Route path="/barrage" component={Barrage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

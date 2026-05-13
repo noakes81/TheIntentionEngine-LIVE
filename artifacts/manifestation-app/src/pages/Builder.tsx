@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { compressImage } from "@/lib/imageUtils";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation, SubPosition, SymbolicCard, RadionicRate } from "@/types";
 import { PRESET_OPERATIONS, FREQUENCY_PRESETS } from "@/data/presets";
@@ -471,8 +472,9 @@ export default function Builder() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const data = ev.target?.result as string;
+    reader.onload = async (ev) => {
+      const raw = ev.target?.result as string;
+      const data = await compressImage(raw, 800, 0.72);
       const posIdx = uploadingIdx.current;
       const slot = uploadingSlot.current;
       setSubPositions(prev => prev.map((p, i) => {

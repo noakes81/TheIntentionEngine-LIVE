@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { compressImage } from "@/lib/imageUtils";
 
 interface WitnessPhotoUploadProps {
   value?: string;
@@ -11,12 +12,13 @@ export function WitnessPhotoUpload({ value, onChange }: WitnessPhotoUploadProps)
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      onChange(result);
+    reader.onload = async (e) => {
+      const raw = e.target?.result as string;
+      const compressed = await compressImage(raw, 800, 0.72);
+      onChange(compressed);
     };
     reader.readAsDataURL(file);
   };
