@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { BG_PRESETS, BgSetting, BgPreset } from "./AppLayout";
+import { useClerk, useUser } from "@clerk/react";
 
 export function Sidebar() {
   const [location] = useLocation();
@@ -12,6 +13,8 @@ export function Sidebar() {
   const [bg, setBg] = useLocalStorage<BgSetting>("orgone_bg", { preset: "dark" });
   const [pickerOpen, setPickerOpen] = useState(false);
   const customFileRef = useRef<HTMLInputElement>(null);
+  const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
 
   const activeOperation = operations.find(op => op.status === 'running');
 
@@ -256,6 +259,43 @@ export function Sidebar() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* User profile + sign out */}
+      {isLoaded && user && (
+        <div
+          className="px-3 py-3 mt-auto"
+          style={{ borderTop: "1px solid hsla(270,45%,15%,0.35)" }}
+        >
+          <div className="flex items-center gap-2.5 rounded px-2 py-2"
+            style={{ background: "hsla(228,35%,7%,0.6)" }}>
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
+              style={{ border: "1px solid hsla(270,75%,45%,0.4)", background: "hsla(270,35%,12%,1)" }}
+            >
+              {user.imageUrl ? (
+                <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-3.5 h-3.5" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-mono text-white/60 truncate leading-tight">
+                {user.primaryEmailAddress?.emailAddress ?? user.username ?? "Account"}
+              </p>
+              <p className="text-[10px] font-mono text-white/25 truncate leading-tight">Active</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => signOut({ redirectUrl: "/" })}
+              title="Sign out"
+              className="shrink-0 p-1 rounded transition-colors hover:text-red-400"
+              style={{ color: "hsla(228,10%,35%,1)" }}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
