@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User, Shield } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +17,7 @@ export function Sidebar() {
   const { user, isLoaded } = useUser();
 
   const activeOperation = operations.find(op => op.status === 'running');
+  const isAdmin = (user?.publicMetadata as { role?: string } | undefined)?.role === "admin";
 
   const navItems = [
     { href: "/", label: "Control Panel", icon: Activity },
@@ -113,6 +114,27 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin link — only visible to admins */}
+        {isLoaded && isAdmin && (
+          <Link
+            href="/admin"
+            className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium transition-all duration-150 mt-1 ${
+              location === "/admin"
+                ? "text-primary"
+                : "text-white/35 hover:text-white/65 hover:bg-white/4"
+            }`}
+            style={location === "/admin" ? {
+              background: "linear-gradient(90deg, hsla(270,55%,15%,1), hsla(270,35%,9%,1))",
+              border: "1px solid hsla(270,75%,45%,0.3)",
+              boxShadow: "0 0 10px hsla(270,75%,58%,0.08)"
+            } : { border: "1px solid transparent" }}
+          >
+            <Shield className="w-3.5 h-3.5 shrink-0" />
+            <span className="tracking-wide">Admin Panel</span>
+            {location === "/admin" && <div className="ml-auto w-1 h-1 rounded-full bg-primary" />}
+          </Link>
+        )}
       </nav>
 
       {/* Bottom info + BG picker */}

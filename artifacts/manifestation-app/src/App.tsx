@@ -17,6 +17,7 @@ import TransferDiagram from "@/pages/TransferDiagram";
 import Barrage from "@/pages/Barrage";
 import Landing from "@/pages/Landing";
 import CustomSignUp from "@/pages/SignUp";
+import Admin from "@/pages/Admin";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
 
 const queryClient = new QueryClient();
@@ -246,6 +247,9 @@ function ClerkProviderWithRoutes() {
             </Route>
             <Route path="/barrage">
               <ProtectedRoute component={Barrage} />
+            </Route>
+            <Route path="/admin">
+              <ProtectedRoute component={Admin} />
             </Route>
           </Switch>
           <Toaster />
