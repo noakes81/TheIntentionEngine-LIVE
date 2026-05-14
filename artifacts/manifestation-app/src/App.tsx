@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from "@clerk/react";
+import { ClerkProvider, SignIn, Show, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
@@ -16,6 +16,7 @@ import Export from "@/pages/Export";
 import TransferDiagram from "@/pages/TransferDiagram";
 import Barrage from "@/pages/Barrage";
 import Landing from "@/pages/Landing";
+import CustomSignUp from "@/pages/SignUp";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
 
 const queryClient = new QueryClient();
@@ -188,14 +189,7 @@ function SignInPage() {
 }
 
 function SignUpPage() {
-  return (
-    <div
-      className="flex min-h-[100dvh] items-center justify-center px-4 py-8"
-      style={{ background: "linear-gradient(160deg, hsl(228,35%,5%), hsl(228,40%,3%))" }}
-    >
-      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
-    </div>
-  );
+  return <CustomSignUp />;
 }
 
 function ClerkProviderWithRoutes() {
