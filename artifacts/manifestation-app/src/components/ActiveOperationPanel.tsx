@@ -337,6 +337,10 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
     };
   })();
 
+  // Resolve witness photo from either root target or target SubPosition
+  const witnessPhoto = operation.target.photo
+    || (targetSub as Partial<SubPosition>).targetPhoto;
+
   return (
     <div
       className="relative rounded overflow-hidden"
@@ -412,20 +416,11 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
                 Target / Structural Link
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              {operation.target.photo && (
-                <img src={operation.target.photo} alt="Witness"
-                  className="w-9 h-9 rounded object-cover shrink-0"
-                  style={{ border: "1px solid hsla(38,85%,52%,0.3)" }}
-                  data-testid="img-active-witness"
-                />
+            <div>
+              <p className="text-sm font-medium text-white/80">{targetSub.name}</p>
+              {operation.target.description && (
+                <p className="text-xs text-white/35 line-clamp-1">{operation.target.description}</p>
               )}
-              <div>
-                <p className="text-sm font-medium text-white/80">{targetSub.name}</p>
-                {operation.target.description && (
-                  <p className="text-xs text-white/35 line-clamp-1">{operation.target.description}</p>
-                )}
-              </div>
             </div>
             <LCDRate rate={targetSub.rate} color="amber" />
           </div>
@@ -562,8 +557,53 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           </div>
         </div>
 
-        {/* Right column — clock */}
+        {/* Right column — photo + clock */}
         <div className="space-y-4 lg:border-l lg:pl-5" style={{ borderColor: "hsla(228,25%,12%,1)" }}>
+
+          {/* Witness photo — prominent display */}
+          {witnessPhoto && (
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <Target className="w-3 h-3" style={{ color: "hsla(38,85%,62%,0.7)" }} />
+                <span className="text-[11px] font-mono uppercase tracking-[0.18em]" style={{ color: "hsla(38,85%,62%,0.6)" }}>
+                  Witness Photo
+                </span>
+              </div>
+              <div
+                className="relative rounded overflow-hidden mx-auto"
+                style={{
+                  border: isRunning
+                    ? "1px solid hsla(38,85%,52%,0.55)"
+                    : "1px solid hsla(38,85%,35%,0.3)",
+                  boxShadow: isRunning
+                    ? "0 0 18px hsla(38,85%,52%,0.18), inset 0 0 12px hsla(38,85%,52%,0.05)"
+                    : "none",
+                  maxWidth: 160,
+                }}
+              >
+                <img
+                  src={witnessPhoto}
+                  alt="Target witness"
+                  className="w-full object-cover"
+                  style={{ display: "block", maxHeight: 200, objectPosition: "top" }}
+                  data-testid="img-active-witness"
+                />
+                {/* Amber scan line when running */}
+                {isRunning && (
+                  <motion.div
+                    className="absolute inset-x-0 h-[2px] pointer-events-none"
+                    animate={{ top: ["0%", "100%", "0%"] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    style={{
+                      background: "linear-gradient(90deg, transparent, hsla(38,85%,62%,0.6), transparent)"
+                    }}
+                  />
+                )}
+              </div>
+              <p className="text-center text-[11px] font-mono text-white/30 truncate px-1">{targetSub.name}</p>
+            </div>
+          )}
+
           {/* Circular clock */}
           <div className="relative w-32 mx-auto aspect-square flex items-center justify-center">
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
