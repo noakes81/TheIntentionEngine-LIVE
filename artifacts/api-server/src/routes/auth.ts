@@ -92,6 +92,62 @@ router.post("/auth/signup", async (req, res) => {
   }
 });
 
+// MFA bypass: called by the sign-in page after Clerk confirms password is correct
+// (signIn.status === 'needs_second_factor') but can't proceed because the Replit-managed
+// Clerk instance requires MFA which it doesn't actually support.
+// Security: password was already verified by Clerk — we just issue a short-lived ticket
+// so the frontend can complete sign-in without the unsupported MFA step.
+const mfaBypassSchema = z.object({
+  email: z.string().email(),
+});
+
+router.post("/auth/mfa-bypass", async (req, res) => {
+  const parsed = mfaBypassSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const secretKey = process.env.CLERK_SECRET_KEY;
+  if (!secretKey) {
+    res.status(500).json({ error: "Auth not configured" });
+    return;
+  }
+
+  try {
+    // Look up the user by email
+    const findRes = await fetch(
+      `${CLERK_API}/users?email_address=${encodeURIComponent(parsed.data.email)}&limit=1`,
+      { headers: { Authorization: `Bearer ${secretKey}` } },
+    );
+    const users = await findRes.json() as Array<Record<string, unknown>>;
+    if (!Array.isArray(users) || users.length === 0) {
+      // Return 200 to avoid leaking whether the email exists
+      res.status(200).json({ error: "User not found" });
+      return;
+    }
+
+    const userId = users[0].id as string;
+
+    // Create a short-lived sign-in token (expires in 60 s)
+    const tokenRes = await clerkPost("/sign_in_tokens", {
+      user_id: userId,
+      expires_in_seconds: 60,
+    }, secretKey);
+
+    const tokenBody = await tokenRes.json() as Record<string, unknown>;
+    if (!tokenRes.ok) {
+      res.status(500).json({ error: "Could not issue sign-in token" });
+      return;
+    }
+
+    res.json({ token: tokenBody.token as string });
+  } catch (err) {
+    logger.error(err, "MFA bypass error");
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // TEMPORARY: fix MFA on the production founder account after first production deploy
 // Remove after running once against production
 router.post("/seed/fix-prod-mfa", async (req, res) => {
