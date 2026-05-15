@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User, Shield, KeyRound } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { BG_PRESETS, BgSetting, BgPreset } from "./AppLayout";
@@ -14,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location, setLocation] = useLocation();
-  const [operations] = useLocalStorage<Operation[]>("orgone_operations", []);
+  const [operations] = useUserData<Operation[]>("orgone_operations", []);
   const [bg, setBg] = useLocalStorage<BgSetting>("orgone_bg", { preset: "dark" });
   const [pickerOpen, setPickerOpen] = useState(false);
   const customFileRef = useRef<HTMLInputElement>(null);

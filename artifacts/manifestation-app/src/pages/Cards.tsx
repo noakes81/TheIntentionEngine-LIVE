@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { SymbolicCard as SymbolicCardType } from "@/types";
 import { SymbolicCard } from "@/components/SymbolicCard";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 const CATEGORIES = ["all", "chakra", "solfeggio", "protection", "manifestation", "elements", "numerology"];
 
 export default function Cards() {
-  const [cards, setCards] = useLocalStorage<SymbolicCardType[]>("orgone_cards", []);
+  const [cards, setCards] = useUserData<SymbolicCardType[]>("orgone_cards", []);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 

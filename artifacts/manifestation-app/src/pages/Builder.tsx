@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { compressImage } from "@/lib/imageUtils";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Operation, SubPosition, SymbolicCard, RadionicRate } from "@/types";
 import { PRESET_OPERATIONS, FREQUENCY_PRESETS } from "@/data/presets";
 import { Input } from "@/components/ui/input";
@@ -379,8 +379,8 @@ export default function Builder() {
   const [, navigate] = useLocation();
   const search = useSearch();
   const { toast } = useToast();
-  const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
-  const [cardsLib] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
+  const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
+  const [cardsLib] = useUserData<SymbolicCard[]>("orgone_cards", []);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState("");

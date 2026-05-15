@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Printer, Upload, Trash2, ImageOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +13,7 @@ interface TransferDiagramData {
 
 export default function TransferDiagram() {
   const { toast } = useToast();
-  const [diagram, setDiagram] = useLocalStorage<TransferDiagramData | null>(
+  const [diagram, setDiagram] = useUserData<TransferDiagramData | null>(
     "orgone_transfer_diagram",
     null
   );

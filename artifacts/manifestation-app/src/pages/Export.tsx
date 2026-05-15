@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Operation, SymbolicCard } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Export() {
   const { toast } = useToast();
-  const [operations] = useLocalStorage<Operation[]>("orgone_operations", []);
-  const [cards] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
+  const [operations] = useUserData<Operation[]>("orgone_operations", []);
+  const [cards] = useUserData<SymbolicCard[]>("orgone_cards", []);
   const [selectedId, setSelectedId] = useState<string>("");
 
   const selectedOp = operations.find(op => op.id === selectedId);

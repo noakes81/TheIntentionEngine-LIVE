@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { ActiveOperationPanel } from "@/components/ActiveOperationPanel";
 import { ChiFieldIndicator } from "@/components/ChiFieldIndicator";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 type PresetItem = typeof PRESET_OPERATIONS[0];
 
 export default function Dashboard() {
-  const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
-  const [cards] = useLocalStorage<SymbolicCard[]>("orgone_cards", []);
+  const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
+  const [cards] = useUserData<SymbolicCard[]>("orgone_cards", []);
   const [barrage, setBarrage] = useLocalStorage<BarrageSession | null>("orgone_barrage", null);
 
   const [pendingPreset, setPendingPreset] = useState<PresetItem | null>(null);

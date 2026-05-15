@@ -1,11 +1,11 @@
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Operation } from "@/types";
 import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target, Pencil, Plus } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 
 export default function Operations() {
-  const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
+  const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
   const [, navigate] = useLocation();
 
   const handleStatusChange = (id: string, newStatus: Operation["status"]) => {

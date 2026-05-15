@@ -21,6 +21,7 @@ import CustomSignIn from "@/pages/SignIn";
 import Admin from "@/pages/Admin";
 import Account from "@/pages/Account";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
+import { fetchUserData, putUserData } from "@/hooks/useUserData";
 
 const queryClient = new QueryClient();
 
@@ -125,15 +126,53 @@ function ClerkQueryClientCacheInvalidator() {
   return null;
 }
 
+let seedAttempted = false;
+
 function AppInitializer({ children }: { children: React.ReactNode }) {
+  const { isSignedIn } = useUser();
+  const queryClient = useQueryClient();
+
   useEffect(() => {
-    if (!localStorage.getItem("orgone_initialized")) {
-      localStorage.setItem("orgone_operations", JSON.stringify(PRESET_OPERATIONS));
-      localStorage.setItem("orgone_cards", JSON.stringify(SYMBOLIC_CARDS_SEED));
-      localStorage.setItem("orgone_initialized", "true");
-      window.dispatchEvent(new Event("local-storage-update"));
-    }
-  }, []);
+    if (!isSignedIn || seedAttempted) return;
+    seedAttempted = true;
+
+    // Seed or migrate operations
+    fetchUserData<unknown>("orgone_operations")
+      .then((existing) => {
+        if (existing !== null) return;
+        const ls = localStorage.getItem("orgone_operations");
+        const value = ls ? (JSON.parse(ls) as unknown) : PRESET_OPERATIONS;
+        return putUserData("orgone_operations", value).then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_operations"] });
+        });
+      })
+      .catch(() => {});
+
+    // Seed or migrate cards
+    fetchUserData<unknown>("orgone_cards")
+      .then((existing) => {
+        if (existing !== null) return;
+        const ls = localStorage.getItem("orgone_cards");
+        const value = ls ? (JSON.parse(ls) as unknown) : SYMBOLIC_CARDS_SEED;
+        return putUserData("orgone_cards", value).then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_cards"] });
+        });
+      })
+      .catch(() => {});
+
+    // Migrate transfer diagram only if localStorage has one
+    fetchUserData<unknown>("orgone_transfer_diagram")
+      .then((existing) => {
+        if (existing !== null) return;
+        const ls = localStorage.getItem("orgone_transfer_diagram");
+        if (!ls) return;
+        return putUserData("orgone_transfer_diagram", JSON.parse(ls) as unknown).then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_transfer_diagram"] });
+        });
+      })
+      .catch(() => {});
+  }, [isSignedIn, queryClient]);
+
   return <>{children}</>;
 }
 

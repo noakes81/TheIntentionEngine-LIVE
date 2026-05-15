@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 import { Operation, BarrageSession } from "@/types";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +9,7 @@ import { Zap, ChevronUp, ChevronDown, RotateCcw, Play, Check, X } from "lucide-r
 const INTERVAL_OPTIONS = [1, 3, 5, 10, 15] as const;
 
 export default function Barrage() {
-  const [operations, setOperations] = useLocalStorage<Operation[]>("orgone_operations", []);
+  const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
   const [, setBarrage] = useLocalStorage<BarrageSession | null>("orgone_barrage", null);
   const [, navigate] = useLocation();
 
