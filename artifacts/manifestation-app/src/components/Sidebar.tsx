@@ -8,7 +8,7 @@ import { BG_PRESETS, BgSetting, BgPreset } from "./AppLayout";
 import { useClerk, useUser } from "@clerk/react";
 
 export function Sidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [operations] = useLocalStorage<Operation[]>("orgone_operations", []);
   const [bg, setBg] = useLocalStorage<BgSetting>("orgone_bg", { preset: "dark" });
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -308,7 +308,7 @@ export function Sidebar() {
             </div>
             <button
               type="button"
-              onClick={() => signOut({ redirectUrl: "/" })}
+              onClick={() => void signOut().then(() => setLocation("/"))}
               title="Sign out"
               className="shrink-0 p-1 rounded transition-colors hover:text-red-400"
               style={{ color: "hsla(228,10%,35%,1)" }}
