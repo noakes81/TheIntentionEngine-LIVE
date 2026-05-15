@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignIn, useClerk } from "@clerk/react";
+import { useSignIn } from "@clerk/react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Radio, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -12,7 +12,6 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { signIn } = useSignIn();
-  const { setActive } = useClerk();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,21 +24,36 @@ export default function SignInPage() {
         return;
       }
 
-      const { error: signInErr } = await signIn.create({
+      // Step 1: identify + attempt password in one call
+      const { error: createErr } = await signIn.create({
         identifier: email.trim(),
         password,
       });
 
-      if (signInErr) {
-        setError(signInErr.message ?? "Sign-in failed. Check your email and password.");
+      if (createErr) {
+        setError(createErr.message ?? "Invalid email or password.");
         return;
       }
 
+      // Step 2: if Clerk split into needs_first_factor, submit password separately
+      if (signIn.status !== "complete") {
+        const { error: pwErr } = await signIn.password({ password });
+        if (pwErr) {
+          setError(pwErr.message ?? "Invalid email or password.");
+          return;
+        }
+      }
+
+      // Step 3: finalize — activates the session
       if (signIn.status === "complete") {
-        await setActive({ session: signIn.createdSessionId });
+        const { error: finalErr } = await signIn.finalize();
+        if (finalErr) {
+          setError(finalErr.message ?? "Sign-in failed. Please try again.");
+          return;
+        }
         setLocation("/");
       } else {
-        setError("Sign-in could not be completed. Please contact support.");
+        setError("Sign-in failed. Please try again or contact support.");
       }
     } catch {
       setError("Network error. Please try again.");
