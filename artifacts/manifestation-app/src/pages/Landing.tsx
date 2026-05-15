@@ -18,22 +18,22 @@ export default function Landing() {
       />
 
       {/* Header */}
-      <header className="relative flex items-center justify-between px-8 py-5"
+      <header className="relative flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5"
         style={{ borderBottom: "1px solid hsla(270,45%,20%,0.25)" }}>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <motion.div
-            className="led-green"
+            className="led-green shrink-0"
             animate={{ opacity: [1, 0.3, 1] }}
             transition={{ duration: 1.6, repeat: Infinity }}
           />
-          <span className="text-[11px] font-mono uppercase tracking-[0.25em] text-white/30">
+          <span className="text-[13px] sm:text-[13px] font-mono uppercase tracking-[0.18em] sm:tracking-[0.25em] text-white/40 truncate">
             The Intention Engine
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-3">
           <Link href="/sign-in">
             <button
-              className="px-4 py-1.5 rounded text-[12px] font-mono transition-all"
+              className="px-3 sm:px-4 py-1.5 rounded text-[12px] font-mono transition-all whitespace-nowrap"
               style={{
                 border: "1px solid hsla(270,45%,30%,0.4)",
                 color: "hsla(270,75%,70%,0.85)",
@@ -45,7 +45,7 @@ export default function Landing() {
           </Link>
           <Link href="/sign-up">
             <button
-              className="px-4 py-1.5 rounded text-[12px] font-mono font-semibold transition-all"
+              className="px-3 sm:px-4 py-1.5 rounded text-[12px] font-mono font-semibold transition-all whitespace-nowrap"
               style={{
                 background: "linear-gradient(135deg, hsla(270,75%,40%,1), hsla(270,65%,32%,1))",
                 border: "1px solid hsla(270,75%,55%,0.5)",
@@ -69,18 +69,18 @@ export default function Landing() {
         >
           {/* Badge */}
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Radio className="w-3 h-3" style={{ color: "hsla(270,75%,65%,0.7)" }} />
-            <span className="text-[11px] font-mono uppercase tracking-[0.28em] text-white/25">
+            <Radio className="w-3.5 h-3.5 shrink-0" style={{ color: "hsla(270,75%,65%,0.7)" }} />
+            <span className="text-[13px] font-mono uppercase tracking-[0.18em] text-white/35">
               SMX Professional Radionic System
             </span>
           </div>
 
           {/* Title */}
           <div>
-            <h1 className="text-4xl md:text-5xl font-mono font-bold text-white/90 tracking-wide leading-tight">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-mono font-bold text-white/90 tracking-wide leading-tight">
               The Intention Engine
             </h1>
-            <p className="mt-3 text-base font-mono text-white/35 tracking-wider">
+            <p className="mt-4 text-base sm:text-lg font-mono text-white/40 tracking-wide leading-relaxed">
               Virtual Radionic Device — Broadcast your intentions with precision
             </p>
           </div>

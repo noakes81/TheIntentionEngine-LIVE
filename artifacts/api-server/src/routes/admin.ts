@@ -63,8 +63,13 @@ router.post("/admin/users", requireAdmin, async (req, res) => {
     const body: Record<string, unknown> = {
       email_address: [email],
       public_metadata: { role },
+      skip_password_checks: true,
     };
-    if (password) body.password = password;
+    if (password) {
+      body.password = password;
+    } else {
+      body.skip_password_requirement = true;
+    }
     if (firstName) body.first_name = firstName;
     if (lastName) body.last_name = lastName;
 
