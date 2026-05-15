@@ -14,16 +14,28 @@ function clerkHeaders() {
   };
 }
 
-// Middleware: require admin role from Clerk public metadata
-function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  const { userId, sessionClaims } = getAuth(req);
+// Middleware: require admin role — fetches live user data from Clerk API
+// (JWT session claims don't reliably include publicMetadata in all deployments)
+async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const { userId } = getAuth(req);
   if (!userId) {
     res.status(401).json({ error: "Unauthenticated" });
     return;
   }
-  const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
-  if (meta?.role !== "admin") {
-    res.status(403).json({ error: "Admin access required" });
+  try {
+    const r = await fetch(`${CLERK_API}/users/${userId}`, { headers: clerkHeaders() });
+    if (!r.ok) {
+      res.status(403).json({ error: "Admin access required" });
+      return;
+    }
+    const user = await r.json() as { public_metadata?: { role?: string } };
+    if (user.public_metadata?.role !== "admin") {
+      res.status(403).json({ error: "Admin access required" });
+      return;
+    }
+  } catch (err) {
+    logger.error(err, "requireAdmin lookup failed");
+    res.status(500).json({ error: "Auth check failed" });
     return;
   }
   next();

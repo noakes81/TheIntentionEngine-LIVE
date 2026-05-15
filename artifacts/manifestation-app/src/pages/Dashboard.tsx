@@ -432,7 +432,7 @@ export default function Dashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40"
-              style={{ background: "hsla(228,35%,3%,0.85)", backdropFilter: "blur(4px)" }}
+              style={{ background: "hsla(228,35%,3%,0.85)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
               onClick={closeModal}
             />
 

@@ -107,7 +107,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
             linear-gradient(90deg, hsla(228,25%,14%,0.18) 1px, transparent 1px)
           `,
           backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(ellipse 80% 80% at 60% 30%, black 0%, transparent 80%)"
+          maskImage: "radial-gradient(ellipse 80% 80% at 60% 30%, black 0%, transparent 80%)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 60% 30%, black 0%, transparent 80%)"
         }}
       />
 
@@ -121,7 +122,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-30 md:hidden"
-            style={{ background: "hsla(228,40%,2%,0.75)", backdropFilter: "blur(4px)" }}
+            style={{ background: "hsla(228,40%,2%,0.75)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -151,7 +152,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <img
             src="/intention-engine-logo.png"
             alt="The Intention Engine"
-            className="h-9 w-auto object-contain"
+            className="h-14 w-auto object-contain"
           />
           <div className="w-9" />
         </div>
