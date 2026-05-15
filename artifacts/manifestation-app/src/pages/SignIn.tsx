@@ -9,15 +9,13 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
-  const { signIn, fetchStatus } = useSignIn();
+  const { signIn } = useSignIn();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setDebugInfo(null);
     setLoading(true);
 
     try {
@@ -26,47 +24,34 @@ export default function SignInPage() {
         return;
       }
 
-      setDebugInfo(`Step 1: calling create(), fetchStatus=${fetchStatus}`);
-
+      // Step 1: identify the user
       const { error: createErr } = await signIn.create({
         identifier: email.trim(),
-        password,
       });
-
-      setDebugInfo(`After create(): error=${createErr?.message ?? "none"}, status=${signIn.status}`);
 
       if (createErr) {
         setError(createErr.message ?? "Invalid email or password.");
         return;
       }
 
-      // Password was accepted via create() or needs separate password() call
-      if (signIn.status !== "complete") {
-        setDebugInfo(`Needs further factor. status=${signIn.status} — calling password()`);
-        const { error: pwErr } = await signIn.password({ password });
-        setDebugInfo(`After password(): error=${pwErr?.message ?? "none"}, status=${signIn.status}`);
-        if (pwErr) {
-          setError(pwErr.message ?? "Invalid email or password.");
-          return;
-        }
+      // Step 2: submit password as first factor
+      const { error: pwErr } = await signIn.password({ password });
+      if (pwErr) {
+        setError(pwErr.message ?? "Invalid email or password.");
+        return;
       }
 
-      if (signIn.status === "complete") {
-        setDebugInfo(`Complete! Calling finalize()...`);
-        const { error: finalErr } = await signIn.finalize();
-        setDebugInfo(`After finalize(): error=${finalErr?.message ?? "none"}`);
-        if (finalErr) {
-          setError(finalErr.message ?? "Sign-in failed after finalizing.");
-          return;
-        }
-        setLocation("/");
-      } else {
-        setError(`Sign-in incomplete. Status: ${signIn.status}`);
+      // Step 3: finalize session — works even after needs_second_factor
+      // when MFA has been admin-disabled on the account (mfa_disabled_at set)
+      const { error: finalErr } = await signIn.finalize();
+      if (finalErr) {
+        setError(finalErr.message ?? "Sign-in could not be completed. Please contact support.");
+        return;
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(`Exception: ${msg}`);
-      setDebugInfo(`Caught: ${msg}`);
+
+      setLocation("/");
+    } catch {
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -121,18 +106,6 @@ export default function SignInPage() {
                 }}
               >
                 {error}
-              </div>
-            )}
-
-            {debugInfo && (
-              <div
-                className="rounded px-3 py-2 text-[11px] font-mono text-yellow-300/70 break-all"
-                style={{
-                  background: "hsla(50,80%,15%,0.3)",
-                  border: "1px solid hsla(50,80%,30%,0.25)",
-                }}
-              >
-                🔍 {debugInfo}
               </div>
             )}
 
