@@ -32,7 +32,7 @@ export default function TransferDiagram() {
     e.target.value = "";
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
@@ -55,6 +55,16 @@ export default function TransferDiagram() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-3xl mx-auto pb-20">
 
+      {/* Hidden file input — triggered via labels for browser compatibility */}
+      <input
+        ref={fileRef}
+        id="transfer-diagram-upload"
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={handleUpload}
+      />
+
       {/* Header — hidden on print */}
       <header className="print:hidden">
         <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">The Intention Engine</p>
@@ -73,13 +83,11 @@ export default function TransferDiagram() {
           >
             <Printer className="w-4 h-4" /> Print Diagram
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            className="gap-2"
-          >
-            <Upload className="w-4 h-4" /> Replace
-          </Button>
+          <label htmlFor="transfer-diagram-upload" className="cursor-pointer">
+            <Button variant="outline" className="gap-2 pointer-events-none" asChild={false} tabIndex={-1}>
+              <Upload className="w-4 h-4" /> Replace
+            </Button>
+          </label>
           <Button
             variant="ghost"
             onClick={handleRemove}
@@ -89,8 +97,6 @@ export default function TransferDiagram() {
           </Button>
         </div>
       )}
-
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
 
       <AnimatePresence mode="wait">
         {diagram ? (
@@ -166,10 +172,10 @@ export default function TransferDiagram() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Upload drop zone */}
-            <div
+            {/* Upload drop zone — label wraps the whole zone so clicking anywhere triggers the picker */}
+            <label
+              htmlFor="transfer-diagram-upload"
               className="rounded-2xl border-2 border-dashed border-border/50 hover:border-amber-500/40 transition-colors duration-300 bg-card/30 min-h-[420px] flex flex-col items-center justify-center gap-6 cursor-pointer group print:hidden"
-              onClick={() => fileRef.current?.click()}
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               data-testid="transfer-upload-zone"
@@ -183,11 +189,11 @@ export default function TransferDiagram() {
                   Upload the Transfer Diagram image sent to you by Orgone Studio upon purchase. This is your unique structural link — keep it private.
                 </p>
               </div>
-              <Button variant="outline" className="gap-2 border-amber-500/30 text-amber-400/70 hover:border-amber-500/60 hover:text-amber-400">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-amber-500/30 text-amber-400/70 hover:border-amber-500/60 hover:text-amber-400 text-sm font-medium transition-colors duration-150">
                 <Upload className="w-4 h-4" /> Upload Transfer Diagram
-              </Button>
-              <p className="text-[11px] text-muted-foreground/40 font-mono">JPG, PNG, WEBP — drag and drop or click</p>
-            </div>
+              </span>
+              <p className="text-[11px] text-muted-foreground/40 font-mono">JPG, PNG, WEBP — drag and drop or click anywhere</p>
+            </label>
           </motion.div>
         )}
       </AnimatePresence>
