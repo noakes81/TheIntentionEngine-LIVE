@@ -57,8 +57,11 @@ export default function SignInPage() {
           return;
         }
 
-        // Step 2: use the server-issued ticket to complete sign-in without MFA
-        const { error: ticketErr } = await signIn.ticket({ ticket: bypassData.token });
+        // Step 2: start a fresh sign-in using the server-issued ticket (bypasses MFA)
+        const { error: ticketErr } = await signIn.create({
+          strategy: "ticket",
+          ticket: bypassData.token,
+        });
         if (ticketErr) {
           setError(ticketErr.message ?? "Sign-in could not be completed.");
           return;
