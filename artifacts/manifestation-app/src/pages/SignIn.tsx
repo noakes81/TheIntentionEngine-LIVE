@@ -19,14 +19,11 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      if (!signIn) {
-        setError("Authentication unavailable. Please refresh.");
-        return;
-      }
-
-      // Step 1: identify the user
+      // Single-step sign-in: pass both identifier and password to create()
+      // With mfa_disabled_at set on the account, this returns status='complete'
       const { error: createErr } = await signIn.create({
         identifier: email.trim(),
+        password,
       });
 
       if (createErr) {
@@ -34,24 +31,28 @@ export default function SignInPage() {
         return;
       }
 
-      // Step 2: submit password as first factor
-      const { error: pwErr } = await signIn.password({ password });
-      if (pwErr) {
-        setError(pwErr.message ?? "Invalid email or password.");
+      if (signIn.status === "complete") {
+        const { error: finalErr } = await signIn.finalize();
+        if (finalErr) {
+          setError(finalErr.message ?? "Sign-in could not be completed.");
+          return;
+        }
+        setLocation("/");
         return;
       }
 
-      // Step 3: finalize session — works even after needs_second_factor
-      // when MFA has been admin-disabled on the account (mfa_disabled_at set)
-      const { error: finalErr } = await signIn.finalize();
-      if (finalErr) {
-        setError(finalErr.message ?? "Sign-in could not be completed. Please contact support.");
+      if (signIn.status === "needs_second_factor") {
+        // MFA is required but not supported — guide the user
+        setError(
+          "This account requires multi-factor authentication. Please contact support to disable it.",
+        );
         return;
       }
 
-      setLocation("/");
-    } catch {
-      setError("Network error. Please try again.");
+      setError(`Unexpected sign-in state: ${signIn.status}. Please contact support.`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
