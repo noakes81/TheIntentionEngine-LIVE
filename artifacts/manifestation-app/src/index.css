@@ -134,13 +134,13 @@
   --shadow-md: 0px 8px 16px 0px hsla(0, 0%, 0%, 0.6);
   --shadow-lg: 0px 16px 24px 0px hsla(0, 0%, 0%, 0.7);
 
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(270, 75%, 67%);
+  --sidebar-accent-border: hsl(228, 25%, 19%);
+  --primary-border: hsl(270, 75%, 67%);
+  --secondary-border: hsl(38, 85%, 61%);
+  --muted-border: hsl(228, 25%, 21%);
+  --accent-border: hsl(275, 55%, 37%);
+  --destructive-border: hsl(0, 65%, 51%);
 }
 
 .dark {
