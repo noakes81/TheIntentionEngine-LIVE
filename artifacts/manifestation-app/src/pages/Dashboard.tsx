@@ -232,6 +232,7 @@ export default function Dashboard() {
             <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/35">Active Transmission</span>
           </div>
           <ActiveOperationPanel
+            key={effectiveOperation.id}
             operation={effectiveOperation}
             cards={cards}
             onStatusChange={(status) => handleStatusChange(effectiveOperation.id, status)}
