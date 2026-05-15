@@ -4,10 +4,25 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+const CLERK_API = "https://api.clerk.com/v1";
+
 const signUpSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
 });
+
+async function clerkPost(path: string, body: unknown, secretKey: string) {
+  return fetch(`${CLERK_API}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
 
 router.post("/auth/signup", async (req, res) => {
   const parsed = signUpSchema.safeParse(req.body);
@@ -16,7 +31,7 @@ router.post("/auth/signup", async (req, res) => {
     return;
   }
 
-  const { email, password } = parsed.data;
+  const { email, password, firstName, lastName } = parsed.data;
   const secretKey = process.env.CLERK_SECRET_KEY;
 
   if (!secretKey) {
@@ -25,18 +40,14 @@ router.post("/auth/signup", async (req, res) => {
   }
 
   try {
-    const clerkRes = await fetch("https://api.clerk.com/v1/users", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email_address: [email],
-        password,
-        skip_password_checks: false,
-      }),
-    });
+    // Create user via Clerk admin API
+    const clerkRes = await clerkPost("/users", {
+      email_address: [email],
+      password,
+      first_name: firstName,
+      last_name: lastName,
+      skip_password_checks: false,
+    }, secretKey);
 
     const body = await clerkRes.json() as Record<string, unknown>;
 
@@ -45,6 +56,13 @@ router.post("/auth/signup", async (req, res) => {
       const message = errors?.[0]?.long_message ?? errors?.[0]?.message ?? "Registration failed";
       res.status(clerkRes.status).json({ error: message });
       return;
+    }
+
+    // Pre-verify the email so no OTP confirmation is needed at sign-in
+    const emailAddresses = body.email_addresses as Array<{ id: string }> | undefined;
+    const emailId = emailAddresses?.[0]?.id;
+    if (emailId) {
+      await clerkPost(`/email_addresses/${emailId}/verify`, { strategy: "admin" }, secretKey);
     }
 
     res.status(201).json({ id: body.id });
