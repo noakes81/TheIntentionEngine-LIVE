@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User, Shield } from "lucide-react";
+import { Activity, Compass, Database, FileText, Layers, PlayCircle, Hexagon, Palette, Upload, X, Check, Zap, LogOut, User, Shield, KeyRound } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Operation } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -308,33 +308,50 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           className="px-3 py-3 mt-auto"
           style={{ borderTop: "1px solid hsla(270,45%,15%,0.35)" }}
         >
-          <div className="flex items-center gap-2.5 rounded px-2 py-2"
-            style={{ background: "hsla(228,35%,7%,0.6)" }}>
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
-              style={{ border: "1px solid hsla(270,75%,45%,0.4)", background: "hsla(270,35%,12%,1)" }}
-            >
-              {user.imageUrl ? (
-                <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-3.5 h-3.5" style={{ color: "hsla(270,75%,65%,0.8)" }} />
-              )}
+          <div
+            className="rounded overflow-hidden"
+            style={{ background: "hsla(228,35%,7%,0.6)", border: "1px solid hsla(228,25%,12%,0.6)" }}
+          >
+            {/* User info row */}
+            <div className="flex items-center gap-2.5 px-2 py-2">
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
+                style={{ border: "1px solid hsla(270,75%,45%,0.4)", background: "hsla(270,35%,12%,1)" }}
+              >
+                {user.imageUrl ? (
+                  <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-3.5 h-3.5" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-mono text-white/60 truncate leading-tight">
+                  {user.primaryEmailAddress?.emailAddress ?? user.username ?? "Account"}
+                </p>
+                <p className="text-[10px] font-mono text-white/25 truncate leading-tight">Active</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void signOut().then(() => setLocation("/"))}
+                title="Sign out"
+                className="shrink-0 p-1 rounded transition-colors hover:text-red-400"
+                style={{ color: "hsla(228,10%,35%,1)" }}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-mono text-white/60 truncate leading-tight">
-                {user.primaryEmailAddress?.emailAddress ?? user.username ?? "Account"}
-              </p>
-              <p className="text-[10px] font-mono text-white/25 truncate leading-tight">Active</p>
+            {/* Change password link */}
+            <div style={{ borderTop: "1px solid hsla(228,25%,10%,1)" }}>
+              <Link
+                href="/account"
+                onClick={onClose}
+                className="flex items-center gap-2 px-2.5 py-1.5 w-full transition-colors hover:bg-white/4"
+                style={{ color: "hsla(270,45%,50%,0.7)" }}
+              >
+                <KeyRound className="w-3 h-3 shrink-0" />
+                <span className="text-[10px] font-mono uppercase tracking-widest">Change password</span>
+              </Link>
             </div>
-            <button
-              type="button"
-              onClick={() => void signOut().then(() => setLocation("/"))}
-              title="Sign out"
-              className="shrink-0 p-1 rounded transition-colors hover:text-red-400"
-              style={{ color: "hsla(228,10%,35%,1)" }}
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
           </div>
         </div>
       )}

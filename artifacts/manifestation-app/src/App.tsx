@@ -19,6 +19,7 @@ import Landing from "@/pages/Landing";
 import CustomSignUp from "@/pages/SignUp";
 import CustomSignIn from "@/pages/SignIn";
 import Admin from "@/pages/Admin";
+import Account from "@/pages/Account";
 import { PRESET_OPERATIONS, SYMBOLIC_CARDS_SEED } from "@/data/presets";
 
 const queryClient = new QueryClient();
@@ -149,6 +150,7 @@ function MainApp() {
           <Route path="/export" component={Export} />
           <Route path="/transfer-diagram" component={TransferDiagram} />
           <Route path="/barrage" component={Barrage} />
+          <Route path="/account" component={Account} />
         </Switch>
       </AppLayout>
     </AppInitializer>
@@ -244,6 +246,9 @@ function ClerkProviderWithRoutes() {
             </Route>
             <Route path="/admin">
               <ProtectedRoute component={Admin} />
+            </Route>
+            <Route path="/account">
+              <ProtectedRoute component={Account} />
             </Route>
           </Switch>
           <Toaster />
