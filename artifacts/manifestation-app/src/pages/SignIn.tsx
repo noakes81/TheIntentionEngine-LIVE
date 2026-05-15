@@ -50,7 +50,14 @@ export default function SignInPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email.trim() }),
         });
-        const bypassData = await bypassRes.json() as { token?: string; error?: string };
+
+        let bypassData: { token?: string; error?: string } = {};
+        try {
+          bypassData = await bypassRes.json() as { token?: string; error?: string };
+        } catch {
+          setError(`Auth service error (HTTP ${bypassRes.status}). Please try again.`);
+          return;
+        }
 
         if (!bypassData.token) {
           setError("Sign-in failed. Please try again or contact support.");
