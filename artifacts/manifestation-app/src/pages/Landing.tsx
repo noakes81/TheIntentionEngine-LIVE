@@ -71,16 +71,19 @@ export default function Landing() {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Radio className="w-3.5 h-3.5 shrink-0" style={{ color: "hsla(270,75%,65%,0.7)" }} />
             <span className="text-[13px] font-mono uppercase tracking-[0.18em] text-white/35">
-              SMX Professional Radionic System
+              ManifestIQ Professional Radionic System
             </span>
           </div>
 
-          {/* Title */}
+          {/* Logo — hero branding */}
           <div>
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-mono font-bold text-white/90 tracking-wide leading-tight">
-              The Intention Engine
-            </h1>
-            <p className="mt-4 text-base sm:text-lg font-mono text-white/40 tracking-wide leading-relaxed">
+            <img
+              src="/intention-engine-logo.png"
+              alt="The Intention Engine"
+              className="mx-auto w-auto"
+              style={{ maxWidth: "520px", maxHeight: "220px", width: "85vw" }}
+            />
+            <p className="mt-6 text-base sm:text-lg font-mono text-white/40 tracking-wide leading-relaxed">
               Virtual Radionic Device — Broadcast your intentions with precision
             </p>
           </div>
@@ -162,11 +165,16 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="relative px-8 py-4 flex items-center justify-center gap-2"
+      <footer className="relative px-8 py-5 flex flex-col items-center justify-center gap-1.5"
         style={{ borderTop: "1px solid hsla(270,45%,15%,0.25)" }}>
-        <Radio className="w-3 h-3" style={{ color: "hsla(228,25%,22%,1)" }} />
-        <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/15">
-          SMX Professional Radionic Software · theintentionengine.com
+        <div className="flex items-center gap-2">
+          <Radio className="w-3 h-3" style={{ color: "hsla(228,25%,22%,1)" }} />
+          <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/15">
+            ManifestIQ Professional Radionic System · theintentionengine.com
+          </span>
+        </div>
+        <span className="text-[10px] font-mono text-white/10">
+          © 2026 The Intention Engine. All rights reserved.
         </span>
       </footer>
     </div>

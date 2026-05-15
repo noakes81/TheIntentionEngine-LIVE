@@ -89,7 +89,7 @@ function LicenseScreen({
               transition={{ duration: 1.4, repeat: Infinity }}
             />
             <span className="text-[11px] font-mono uppercase tracking-[0.25em] text-white/25">
-              SMX Virtual Device — Activation Required
+              ManifestIQ Virtual Device — Activation Required
             </span>
           </div>
 
@@ -224,7 +224,7 @@ function LicenseScreen({
         <div className="flex items-center justify-center gap-2 mt-4">
           <Radio className="w-3 h-3" style={{ color: "hsla(228,25%,22%,1)" }} />
           <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/15">
-            SMX Professional Radionic Software
+            ManifestIQ Professional Radionic Software
           </span>
         </div>
       </motion.div>

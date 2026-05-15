@@ -391,7 +391,7 @@ export function ActiveOperationPanel({ operation, cards, onStatusChange, onTick 
           <span className="text-[12px] font-mono text-white/25">{operation.frequencyHz} Hz</span>
           <div className="flex items-center gap-1.5">
             <Radio className="w-3 h-3 text-white/20" />
-            <span className="text-[12px] font-mono text-white/20">SMX VIRTUAL DEVICE</span>
+            <span className="text-[12px] font-mono text-white/20">ManifestIQ VIRTUAL DEVICE</span>
           </div>
         </div>
       </div>
