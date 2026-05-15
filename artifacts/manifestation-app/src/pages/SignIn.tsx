@@ -74,7 +74,9 @@ export default function SignInPage() {
           return;
         }
 
-        if (signIn.status === "complete") {
+        // Cast to string — TS narrows signIn.status to "needs_second_factor" inside
+        // this block, but the ticket create() mutates it to "complete".
+        if ((signIn.status as string) === "complete") {
           const { error: finalErr } = await signIn.finalize();
           if (finalErr) {
             setError(finalErr.message ?? "Sign-in could not be finalized.");

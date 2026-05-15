@@ -146,22 +146,22 @@ export default function Dashboard() {
     <div className="space-y-5 animate-in fade-in duration-400">
 
       {/* Header bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-0.5">
+            <div className="hidden sm:flex items-center gap-2 mb-0.5">
               <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">The Intention Engine</span>
               <span className="text-[11px] font-mono text-white/15">—</span>
               <span className="text-[11px] font-mono uppercase tracking-widest text-white/20">Virtual Radionic Device</span>
             </div>
-            <h1 className="text-2xl font-mono font-bold text-white/90 tracking-wide">Control Panel</h1>
+            <h1 className="text-xl md:text-2xl font-mono font-bold text-white/90 tracking-wide">Control Panel</h1>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <ChiFieldIndicator active={activeOperation?.status === 'running'} frequencyHz={activeOperation?.frequencyHz} size="md" />
           <Link href="/builder">
             <button
-              className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-all"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 rounded text-sm font-mono transition-all"
               style={{
                 background: "linear-gradient(135deg, hsla(270,75%,38%,1), hsla(270,65%,28%,1))",
                 border: "1px solid hsla(270,75%,52%,0.5)",

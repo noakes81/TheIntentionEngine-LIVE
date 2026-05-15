@@ -301,15 +301,15 @@ export default function Operations() {
   return (
     <div className="animate-in fade-in duration-400 space-y-6 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">The Intention Engine</div>
-          <h1 className="text-2xl font-mono font-bold text-white/85">Radionic Operations</h1>
+          <div className="hidden sm:block text-[11px] font-mono uppercase tracking-[0.22em] text-white/25 mb-0.5">The Intention Engine</div>
+          <h1 className="text-xl md:text-2xl font-mono font-bold text-white/85">Radionic Operations</h1>
           <p className="text-xs font-mono text-white/30 mt-0.5">Manage your stored TREND/TARGET transmission configurations.</p>
         </div>
         <Link href="/builder">
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-all"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded text-sm font-mono transition-all"
             style={{
               background: "linear-gradient(135deg, hsla(270,75%,38%,1), hsla(270,65%,28%,1))",
               border: "1px solid hsla(270,75%,52%,0.5)",

@@ -1,6 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Menu } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type BgPreset = "dark" | "nebula" | "matrix" | "plasma" | "aurora" | "golden" | "custom";
 
@@ -78,6 +80,7 @@ export const BG_PRESETS: { id: BgPreset; label: string; swatch: string; style: R
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [bg] = useLocalStorage<BgSetting>("orgone_bg", { preset: "dark" });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeBg = BG_PRESETS.find(p => p.id === bg.preset) ?? BG_PRESETS[0];
   const bgStyle: React.CSSProperties =
@@ -95,7 +98,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       className="min-h-screen text-foreground flex"
       style={{ ...bgStyle, position: "relative" }}
     >
-      {/* Subtle dot-grid overlay — always on top of custom bg */}
+      {/* Subtle dot-grid overlay */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
@@ -108,13 +111,58 @@ export function AppLayout({ children }: { children: ReactNode }) {
         }}
       />
 
-      <Sidebar />
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-30 md:hidden"
+            style={{ background: "hsla(228,40%,2%,0.75)", backdropFilter: "blur(4px)" }}
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      <main className="flex-1 ml-64 min-h-screen relative z-10">
-        {/* Subtle top accent line */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent 0%, hsla(270,75%,58%,0.15) 30%, hsla(270,75%,58%,0.15) 70%, transparent 100%)" }} />
-        <div className="relative z-10 p-6 h-full">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <main className="flex-1 md:ml-64 min-h-screen relative z-10 flex flex-col">
+        {/* Mobile top bar */}
+        <div
+          className="md:hidden flex items-center justify-between px-4 py-3 shrink-0 sticky top-0 z-20"
+          style={{
+            background: "linear-gradient(180deg, hsl(228,40%,4%) 0%, hsl(228,40%,3%) 100%)",
+            borderBottom: "1px solid hsla(228,25%,11%,1)",
+            boxShadow: "0 2px 16px hsla(0,0%,0%,0.4)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded transition-colors"
+            style={{ color: "hsla(228,10%,45%,1)" }}
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <img
+            src="/intention-engine-logo.png"
+            alt="The Intention Engine"
+            className="h-9 w-auto object-contain"
+          />
+          <div className="w-9" />
+        </div>
+
+        {/* Desktop top accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px hidden md:block"
+          style={{ background: "linear-gradient(90deg, transparent 0%, hsla(270,75%,58%,0.15) 30%, hsla(270,75%,58%,0.15) 70%, transparent 100%)" }}
+        />
+
+        <div className="relative z-10 p-4 md:p-6 flex-1">
           {children}
         </div>
       </main>

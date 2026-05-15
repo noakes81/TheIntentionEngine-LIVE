@@ -7,7 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BG_PRESETS, BgSetting, BgPreset } from "./AppLayout";
 import { useClerk, useUser } from "@clerk/react";
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location, setLocation] = useLocation();
   const [operations] = useLocalStorage<Operation[]>("orgone_operations", []);
   const [bg, setBg] = useLocalStorage<BgSetting>("orgone_bg", { preset: "dark" });
@@ -43,7 +48,10 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-screen flex flex-col fixed left-0 top-0 z-20"
+    <aside
+      className={`w-64 h-screen flex flex-col fixed left-0 top-0 z-40 transition-transform duration-300 ease-out ${
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      } md:z-20`}
       style={{
         background: "linear-gradient(180deg, hsl(228,40%,4%) 0%, hsl(228,40%,3%) 100%)",
         borderRight: "1px solid hsla(228,25%,12%,1)",
@@ -51,15 +59,25 @@ export function Sidebar() {
       }}
     >
       {/* Logo / Brand */}
-      <div className="flex items-center justify-center px-3 py-2 shrink-0"
+      <div className="flex items-center justify-between px-3 py-2 shrink-0"
         style={{ borderBottom: "1px solid hsla(228,25%,11%,1)" }}
       >
         <img
           src="/intention-engine-logo.png"
           alt="The Intention Engine"
-          className="w-full h-auto object-contain"
-          style={{ maxHeight: "160px" }}
+          className="h-auto object-contain"
+          style={{ maxHeight: "140px", width: "calc(100% - 2rem)" }}
         />
+        {/* Close button — mobile only */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="md:hidden p-1.5 rounded shrink-0 transition-colors"
+          style={{ color: "hsla(228,10%,35%,1)" }}
+          aria-label="Close menu"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Transmission status */}
@@ -95,7 +113,8 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium transition-all duration-150 ${
+              onClick={onClose}
+              className={`flex items-center gap-2.5 px-3 py-2.5 md:py-2 rounded text-xs font-medium transition-all duration-150 ${
                 isActive
                   ? "text-primary"
                   : "text-white/35 hover:text-white/65 hover:bg-white/4"
@@ -106,7 +125,7 @@ export function Sidebar() {
                 boxShadow: "0 0 10px hsla(270,75%,58%,0.08)"
               } : { border: "1px solid transparent" }}
             >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
+              <Icon className="w-4 h-4 md:w-3.5 md:h-3.5 shrink-0" />
               <span className="tracking-wide">{item.label}</span>
               {isActive && (
                 <div className="ml-auto w-1 h-1 rounded-full bg-primary" />
@@ -119,7 +138,8 @@ export function Sidebar() {
         {isLoaded && isAdmin && (
           <Link
             href="/admin"
-            className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium transition-all duration-150 mt-1 ${
+            onClick={onClose}
+            className={`flex items-center gap-2.5 px-3 py-2.5 md:py-2 rounded text-xs font-medium transition-all duration-150 mt-1 ${
               location === "/admin"
                 ? "text-primary"
                 : "text-white/35 hover:text-white/65 hover:bg-white/4"
@@ -130,7 +150,7 @@ export function Sidebar() {
               boxShadow: "0 0 10px hsla(270,75%,58%,0.08)"
             } : { border: "1px solid transparent" }}
           >
-            <Shield className="w-3.5 h-3.5 shrink-0" />
+            <Shield className="w-4 h-4 md:w-3.5 md:h-3.5 shrink-0" />
             <span className="tracking-wide">Admin Panel</span>
             {location === "/admin" && <div className="ml-auto w-1 h-1 rounded-full bg-primary" />}
           </Link>

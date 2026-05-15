@@ -77,17 +77,15 @@ export default function Barrage() {
     <div className="animate-in fade-in duration-400 space-y-5 pb-20">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <Zap className="w-4 h-4" style={{ color: "hsla(270,75%,65%,0.8)" }} />
-            <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">Radionic Barrage</span>
-          </div>
-          <h1 className="text-2xl font-mono font-bold text-white/90 tracking-wide">Barrage Mode</h1>
-          <p className="text-sm font-mono text-white/30 mt-1">
-            Cycle through multiple operations automatically — each runs for a fixed interval then advances.
-          </p>
+      <div>
+        <div className="flex items-center gap-2 mb-0.5">
+          <Zap className="w-4 h-4" style={{ color: "hsla(270,75%,65%,0.8)" }} />
+          <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/25">Radionic Barrage</span>
         </div>
+        <h1 className="text-xl md:text-2xl font-mono font-bold text-white/90 tracking-wide">Barrage Mode</h1>
+        <p className="text-sm font-mono text-white/30 mt-1 hidden sm:block">
+          Cycle through multiple operations automatically — each runs for a fixed interval then advances.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-5 items-start">
