@@ -134,43 +134,53 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isSignedIn || seedAttempted) return;
-    seedAttempted = true;
 
-    // Seed or migrate operations
-    fetchUserData<unknown>("orgone_operations")
-      .then((existing) => {
-        if (existing !== null) return;
+    void (async () => {
+      // Operations are the critical guard — if this fetch throws (e.g. 401 before
+      // the auth token is ready), we bail without setting seedAttempted so the
+      // next page load can retry rather than overwriting real data with presets.
+      let existingOps: unknown;
+      try {
+        existingOps = await fetchUserData<unknown>("orgone_operations");
+      } catch {
+        return; // Auth not ready yet — do not seed, do not mark attempted
+      }
+
+      // Mark complete only after a successful auth+fetch so a transient 401 on
+      // first load can't accidentally overwrite saved operations with defaults.
+      seedAttempted = true;
+
+      if (existingOps === null) {
         const ls = localStorage.getItem("orgone_operations");
         const value = ls ? (JSON.parse(ls) as unknown) : PRESET_OPERATIONS;
-        return putUserData("orgone_operations", value).then(() => {
-          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_operations"] });
-        });
-      })
-      .catch(() => {});
+        await putUserData("orgone_operations", value).catch(() => {});
+        void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_operations"] });
+      }
 
-    // Seed or migrate cards
-    fetchUserData<unknown>("orgone_cards")
-      .then((existing) => {
-        if (existing !== null) return;
-        const ls = localStorage.getItem("orgone_cards");
-        const value = ls ? (JSON.parse(ls) as unknown) : SYMBOLIC_CARDS_SEED;
-        return putUserData("orgone_cards", value).then(() => {
-          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_cards"] });
-        });
-      })
-      .catch(() => {});
+      // Seed or migrate cards (non-critical — errors are benign)
+      fetchUserData<unknown>("orgone_cards")
+        .then((existing) => {
+          if (existing !== null) return;
+          const ls = localStorage.getItem("orgone_cards");
+          const value = ls ? (JSON.parse(ls) as unknown) : SYMBOLIC_CARDS_SEED;
+          return putUserData("orgone_cards", value).then(() => {
+            void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_cards"] });
+          });
+        })
+        .catch(() => {});
 
-    // Migrate transfer diagram only if localStorage has one
-    fetchUserData<unknown>("orgone_transfer_diagram")
-      .then((existing) => {
-        if (existing !== null) return;
-        const ls = localStorage.getItem("orgone_transfer_diagram");
-        if (!ls) return;
-        return putUserData("orgone_transfer_diagram", JSON.parse(ls) as unknown).then(() => {
-          void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_transfer_diagram"] });
-        });
-      })
-      .catch(() => {});
+      // Migrate transfer diagram only if localStorage has one
+      fetchUserData<unknown>("orgone_transfer_diagram")
+        .then((existing) => {
+          if (existing !== null) return;
+          const ls = localStorage.getItem("orgone_transfer_diagram");
+          if (!ls) return;
+          return putUserData("orgone_transfer_diagram", JSON.parse(ls) as unknown).then(() => {
+            void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_transfer_diagram"] });
+          });
+        })
+        .catch(() => {});
+    })();
   }, [isSignedIn, queryClient]);
 
   return <>{children}</>;

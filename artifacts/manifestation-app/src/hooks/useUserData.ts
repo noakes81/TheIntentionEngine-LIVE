@@ -6,7 +6,10 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export async function fetchUserData<T>(key: string): Promise<T | null> {
   const r = await fetch(`${BASE}/api/user-data/${encodeURIComponent(key)}`);
-  if (!r.ok) return null;
+  if (!r.ok) {
+    // Throw so callers can distinguish "no data" (null) from "auth/network error"
+    throw new Error(`Fetch failed (HTTP ${r.status})`);
+  }
   const json = await r.json() as { data: T | null };
   return json?.data ?? null;
 }
