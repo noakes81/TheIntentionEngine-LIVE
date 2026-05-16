@@ -2,6 +2,8 @@ import { Router, type IRouter, type Request, type Response, type NextFunction } 
 import { getAuth } from "@clerk/express";
 import { z } from "zod";
 import { logger } from "../lib/logger";
+import { db, userDataTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -143,6 +145,38 @@ router.delete("/admin/users/:userId", requireAdmin, async (req, res) => {
     res.json({ deleted: true });
   } catch (err) {
     req.log.error(err, "Admin delete user error");
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// TEMPORARY: copy all user-data rows from one account to another
+// Used once to merge two accounts that exist due to separate Clerk sessions.
+// Accepts X-Admin-Secret header as an alternative to Clerk session auth.
+router.post("/admin/sync-user-data", async (req: Request, res: Response): Promise<void> => {
+  const secret = req.headers["x-admin-secret"];
+  if (secret !== "SMX-ADMIN-A3E0DC333195C73107E46F455C6E4A57") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  const schema = z.object({ fromUserId: z.string(), toUserId: z.string() });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: "fromUserId and toUserId required" }); return; }
+  const { fromUserId, toUserId } = parsed.data;
+  try {
+    const rows = await db.select().from(userDataTable).where(eq(userDataTable.userId, fromUserId));
+    const results: string[] = [];
+    for (const row of rows) {
+      await db.insert(userDataTable)
+        .values({ userId: toUserId, key: row.key, data: row.data })
+        .onConflictDoUpdate({
+          target: [userDataTable.userId, userDataTable.key],
+          set: { data: row.data, updatedAt: new Date() },
+        });
+      results.push(row.key);
+    }
+    res.json({ ok: true, copiedKeys: results });
+  } catch (err) {
+    req.log.error(err, "sync-user-data error");
     res.status(500).json({ error: "Server error" });
   }
 });
