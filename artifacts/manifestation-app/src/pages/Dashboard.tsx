@@ -98,8 +98,15 @@ export default function Dashboard() {
     );
   };
 
+  // Persist elapsed time at most every 30 s — the display runs from local timer
+  // state so the UI stays smooth regardless. Using silent:true means a transient
+  // network hiccup (common on mobile) won't show an error toast to the user.
+  const lastTickSaveRef = useRef<number>(0);
   const handleTick = (id: string, elapsed: number) => {
-    setOperations(ops => ops.map(op => op.id === id ? { ...op, elapsedSeconds: elapsed } : op));
+    const now = Date.now();
+    if (now - lastTickSaveRef.current < 30_000) return;
+    lastTickSaveRef.current = now;
+    setOperations(ops => ops.map(op => op.id === id ? { ...op, elapsedSeconds: elapsed } : op), { silent: true });
   };
 
   const openPresetModal = (preset: PresetItem) => {

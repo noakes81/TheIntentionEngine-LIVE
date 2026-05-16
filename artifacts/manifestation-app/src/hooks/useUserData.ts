@@ -21,12 +21,18 @@ export async function putUserData<T>(key: string, data: T): Promise<void> {
     body: JSON.stringify({ data }),
   });
   if (!r.ok) {
-    const status = r.status;
-    throw new Error(`Save failed (HTTP ${status})`);
+    throw new Error(`Save failed (HTTP ${r.status})`);
   }
 }
 
-export function useUserData<T>(key: string, initialValue: T): readonly [T, (v: T | ((prev: T) => T)) => void] {
+export interface SetValueOptions {
+  /** When true, a failed save is dropped silently — no toast, no cache rollback.
+   *  Use for high-frequency background writes (e.g. timer ticks) where a transient
+   *  network error should not interrupt the user. */
+  silent?: boolean;
+}
+
+export function useUserData<T>(key: string, initialValue: T): readonly [T, (v: T | ((prev: T) => T), opts?: SetValueOptions) => void] {
   const queryClient = useQueryClient();
   const initialRef = useRef(initialValue);
 
@@ -40,7 +46,7 @@ export function useUserData<T>(key: string, initialValue: T): readonly [T, (v: T
   const value = (data !== null && data !== undefined) ? data : initialRef.current;
 
   const setValue = useCallback(
-    (v: T | ((prev: T) => T)) => {
+    (v: T | ((prev: T) => T), opts?: SetValueOptions) => {
       const cached = queryClient.getQueryData<T | null>(["user-data", key]);
       const current = (cached !== null && cached !== undefined) ? cached : initialRef.current;
       const next = v instanceof Function ? v(current) : v;
@@ -49,7 +55,9 @@ export function useUserData<T>(key: string, initialValue: T): readonly [T, (v: T
       queryClient.setQueryData(["user-data", key], next);
 
       putUserData(key, next).catch((err: unknown) => {
-        // Roll back to previous value
+        if (opts?.silent) return; // background save — drop silently
+
+        // Roll back to previous value and notify the user
         queryClient.setQueryData(["user-data", key], cached ?? initialRef.current);
 
         const isPayloadTooLarge = err instanceof Error && err.message.includes("413");
