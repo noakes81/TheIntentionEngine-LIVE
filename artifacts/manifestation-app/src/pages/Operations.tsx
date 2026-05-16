@@ -1,12 +1,24 @@
+import { useState } from "react";
 import { useUserData } from "@/hooks/useUserData";
 import { Operation } from "@/types";
 import { Play, Pause, Copy, Trash2, Clock, Sparkles, Target, Pencil, Plus } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Operations() {
   const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
   const [, navigate] = useLocation();
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const handleStatusChange = (id: string, newStatus: Operation["status"]) => {
     setOperations(ops =>
@@ -31,8 +43,13 @@ export default function Operations() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Delete this radionic operation?")) {
-      setOperations(ops => ops.filter(op => op.id !== id));
+    setPendingDeleteId(id);
+  };
+
+  const confirmDelete = () => {
+    if (pendingDeleteId) {
+      setOperations(ops => ops.filter(op => op.id !== pendingDeleteId));
+      setPendingDeleteId(null);
     }
   };
 
@@ -299,6 +316,7 @@ export default function Operations() {
   );
 
   return (
+    <>
     <div className="animate-in fade-in duration-400 space-y-6 pb-20">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -354,5 +372,36 @@ export default function Operations() {
         </div>
       )}
     </div>
+
+      <AlertDialog open={pendingDeleteId !== null} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+        <AlertDialogContent style={{
+          background: "linear-gradient(160deg, hsl(228,35%,8%), hsl(228,40%,5%))",
+          border: "1px solid hsla(0,60%,40%,0.35)",
+          fontFamily: "ui-monospace, 'Cascadia Code', monospace",
+        }}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-mono text-white/85">Delete operation?</AlertDialogTitle>
+            <AlertDialogDescription className="font-mono text-white/40">
+              This radionic operation will be permanently removed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="font-mono"
+              style={{ background: "hsla(228,25%,12%,1)", border: "1px solid hsla(228,25%,20%,0.8)", color: "rgba(255,255,255,0.55)" }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="font-mono"
+              style={{ background: "hsla(0,60%,35%,1)", border: "1px solid hsla(0,60%,50%,0.5)", color: "white" }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
