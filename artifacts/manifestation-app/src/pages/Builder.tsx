@@ -383,6 +383,7 @@ export default function Builder() {
   const [cardsLib] = useUserData<SymbolicCard[]>("orgone_cards", []);
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const editLoadedRef = useRef(false);
   const [sessionName, setSessionName] = useState("");
   const [frequencyHz, setFrequencyHz] = useState(7.83);
   const [duration, setDuration] = useState("30");
@@ -397,8 +398,14 @@ export default function Builder() {
     const params = new URLSearchParams(search);
     const editId = params.get("edit");
     if (!editId) return;
+    // Once we've successfully loaded the op into the form, don't reload it
+    // even if the operations cache updates — that would overwrite the user's
+    // in-progress edits. Also prevents a false bail when the cache hasn't
+    // populated yet on first mount.
+    if (editLoadedRef.current) return;
     const op = operations.find(o => o.id === editId);
-    if (!op) return;
+    if (!op) return; // cache not ready yet — will retry when operations updates
+    editLoadedRef.current = true;
     setEditingId(editId);
     setSessionName(op.name);
     setFrequencyHz(op.frequencyHz);
@@ -437,8 +444,10 @@ export default function Builder() {
       setSubPositions(positions);
     }
     setActiveIdx(0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  // operations is intentionally included so the effect retries if the cache
+  // wasn't populated on first mount (e.g. right after duplicating).
+  // editLoadedRef guards against re-running once the form is populated.
+  }, [search, operations]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const uploadingSlot = useRef<number>(-1);

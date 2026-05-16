@@ -63,7 +63,7 @@ export default function Operations() {
       createdAt: new Date().toISOString(),
       lastRunAt: undefined
     };
-    setOperations([duplicated, ...operations]);
+    setOperations(ops => [duplicated, ...ops]);
   };
 
   const byNewest = (a: Operation, b: Operation) =>
