@@ -60,12 +60,12 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <main className="relative flex-1 flex flex-col items-center justify-center text-center px-6 py-10 sm:py-20 max-w-4xl mx-auto w-full">
+      <main className="relative flex-1 flex flex-col items-center justify-center text-center px-6 py-4 sm:py-8 max-w-4xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="space-y-8"
+          className="space-y-5 sm:space-y-6"
         >
           {/* Badge */}
           <div className="flex items-center justify-center gap-2">
@@ -76,20 +76,20 @@ export default function Landing() {
           </div>
 
           {/* Logo — hero branding */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <img
               src="/intention-engine-logo.png"
               alt="The Intention Engine"
               className="mx-auto w-full"
               style={{
-                maxWidth: "680px",
+                maxWidth: "640px",
                 height: "auto",
-                maxHeight: "clamp(200px, 28vw, 340px)",
+                maxHeight: "clamp(160px, 22vw, 280px)",
                 objectFit: "contain",
               }}
             />
             <p
-              className="text-base sm:text-xl text-white/45 tracking-wide leading-relaxed"
+              className="text-sm sm:text-base text-white/45 tracking-wide leading-relaxed"
               style={{ fontFamily: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace" }}
             >
               Virtual Radionic Device — Broadcast your intentions with precision
