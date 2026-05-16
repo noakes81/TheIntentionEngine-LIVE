@@ -216,6 +216,29 @@ export default function AccountPage() {
         </form>
       </div>
 
+      {/* Session diagnostics */}
+      <div
+        className="rounded-md mt-5 px-4 py-3 space-y-1.5"
+        style={{
+          border: "1px solid hsla(228,25%,14%,1)",
+          background: "hsla(228,35%,6%,0.6)",
+        }}
+      >
+        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/20">Session info</p>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[11px] font-mono text-white/25">User ID</span>
+          <span className="text-[11px] font-mono text-white/45 break-all text-right select-all">
+            {user?.id ?? "—"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[11px] font-mono text-white/25">Email</span>
+          <span className="text-[11px] font-mono text-white/45 text-right">
+            {user?.primaryEmailAddress?.emailAddress ?? "—"}
+          </span>
+        </div>
+      </div>
+
       {/* Footer */}
       <div className="flex items-center justify-center gap-2 mt-6">
         <Radio className="w-3 h-3" style={{ color: "hsla(270,45%,28%,0.5)" }} />
