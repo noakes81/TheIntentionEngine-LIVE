@@ -1,0 +1,8 @@
+[build]
+  command = "pnpm --filter @workspace/manifestation-app run build"
+  publish = "artifacts/manifestation-app/dist/public"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
