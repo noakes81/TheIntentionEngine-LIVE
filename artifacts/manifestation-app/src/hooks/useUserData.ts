@@ -2,12 +2,35 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
+function storageKey(key: string) {
+  return key;
+}
+
+function readLocalUserData<T>(key: string): T | null {
+  const raw = localStorage.getItem(storageKey(key));
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalUserData<T>(key: string, data: T): void {
+  localStorage.setItem(storageKey(key), JSON.stringify(data));
+}
 
 export async function fetchUserData<T>(key: string): Promise<T | null> {
-  const r = await fetch(`${BASE}/api/user-data/${encodeURIComponent(key)}`);
+  if (!API_BASE) {
+    return readLocalUserData<T>(key);
+  }
+
+  const r = await fetch(`${API_BASE}/api/user-data/${encodeURIComponent(key)}`, {
+    credentials: "include",
+  });
   if (!r.ok) {
-    // Throw so callers can distinguish "no data" (null) from "auth/network error"
     throw new Error(`Fetch failed (HTTP ${r.status})`);
   }
   const json = await r.json() as { data: T | null };
@@ -15,9 +38,15 @@ export async function fetchUserData<T>(key: string): Promise<T | null> {
 }
 
 export async function putUserData<T>(key: string, data: T): Promise<void> {
-  const r = await fetch(`${BASE}/api/user-data/${encodeURIComponent(key)}`, {
+  if (!API_BASE) {
+    writeLocalUserData(key, data);
+    return;
+  }
+
+  const r = await fetch(`${API_BASE}/api/user-data/${encodeURIComponent(key)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ data }),
   });
   if (!r.ok) {
@@ -26,7 +55,7 @@ export async function putUserData<T>(key: string, data: T): Promise<void> {
 }
 
 export interface SetValueOptions {
-  /** When true, a failed save is dropped silently — no toast, no cache rollback.
+  /** When true, a failed save is dropped silently - no toast, no cache rollback.
    *  Use for high-frequency background writes (e.g. timer ticks) where a transient
    *  network error should not interrupt the user. */
   silent?: boolean;
@@ -51,13 +80,11 @@ export function useUserData<T>(key: string, initialValue: T): readonly [T, (v: T
       const current = (cached !== null && cached !== undefined) ? cached : initialRef.current;
       const next = v instanceof Function ? v(current) : v;
 
-      // Optimistic update
       queryClient.setQueryData(["user-data", key], next);
 
       putUserData(key, next).catch((err: unknown) => {
-        if (opts?.silent) return; // background save — drop silently
+        if (opts?.silent) return;
 
-        // Roll back to previous value and notify the user
         queryClient.setQueryData(["user-data", key], cached ?? initialRef.current);
 
         const isPayloadTooLarge = err instanceof Error && err.message.includes("413");
