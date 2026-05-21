@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { ClerkProvider, Show, useClerk, useUser } from "@clerk/react";
-import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -27,12 +26,7 @@ const queryClient = new QueryClient();
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
-
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
@@ -136,18 +130,13 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
     if (!isSignedIn || seedAttempted) return;
 
     void (async () => {
-      // Operations are the critical guard — if this fetch throws (e.g. 401 before
-      // the auth token is ready), we bail without setting seedAttempted so the
-      // next page load can retry rather than overwriting real data with presets.
       let existingOps: unknown;
       try {
         existingOps = await fetchUserData<unknown>("orgone_operations");
       } catch {
-        return; // Auth not ready yet — do not seed, do not mark attempted
+        return;
       }
 
-      // Mark complete only after a successful auth+fetch so a transient 401 on
-      // first load can't accidentally overwrite saved operations with defaults.
       seedAttempted = true;
 
       if (existingOps === null) {
@@ -157,7 +146,6 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
         void queryClient.invalidateQueries({ queryKey: ["user-data", "orgone_operations"] });
       }
 
-      // Seed or migrate cards (non-critical — errors are benign)
       fetchUserData<unknown>("orgone_cards")
         .then((existing) => {
           if (existing !== null) return;
@@ -169,7 +157,6 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
         })
         .catch(() => {});
 
-      // Migrate transfer diagram only if localStorage has one
       fetchUserData<unknown>("orgone_transfer_diagram")
         .then((existing) => {
           if (existing !== null) return;
@@ -192,6 +179,7 @@ function MainApp() {
       <AppLayout>
         <Switch>
           <Route path="/" component={Dashboard} />
+          <Route path="/dashboard" component={Dashboard} />
           <Route path="/builder" component={Builder} />
           <Route path="/sequencer" component={Sequencer} />
           <Route path="/cards" component={Cards} />
@@ -225,7 +213,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
           </AppLayout>
         </AppInitializer>
       </Show>
-      <Show when="signed-out"><Redirect to="/" /></Show>
+      <Show when="signed-out"><Redirect to="/sign-in" /></Show>
     </>
   );
 }
@@ -244,7 +232,6 @@ function ClerkProviderWithRoutes() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
@@ -272,6 +259,9 @@ function ClerkProviderWithRoutes() {
             <Route path="/" component={HomeRoute} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
+            <Route path="/dashboard">
+              <ProtectedRoute component={Dashboard} />
+            </Route>
             <Route path="/builder">
               <ProtectedRoute component={Builder} />
             </Route>
