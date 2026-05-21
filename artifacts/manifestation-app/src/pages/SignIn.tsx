@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useClerk, useSignIn } from "@clerk/react";
+import { useSignIn } from "@clerk/react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Radio, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -11,42 +11,41 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
-  const { isLoaded, signIn } = useSignIn();
-  const { setActive } = useClerk();
+  const { isLoaded, signIn, setActive } = useSignIn();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!isLoaded || !signIn || !setActive) {
+      setError("Authentication is still loading. Please wait a moment and try again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      if (!isLoaded || !signIn) {
-        setError("Authentication is still loading. Please try again.");
-        return;
-      }
-
       const result = await signIn.create({
         identifier: email.trim(),
         password,
       });
-      const activeSignIn = result ?? signIn;
 
-      if (activeSignIn.status === "complete") {
-        if (!activeSignIn.createdSessionId) {
+      if (result.status === "complete") {
+        if (!result.createdSessionId) {
           setError("Sign-in completed, but no session was returned.");
           return;
         }
-        await setActive({ session: activeSignIn.createdSessionId });
+        await setActive({ session: result.createdSessionId });
         setLocation("/dashboard", { replace: true });
         return;
       }
 
-      if (activeSignIn.status === "needs_second_factor") {
+      if (result.status === "needs_second_factor") {
         setError("This account requires multi-factor authentication. Please use a Clerk-supported sign-in flow.");
         return;
       }
 
-      setError(`Unexpected sign-in state: ${activeSignIn.status}. Please contact support.`);
+      setError(`Unexpected sign-in state: ${result.status}. Please contact support.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || "Network error. Please try again.");
@@ -157,7 +156,7 @@ export default function SignInPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isLoaded}
               className="w-full rounded py-2.5 text-[13px] font-mono font-semibold tracking-wide transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
               style={{
                 background: "linear-gradient(135deg, hsla(270,75%,42%,1), hsla(270,65%,32%,1))",
@@ -166,8 +165,8 @@ export default function SignInPage() {
                 boxShadow: "0 0 18px hsla(270,75%,58%,0.25)",
               }}
             >
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {loading ? "Signing in..." : "Sign in"}
+              {(loading || !isLoaded) && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {!isLoaded ? "Loading auth..." : loading ? "Signing in..." : "Sign in"}
             </button>
 
             <div className="flex items-center gap-3 pt-1">
