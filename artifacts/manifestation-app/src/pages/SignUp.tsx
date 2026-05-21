@@ -4,6 +4,8 @@ import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Radio, Eye, EyeOff, Loader2 } from "lucide-react";
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,10 +32,15 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
-      // Create account via backend (Clerk admin API — no verification email)
-      const res = await fetch("/api/auth/signup", {
+      if (!API_BASE) {
+        setError("Account creation is not configured for this deployment. Please contact support.");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json() as { error?: string };
@@ -43,23 +50,17 @@ export default function SignUpPage() {
         return;
       }
 
-      // Account created — sign in immediately using the new Clerk signals API
       if (!signIn) {
         setLocation("/sign-in");
         return;
       }
 
-      const { error: createErr } = await signIn.create({ identifier: email, password });
-      if (createErr) {
-        setError(createErr.message ?? "Sign-in failed after registration.");
-        return;
-      }
+      const result = await signIn.create({ identifier: email, password });
 
-      if (signIn.status === "complete") {
-        await setActive({ session: signIn.createdSessionId });
-        setLocation("/");
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        setLocation("/dashboard", { replace: true });
       } else {
-        // Multi-factor or other step — fall back to sign-in page
         setLocation("/sign-in");
       }
     } catch {
@@ -74,7 +75,6 @@ export default function SignUpPage() {
       className="flex min-h-[100dvh] items-center justify-center px-4 py-8"
       style={{ background: "linear-gradient(160deg, hsl(228,35%,5%), hsl(228,40%,3%))" }}
     >
-      {/* Ambient glow */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -89,7 +89,6 @@ export default function SignUpPage() {
         transition={{ duration: 0.45 }}
         className="relative w-full max-w-[420px]"
       >
-        {/* Card */}
         <div
           className="rounded-md overflow-hidden"
           style={{
@@ -98,7 +97,6 @@ export default function SignUpPage() {
             boxShadow: "0 0 40px hsla(270,75%,30%,0.15), 0 8px 40px hsla(0,0%,0%,0.5)",
           }}
         >
-          {/* Header */}
           <div className="px-8 pt-8 pb-5 text-center">
             <div className="flex justify-center mb-4">
               <img src="/logo.svg" alt="The Intention Engine" className="h-10 w-auto" />
@@ -111,9 +109,7 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-4">
-            {/* Error */}
             {error && (
               <div
                 className="rounded px-3 py-2.5 text-[12px] font-mono text-red-400/90"
@@ -126,7 +122,6 @@ export default function SignUpPage() {
               </div>
             )}
 
-            {/* Email */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-mono uppercase tracking-widest text-white/40">
                 Email address
@@ -146,7 +141,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-mono uppercase tracking-widest text-white/40">
                 Password
@@ -176,7 +170,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* Confirm password */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-mono uppercase tracking-widest text-white/40">
                 Confirm password
@@ -196,7 +189,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -209,10 +201,9 @@ export default function SignUpPage() {
               }}
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {loading ? "Creating account…" : "Create account"}
+              {loading ? "Creating account..." : "Create account"}
             </button>
 
-            {/* Divider + sign-in link */}
             <div className="flex items-center gap-3 pt-1">
               <div className="flex-1 h-px" style={{ background: "hsla(270,45%,20%,0.4)" }} />
               <span className="text-[11px] font-mono text-white/20">or</span>
@@ -228,7 +219,6 @@ export default function SignUpPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-center gap-2 mt-5">
           <Radio className="w-3 h-3" style={{ color: "hsla(270,45%,28%,0.6)" }} />
           <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/15">
