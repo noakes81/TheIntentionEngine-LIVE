@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignIn } from "@clerk/react";
+import { useClerk, useSignIn } from "@clerk/react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Radio, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -11,7 +11,8 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
-  const { signIn } = useSignIn();
+  const { isLoaded, signIn } = useSignIn();
+  const { setActive } = useClerk();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,78 +20,33 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      // Step 1: submit credentials — Clerk verifies the password
-      const { error: createErr } = await signIn.create({
+      if (!isLoaded || !signIn) {
+        setError("Authentication is still loading. Please try again.");
+        return;
+      }
+
+      const result = await signIn.create({
         identifier: email.trim(),
         password,
       });
+      const activeSignIn = result ?? signIn;
 
-      if (createErr) {
-        setError(createErr.message ?? "Invalid email or password.");
+      if (activeSignIn.status === "complete") {
+        if (!activeSignIn.createdSessionId) {
+          setError("Sign-in completed, but no session was returned.");
+          return;
+        }
+        await setActive({ session: activeSignIn.createdSessionId });
+        setLocation("/dashboard", { replace: true });
         return;
       }
 
-      if (signIn.status === "complete") {
-        // Normal path — no MFA required
-        const { error: finalErr } = await signIn.finalize();
-        if (finalErr) {
-          setError(finalErr.message ?? "Sign-in could not be completed.");
-          return;
-        }
-        setLocation("/");
+      if (activeSignIn.status === "needs_second_factor") {
+        setError("This account requires multi-factor authentication. Please use a Clerk-supported sign-in flow.");
         return;
       }
 
-      if (signIn.status === "needs_second_factor") {
-        // Password was correct, but the Clerk instance requires MFA.
-        // Since Replit-managed Clerk doesn't support MFA, use a backend-issued
-        // sign-in token to bypass it.
-        const bypassRes = await fetch("/api/auth/mfa-bypass", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email.trim() }),
-        });
-
-        let bypassData: { token?: string; error?: string } = {};
-        try {
-          bypassData = await bypassRes.json() as { token?: string; error?: string };
-        } catch {
-          setError(`Auth service error (HTTP ${bypassRes.status}). Please try again.`);
-          return;
-        }
-
-        if (!bypassData.token) {
-          setError("Sign-in failed. Please try again or contact support.");
-          return;
-        }
-
-        // Step 2: start a fresh sign-in using the server-issued ticket (bypasses MFA)
-        const { error: ticketErr } = await signIn.create({
-          strategy: "ticket",
-          ticket: bypassData.token,
-        });
-        if (ticketErr) {
-          setError(ticketErr.message ?? "Sign-in could not be completed.");
-          return;
-        }
-
-        // Cast to string — TS narrows signIn.status to "needs_second_factor" inside
-        // this block, but the ticket create() mutates it to "complete".
-        if ((signIn.status as string) === "complete") {
-          const { error: finalErr } = await signIn.finalize();
-          if (finalErr) {
-            setError(finalErr.message ?? "Sign-in could not be finalized.");
-            return;
-          }
-          setLocation("/");
-          return;
-        }
-
-        setError(`Unexpected state after ticket: ${signIn.status}.`);
-        return;
-      }
-
-      setError(`Unexpected sign-in state: ${signIn.status}. Please contact support.`);
+      setError(`Unexpected sign-in state: ${activeSignIn.status}. Please contact support.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || "Network error. Please try again.");
@@ -211,7 +167,7 @@ export default function SignInPage() {
               }}
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
 
             <div className="flex items-center gap-3 pt-1">
