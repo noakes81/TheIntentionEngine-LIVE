@@ -201,26 +201,24 @@ function MainApp() {
 }
 
 function HomeRoute() {
-  return (
-    <>
-      <Show when="signed-in"><MainApp /></Show>
-      <Show when="signed-out"><Landing /></Show>
-    </>
-  );
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) return <Landing />;
+  return isSignedIn ? <MainApp /> : <Landing />;
 }
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) return null;
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+
   return (
-    <>
-      <Show when="signed-in">
-        <AppInitializer>
-          <AppLayout>
-            <Component />
-          </AppLayout>
-        </AppInitializer>
-      </Show>
-      <Show when="signed-out"><Redirect to="/sign-in" /></Show>
-    </>
+    <AppInitializer>
+      <AppLayout>
+        <Component />
+      </AppLayout>
+    </AppInitializer>
   );
 }
 
