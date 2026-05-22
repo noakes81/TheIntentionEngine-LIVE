@@ -1,20 +1,115 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useUserData } from "@/hooks/useUserData";
 import { Operation, SymbolicCard } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Copy } from "lucide-react";
+import { Printer, Copy, Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+type IntentionEngineBackup = {
+  appName: "The Intention Engine";
+  appVersion: string;
+  exportedAt: string;
+  orgone_operations: Operation[];
+  orgone_cards: SymbolicCard[];
+  orgone_transfer_diagram: unknown;
+};
+
+const BACKUP_VERSION = "local-backup-v1";
+
+function safeLocalStorageSet(key: string, value: unknown) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function isBackupFile(value: unknown): value is IntentionEngineBackup {
+  if (!value || typeof value !== "object") return false;
+  const backup = value as Partial<IntentionEngineBackup>;
+  return (
+    backup.appName === "The Intention Engine" &&
+    Array.isArray(backup.orgone_operations) &&
+    Array.isArray(backup.orgone_cards) &&
+    "orgone_transfer_diagram" in backup
+  );
+}
 
 export default function Export() {
   const { toast } = useToast();
-  const [operations] = useUserData<Operation[]>("orgone_operations", []);
-  const [cards] = useUserData<SymbolicCard[]>("orgone_cards", []);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [operations, setOperations] = useUserData<Operation[]>("orgone_operations", []);
+  const [cards, setCards] = useUserData<SymbolicCard[]>("orgone_cards", []);
+  const [transferDiagram, setTransferDiagram] = useUserData<unknown>("orgone_transfer_diagram", null);
   const [selectedId, setSelectedId] = useState<string>("");
 
   const selectedOp = operations.find(op => op.id === selectedId);
   const opCards = selectedOp ? cards.filter(c => selectedOp.cards.includes(c.id)) : [];
+
+  const handleBackupExport = () => {
+    const backup: IntentionEngineBackup = {
+      appName: "The Intention Engine",
+      appVersion: BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      orgone_operations: operations,
+      orgone_cards: cards,
+      orgone_transfer_diagram: transferDiagram,
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `intention-engine-backup-${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Backup exported",
+      description: "Your operations, cards, and transfer diagram were saved to a JSON file.",
+    });
+  };
+
+  const handleBackupImport = async (file: File | undefined) => {
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text()) as unknown;
+
+      if (!isBackupFile(parsed)) {
+        toast({
+          title: "Invalid backup file",
+          description: "This file does not look like an Intention Engine backup.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      safeLocalStorageSet("orgone_operations", parsed.orgone_operations);
+      safeLocalStorageSet("orgone_cards", parsed.orgone_cards);
+      safeLocalStorageSet("orgone_transfer_diagram", parsed.orgone_transfer_diagram);
+
+      setOperations(parsed.orgone_operations);
+      setCards(parsed.orgone_cards);
+      setTransferDiagram(parsed.orgone_transfer_diagram);
+
+      toast({
+        title: "Backup restored",
+        description: "Your operations, cards, and transfer diagram were restored.",
+      });
+    } catch {
+      toast({
+        title: "Invalid backup file",
+        description: "The selected file could not be read as a valid JSON backup.",
+        variant: "destructive",
+      });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const handlePrint = () => {
     window.print();
@@ -59,7 +154,33 @@ ${selectedOp.notes || ''}
         <p className="text-muted-foreground mt-2">Generate printable records of your energetic operations.</p>
       </header>
 
-      <div className="print:hidden bg-background/50 border border-border/50 p-4 rounded-xl flex items-center gap-4">
+      <Card className="print:hidden glass-card p-4 border-primary/20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-xl text-primary">Local Backup</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Export or restore operations, cards, and transfer diagram without a backend.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={handleBackupExport} className="gap-2">
+              <Download className="w-4 h-4" /> Export Backup
+            </Button>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="gap-2">
+              <Upload className="w-4 h-4" /> Import Backup
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => void handleBackupImport(event.target.files?.[0])}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <div className="print:hidden bg-background/50 border border-border/50 p-4 rounded-xl flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
           <Select value={selectedId} onValueChange={setSelectedId}>
             <SelectTrigger className="w-full bg-background border-primary/20">
@@ -105,7 +226,7 @@ ${selectedOp.notes || ''}
               </p>
             </section>
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <section>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-100 pb-1">Target / Witness</h3>
                 {selectedOp.target.photo && (
@@ -171,7 +292,7 @@ ${selectedOp.notes || ''}
             {opCards.length > 0 && (
               <section>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-1">Archetypes / Symbols</h3>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {opCards.map(card => (
                     <div key={card.id} className="text-center border border-gray-200 rounded-lg p-4 bg-gray-50/50">
                       <div className="text-3xl mb-2 text-gray-800">{card.symbol}</div>
